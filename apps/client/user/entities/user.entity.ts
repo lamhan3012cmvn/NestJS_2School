@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 export type UserEntity = User & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
   @Prop({ default: '' })
   firstName: string;

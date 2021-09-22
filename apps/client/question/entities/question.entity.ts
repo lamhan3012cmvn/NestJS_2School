@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 
 export type QuestionEntity = Question & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Question extends CreateBy {
   @Prop({ default: '' })
   name: string;
@@ -12,9 +12,6 @@ export class Question extends CreateBy {
   description: string;
   @Prop({ default: '' })
   usedTimes: string;
-
-  // @Prop({ RegExp: /^[A-Fa-f0-9]{24}$/ })
-  // createdBy: string;
 }
 
 export const QuestionSchema = SchemaFactory.createForClass(Question);

@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 export type DeviceEntity = Device & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Device {
   @Prop({ default: '' })
   appVersion: string;
@@ -11,7 +11,7 @@ export class Device {
   deviceModel: string;
   @Prop({ default: '' })
   deviceUUid: string;
-  @Prop()
+  @Prop({ required: true })
   fcmToken: string;
   @Prop({ default: 0 })
   status: number;

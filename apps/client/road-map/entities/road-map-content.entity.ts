@@ -5,7 +5,7 @@ import { Document } from 'mongoose';
 
 export type RoadMapContentEntity = RoadMapContent & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class RoadMapContent extends CreateBy {
   @Prop({ default: '' })
   name: string;

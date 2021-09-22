@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 
 export type RoadMapEntity = RoadMap & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class RoadMap extends CreateBy {
   @Prop({ default: '' })
   name: string;

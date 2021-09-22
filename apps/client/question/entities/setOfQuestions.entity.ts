@@ -3,10 +3,10 @@ import { CreateBy } from 'apps/share/mongodb/createBy.entity';
 import { regexpObjectId } from 'apps/share/mongodb/RegExp';
 import { Document } from 'mongoose';
 
-export type QuestionEntity = Question & Document;
+export type SetOfQuestionEntity = SetOfQuestion & Document;
 
-@Schema()
-export class Question extends CreateBy {
+@Schema({ timestamps: true })
+export class SetOfQuestion extends CreateBy {
   @Prop({ default: '' })
   question: string;
   @Prop({ default: [] })
@@ -19,4 +19,4 @@ export class Question extends CreateBy {
   idSetOfQuestions: number;
 }
 
-export const QuestionSchema = SchemaFactory.createForClass(Question);
+export const SetOfQuestionSchema = SchemaFactory.createForClass(SetOfQuestion);

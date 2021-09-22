@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 export type AuthenticationEntity = Authentication & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Authentication {
   @Prop({ required: true })
   username: string;
