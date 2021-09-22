@@ -8,6 +8,6 @@ module.exports = {
       ignore_watch: ['node_modules', 'logs'],
       // out_file: './logs/client/out.log',
       // log_file: './logs//client/combined.log',
-    }
+    },
   ],
 };
