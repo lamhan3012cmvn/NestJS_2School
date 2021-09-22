@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { CreateBy } from 'apps/share/mongodb/CreateBy.entity';
+import { CreateBy } from 'apps/share/mongodb/createBy.entity';
 import { Document } from 'mongoose';
 
 export type QuestionEntity = Question & Document;
