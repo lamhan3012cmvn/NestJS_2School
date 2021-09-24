@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type AuthenticationEntity = Authentication & Document;
+export type AuthEntity = Auth & Document;
 
 @Schema({ timestamps: true })
-export class Authentication {
+export class Auth {
   @Prop({ required: true })
   username: string;
   @Prop({ required: true })
@@ -13,5 +13,10 @@ export class Authentication {
   verify: boolean;
 }
 
-export const AuthenticationSchema =
-  SchemaFactory.createForClass(Authentication);
+export const AuthSchema = SchemaFactory.createForClass(Auth);
+
+export interface IAuth {
+  id: string;
+  username: string;
+  password: string;
+}

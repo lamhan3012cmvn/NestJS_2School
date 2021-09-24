@@ -5,7 +5,7 @@ import { QuestionModule } from '../question/question.module';
 import { RoadMapModule } from '../road-map/road-map.module';
 import { DeviceModule } from '../device/device.module';
 import { ClassModule } from '../class/class.module';
-import { AuthenticationModule } from '../authentication/authentication.module';
+import { AuthModule } from '../authentication/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { setupMongoDb } from 'apps/share/mongodb/setup';
 
@@ -18,7 +18,7 @@ import { setupMongoDb } from 'apps/share/mongodb/setup';
     RoadMapModule,
     DeviceModule,
     ClassModule,
-    AuthenticationModule,
+    AuthModule,
   ],
   controllers: [],
 })

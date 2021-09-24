@@ -13,8 +13,8 @@ export class RoadMapContent extends CreateBy {
   description: string;
   @Prop({ default: 0 })
   type: 0 | 1 | 2 | 3;
-  @Prop({ required: true })
-  data: any;
+  @Prop({ required: true, type: [String] })
+  data: string;
   @Prop({ required: true, RegExp: regexpObjectId })
   idRoadMap: string;
 }
