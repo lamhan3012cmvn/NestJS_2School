@@ -10,7 +10,7 @@ workflows:
       - node/test:
           version: '16.10'
           # If you are using yarn, change the line below from "npm" to "yarn"
-          pkg-manager: npm
+          pkg-manager: yarn
           #
           # This is the node version to use for the `cimg/node` tag
           # Relevant tags can be found on the CircleCI Developer Hub
