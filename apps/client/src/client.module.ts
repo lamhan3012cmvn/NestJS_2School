@@ -8,6 +8,7 @@ import { ClassModule } from '../class/class.module';
 import { AuthModule } from '../authentication/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { setupMongoDb } from 'apps/share/mongodb/setup';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { setupMongoDb } from 'apps/share/mongodb/setup';
     DeviceModule,
     ClassModule,
     AuthModule,
+    UserModule,
   ],
   controllers: [],
 })

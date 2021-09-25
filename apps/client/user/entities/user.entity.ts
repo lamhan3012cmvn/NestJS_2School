@@ -26,3 +26,16 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+export interface ISchemaUser {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  displayName?: string;
+  intro?: string;
+  image?: string;
+  blurHash?: string;
+  phone?: string;
+  status?: number;
+  createdBy?: string;
+}

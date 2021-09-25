@@ -39,3 +39,12 @@ export class Ok {
   public Success: boolean;
   public Data: any;
 }
+
+export abstract class BaseController {
+  resApi(data: any, mess = '') {
+    if (data) {
+      return new Ok(mess, data);
+    }
+    return new ApiBaseResponse(404);
+  }
+}
