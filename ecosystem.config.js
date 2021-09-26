@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'Client',
-      script: 'nest start client --watch',
+      script: 'node ./dist/apps/client/main.js',
       // watch: true,
       // watch_delay: 1000,
       ignore_watch: ['node_modules', 'logs'],

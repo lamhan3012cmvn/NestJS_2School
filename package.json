@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "./scripts/build.sh",
+    "build": "nest build client && cp -r .env ./dist",
     "format": "prettier --write \"apps/**/*.ts\"",
     "start": "nest start",
     "dev": "nest start client --watch",
