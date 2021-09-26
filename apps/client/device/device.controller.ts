@@ -1,3 +1,4 @@
+import { HttpExceptionFilter } from 'apps/share/filters/http-exception.filter';
 import {
   Controller,
   Get,

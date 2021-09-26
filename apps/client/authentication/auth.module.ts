@@ -2,23 +2,32 @@ import { AuthService } from './services/auth.service';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LocalStrategy } from './strategy/local.strategy';
-import { ConfigModule } from 'apps/share/configService.module';
-import { ConfigService } from 'apps/share/services/config.service';
-import { setupJWT } from 'apps/share/jwt/setupJwt';
+import { ConfigModule } from '../../share/configService.module';
+import { ConfigService } from '../../share/services/config.service';
+import { setupJWT } from '../../share/jwt/setupJwt';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { Auth, AuthSchema } from './entities/auth.entity';
 import { AuthController } from './controller/auth.controller';
+import { LoggerService } from '../../share/services/logger.service';
+import { User, UserSchema } from '../user/entities/user.entity';
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
+    MongooseModule.forFeature([
+      { name: Auth.name, schema: AuthSchema },
+      { name: User.name, schema: UserSchema },
+    ]),
     // PassportModule,
     ConfigModule,
     JwtModule.registerAsync(setupJWT('JWT_SECRET')),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, ConfigService],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    ConfigService,
+    LoggerService,
+  ],
 })
 export class AuthModule {}
-
-// setupJWT

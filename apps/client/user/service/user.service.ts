@@ -1,12 +1,11 @@
 import { IQueryFind } from './../../../share/interfaces/query.interface';
-import { LoggerService } from 'apps/share/services/logger.service';
+import { LoggerService } from '../../../share/services/logger.service';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ResponseService } from 'apps/share/services/respone.service';
+import { ResponseService } from '../../../share/services/respone.service';
 import { Model } from 'mongoose';
-import { CreateUserDto } from '../dto/create-user.dto';
 import { ISchemaUser, User } from '../entities/user.entity';
-import { UpdateUserDto } from '../dto/update-user.dto';
+import { UpdateUserDto } from '../dto/updateUser/res.dto';
 
 @Injectable()
 export class UserService extends ResponseService {
@@ -17,16 +16,16 @@ export class UserService extends ResponseService {
   ) {
     super();
   }
-  async create(createUserDto: CreateUserDto) {
-    try {
-      const user = new this.userModel({ createUserDto });
-      await user.save();
-      return this.ResponseServiceSuccess(user);
-    } catch (e) {
-      this.loggerService.error(e.message, null, 'create-UserService');
-      return null;
-    }
-  }
+  // async create(createUserDto: CreateUserDto) {
+  //   try {
+  //     const user = new this.userModel({ createUserDto });
+  //     await user.save();
+  //     return this.ResponseServiceSuccess(user);
+  //   } catch (e) {
+  //     this.loggerService.error(e.message, null, 'create-UserService');
+  //     return null;
+  //   }
+  // }
 
   async findAll(query: IQueryFind) {
     try {
@@ -65,10 +64,15 @@ export class UserService extends ResponseService {
 
   async update(id: string, payload: UpdateUserDto) {
     try {
-      const user = await this.userModel.findByIdAndUpdate(id, payload).lean();
+      const obj: any = { ...payload };
+      obj.displayName = payload.firstName + ' ' + payload.lastName;
+      const user = await this.userModel
+        .findByIdAndUpdate(id, obj, { new: true })
+        .lean();
       if (user) return this.ResponseServiceSuccess(user);
       return null;
     } catch (e) {
+      console.log(e);
       this.loggerService.error(e.message, null, 'findOne-UserService');
       return null;
     }

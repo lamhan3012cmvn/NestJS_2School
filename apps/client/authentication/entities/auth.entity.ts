@@ -5,7 +5,7 @@ export type AuthEntity = Auth & Document;
 
 @Schema({ timestamps: true })
 export class Auth {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   username: string;
   @Prop({ required: true })
   password: string;

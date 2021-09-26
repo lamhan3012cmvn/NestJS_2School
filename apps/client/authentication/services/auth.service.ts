@@ -2,16 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { ConfigService } from 'apps/share/services/config.service';
-import { LoggerService } from 'apps/share/services/logger.service';
-import { ResponseService } from 'apps/share/services/respone.service';
+import { ConfigService } from '../../../share/services/config.service';
+import { LoggerService } from '../../../share/services/logger.service';
+import { ResponseService } from '../../../share/services/respone.service';
 import { JwtService } from '@nestjs/jwt';
 import { Auth, IAuth } from '../entities/auth.entity';
+import { User } from 'apps/client/user/entities/user.entity';
 @Injectable()
 export class AuthService extends ResponseService {
   constructor(
     @InjectModel(Auth.name)
     private accountModel: Model<Auth>,
+    @InjectModel(User.name)
+    private userModel: Model<User>,
     private configService: ConfigService,
     private loggerService: LoggerService,
     private jwtService: JwtService,
@@ -42,12 +45,14 @@ export class AuthService extends ResponseService {
   async register(username: string, password: string): Promise<IAuth> {
     try {
       const newPassword = await this.genPassword(password);
-      const newUser = new this.accountModel({
+      const newAccount = new this.accountModel({
         username,
         password: newPassword,
       });
+      await newAccount.save();
+      const newUser = new this.userModel({});
       await newUser.save();
-      return this.ResponseServiceSuccess(newUser);
+      return this.ResponseServiceSuccess(newAccount);
     } catch (e) {
       this.loggerService.error(e.message, null, 'REGISTER-Service');
       return null;

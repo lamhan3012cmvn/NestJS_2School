@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
-import { ClassService } from './class.service';
-import { ClassController } from './class.controller';
+import { ClassService } from './services/class.service';
+import { ClassController } from './controllers/class.controller';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Classes, ClassesSchema } from './entities/class.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      // { name: Authentication.name, schema: AuthenticationSchema },
-    ]),
+    MongooseModule.forFeature([{ name: Classes.name, schema: ClassesSchema }]),
   ],
   controllers: [ClassController],
   providers: [ClassService],
