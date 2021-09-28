@@ -1,22 +1,38 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { schemaOptions } from './../../../share/mongodb/baseModel.entity';
+import { Prop } from '@nestjs/mongoose';
+import { BaseModel } from 'apps/share/mongodb/baseModel.entity';
+import { InstanceType, ModelType } from 'typegoose';
+import { Expose } from 'class-transformer';
 
-export type DeviceEntity = Device & Document;
-
-@Schema({ timestamps: true })
-export class Device {
+export class Device extends BaseModel<Device> {
   @Prop({ default: '' })
-  appVersion: string;
+  @Expose()
+  appVersion?: string;
   @Prop({ default: '' })
-  deviceModel: string;
+  @Expose()
+  deviceModel?: string;
   @Prop({ default: '' })
-  deviceUUid: string;
+  @Expose()
+  deviceUUid?: string;
   @Prop({ required: true })
+  @Expose()
   fcmToken: string;
   @Prop({ default: 0 })
+  @Expose()
   status: number;
   @Prop({ RegExp: /^[A-Fa-f0-9]{24}$/ })
+  @Expose()
   createdBy: string;
-}
 
-export const DeviceSchema = SchemaFactory.createForClass(Device);
+  static get model(): ModelType<Device> {
+    return new Device().getModelForClass(Device, { schemaOptions });
+  }
+
+  static get modelName(): string {
+    return this.model.modelName;
+  }
+
+  static createModel(payload: Device): InstanceType<Device> {
+    return new this.model(payload);
+  }
+}

@@ -1,22 +1,44 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { CreateBy } from 'apps/share/mongodb/createBy.entity';
-import { Document } from 'mongoose';
+import {
+  BaseModel,
+  schemaOptions,
+} from './../../../share/mongodb/baseModel.entity';
+import { Prop } from '@nestjs/mongoose';
+import { Expose } from 'class-transformer';
+import { ModelType, InstanceType } from 'typegoose';
+import { DFStatus } from 'apps/share/enums/status.enum';
 
-export type ClassesEntity = Classes & Document;
-
-@Schema({ timestamps: true })
-export class Classes extends CreateBy {
+export class Classes extends BaseModel<Classes> {
   @Prop({ default: '' })
-  name: string;
+  @Expose()
+  name?: string;
   @Prop({ default: '' })
-  intro: string;
+  @Expose()
+  intro?: string;
   @Prop({ default: '' })
-  image: string;
+  @Expose()
+  image?: string;
   @Prop({ default: '' })
-  blurHash: string;
+  @Expose()
+  blurHash?: string;
   @Prop({ default: [] })
-  member: Array<string>;
-  @Prop({ default: 0 })
-  status: number;
+  @Expose()
+  member?: Array<string>;
+  @Prop({ default: DFStatus.Active })
+  @Expose()
+  status?: number;
+  @Prop({ RegExp: /^[A-Fa-f0-9]{24}$/ })
+  @Expose()
+  createdBy: string;
+
+  static get model(): ModelType<Classes> {
+    return new Classes().getModelForClass(Classes, { schemaOptions });
+  }
+
+  static get modelName(): string {
+    return this.model.modelName;
+  }
+
+  static createModel(payload: Classes): InstanceType<Classes> {
+    return new this.model(payload);
+  }
 }
-export const ClassesSchema = SchemaFactory.createForClass(Classes);

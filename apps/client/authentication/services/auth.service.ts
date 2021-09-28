@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { AnyObject, Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '../../../share/services/config.service';
 import { LoggerService } from '../../../share/services/logger.service';
@@ -20,6 +20,13 @@ export class AuthService extends ResponseService {
     private jwtService: JwtService,
   ) {
     super();
+  }
+  jwtSecret(): string {
+    return this.configService.get('JWT_SECRET');
+  }
+  async validateUser(payload: any): Promise<User> {
+    const user = await this.userModel.findOne({ createdBy: payload.id }).lean();
+    return user;
   }
 
   async login(username: string, password: string): Promise<any> {
@@ -42,7 +49,12 @@ export class AuthService extends ResponseService {
     }
   }
 
-  async register(username: string, password: string): Promise<IAuth> {
+  async register(
+    username: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+  ): Promise<any> {
     try {
       const newPassword = await this.genPassword(password);
       const newAccount = new this.accountModel({
@@ -50,9 +62,17 @@ export class AuthService extends ResponseService {
         password: newPassword,
       });
       await newAccount.save();
-      const newUser = new this.userModel({});
+      const newUser = new this.userModel({
+        firstName,
+        lastName,
+        displayName: `${firstName} ${lastName}`,
+        createdBy: newAccount._id,
+      });
       await newUser.save();
-      return this.ResponseServiceSuccess(newAccount);
+      const token = this.jwtService.sign({
+        data: newAccount._id,
+      });
+      return { token };
     } catch (e) {
       this.loggerService.error(e.message, null, 'REGISTER-Service');
       return null;

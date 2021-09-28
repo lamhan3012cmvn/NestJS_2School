@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { QuestionService } from './question.service';
-import { QuestionController } from './question.controller';
+import { QuestionController } from './controllers/question.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Question, QuestionSchema } from './entities/question.entity';
 import {
   SetOfQuestion,
   SetOfQuestionSchema,
 } from './entities/setOfQuestions.entity';
+import { QuestionService } from './services/question.service';
 
 @Module({
   imports: [

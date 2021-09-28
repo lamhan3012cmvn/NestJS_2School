@@ -1,3 +1,4 @@
+import { AuthGuard } from '@nestjs/passport';
 import {
   Controller,
   Get,
@@ -9,6 +10,7 @@ import {
   Req,
   BadRequestException,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { ClassService } from '../services/class.service';
 import { CreateClassDto } from '../dto/createClass/create-class.dto';
@@ -18,6 +20,10 @@ import {
   BaseController,
 } from 'apps/share/controller/baseController';
 import { LoggerService } from 'apps/share/services/logger.service';
+import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
+import { Usr } from 'apps/client/authentication/decorator/user.decorator';
+import { Request } from 'express';
+import { User } from 'apps/client/user/entities/user.entity';
 
 @Controller('api/classes')
 export class ClassController extends BaseController {
@@ -29,37 +35,27 @@ export class ClassController extends BaseController {
   }
 
   @Post()
-  async create(@Req() req, @Body() createClassDto: CreateClassDto) {
+  @UseGuards(JwtAuthGuard)
+  async create(@Usr() user: User, @Body() createClassDto: CreateClassDto) {
     try {
-      console.log(req);
-      // const result = await this.classService.create('', createClassDto);
-      // this.resApi(null, 'Create Class success');
-      // 12-alpine3.12
-      throw new BadRequestException();
+      const result = await this.classService.createClasses(
+        user.createdBy,
+        createClassDto,
+      );
+      this.resApi(result, 'Create Class success');
     } catch (e) {
       this.loggerService.error(e.message, null, 'create-ClassController');
       return new ApiBaseResponse(500);
     }
-    return this.classService.create('', createClassDto);
   }
 
   @Get()
-  findAll() {
-    throw new UnauthorizedException();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.classService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateClassDto: UpdateClassDto) {
-    return this.classService.update(+id, updateClassDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.classService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  findAll(@Usr() user: User) {
+    console.log(
+      `LHA:  ===> file: class.controller.ts ===> line 52 ===> user`,
+      user,
+    );
+    return 'Ken';
   }
 }

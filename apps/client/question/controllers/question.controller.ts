@@ -7,16 +7,14 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { QuestionService } from './question.service';
-import { CreateQuestionDto } from './dto/create-question.dto';
-import { UpdateQuestionDto } from './dto/update-question.dto';
+import { QuestionService } from '../services/question.service';
 
 @Controller('question')
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
   @Post()
-  create(@Body() createQuestionDto: CreateQuestionDto) {
+  create(@Body() createQuestionDto: any) {
     return this.questionService.create(createQuestionDto);
   }
 
@@ -31,10 +29,7 @@ export class QuestionController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateQuestionDto: UpdateQuestionDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateQuestionDto: any) {
     return this.questionService.update(+id, updateQuestionDto);
   }
 

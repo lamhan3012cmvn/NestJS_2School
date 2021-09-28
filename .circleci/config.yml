@@ -12,7 +12,7 @@ jobs:
       # Please add $SSH_KEY_FINGERPRINT, $DEPLOYED_USER@ and DEPLOYED_SERVER to project's environment
       - add_ssh_keys:
           fingerprints:
-            - "24:48:41:d3:9c:fc:14:0e:fb:47:84:9a:c1:5c:18:37"
+            - '24:48:41:d3:9c:fc:14:0e:fb:47:84:9a:c1:5c:18:37'
       - run: ssh -oStrictHostKeyChecking=no root@natha-lms.tk './files/learnCICDnest/deploy.sh'
 
 workflows:
@@ -22,19 +22,24 @@ workflows:
       #     version: '16.10'
       #     # # If you are using yarn, change the line below from "npm" to "yarn"
       #     pkg-manager: yarn
-          #
-          # This is the node version to use for the `cimg/node` tag
-          # Relevant tags can be found on the CircleCI Developer Hub
-          # https://circleci.com/developer/images/image/cimg/node
+      #
+      # This is the node version to use for the `cimg/node` tag
+      # Relevant tags can be found on the CircleCI Developer Hub
+      # https://circleci.com/developer/images/image/cimg/node
       # - build-and-push:
       #     requires:
       #       - node/test
-          # filters:
-          #   branches:
-          #     only:
-          #       - master
+      # filters:
+      #   branches:
+      #     only:
+      #       - master
       # uncomment the 3 following lines to enable deploying
       # - deploy:
       #     requires:
       #       - node/test
-      - deploy
+      - deploy:
+        filters:
+          branches:
+            only:
+              - dev
+              - master

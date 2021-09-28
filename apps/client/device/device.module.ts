@@ -1,12 +1,14 @@
-import { Device, DeviceSchema } from './entities/device.entity';
+import { Device } from './entities/device.entity';
 import { Module } from '@nestjs/common';
-import { DeviceService } from './device.service';
-import { DeviceController } from './device.controller';
+import { DeviceService } from './services/device.service';
+import { DeviceController } from './controllers/device.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Device.name, schema: DeviceSchema }]),
+    MongooseModule.forFeature([
+      { name: Device.modelName, schema: Device.model.schema },
+    ]),
   ],
   controllers: [DeviceController],
   providers: [DeviceService],

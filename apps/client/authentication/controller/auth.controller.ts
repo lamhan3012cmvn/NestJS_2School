@@ -8,6 +8,8 @@ import { ILoginSuccessAuthDto } from '../dto/login/resSuccess.dto';
 import { JwtAuthGuard } from '../guard/jwt-auth.guard';
 import { AuthService } from '../services/auth.service';
 import { Auth, IAuth } from '../entities/auth.entity';
+import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
+import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 @Controller('api/authentication')
 export class AuthController {
   constructor(
@@ -21,14 +23,17 @@ export class AuthController {
   async login(@Body() payload: LoginAuthenticationDto) {
     try {
       const result: ILoginSuccessAuthDto =
-        await this.localStrategyService.validate(payload);
+        await this.authenticationService.login(
+          payload.username,
+          payload.password,
+        );
       if (result) {
         return new Ok('Login Success', result);
       }
-      return new ApiBaseResponse(404);
+      throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'LOGIN-Controller');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 
@@ -39,14 +44,16 @@ export class AuthController {
       const result: IAuth = await this.authenticationService.register(
         payload.username,
         payload.password,
+        payload.firstName,
+        payload.lastName,
       );
       if (result) {
         return new Ok('Register Success', result);
       }
-      return new ApiBaseResponse(404);
+      throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'REGISTER-Controller');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 
@@ -61,10 +68,10 @@ export class AuthController {
       if (result) {
         return new Ok('Register Success', result);
       }
-      return new ApiBaseResponse(404);
+      throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'REGISTER-Controller');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 
@@ -77,10 +84,10 @@ export class AuthController {
       if (result) {
         return new Ok('Register Success', result);
       }
-      return new ApiBaseResponse(404);
+      throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'REGISTER-Controller');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 }

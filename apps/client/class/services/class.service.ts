@@ -6,45 +6,98 @@ import { CreateClassDto } from '../dto/createClass/create-class.dto';
 import { UpdateClassDto } from '../dto/updateClass/update-class.dto';
 import { LoggerService } from 'apps/share/services/logger.service';
 import { ResponseService } from 'apps/share/services/respone.service';
+import { IQueryFind } from 'apps/share/interfaces/query.interface';
+import { BaseService } from 'apps/share/services/baseService.service';
+import { ModelType } from 'typegoose';
+import { DFStatus } from 'apps/share/enums/status.enum';
 
 @Injectable()
-export class ClassService extends ResponseService {
+export class ClassService extends BaseService<Classes> {
   constructor(
-    @InjectModel(Classes.name)
-    private classModel: Model<Classes>,
-    private loggerService: LoggerService,
+    @InjectModel(Classes.modelName)
+    private _classModel: ModelType<Classes>,
+    private _loggerService: LoggerService,
   ) {
     super();
   }
-  async create(createBy: string, createClassDto: CreateClassDto) {
+  async createClasses(
+    createBy: string,
+    createClassDto: CreateClassDto,
+  ): Promise<Classes> {
     try {
       const obj: any = { ...createClassDto };
       obj.createBy = createBy;
-      const newClasses = new this.classModel(obj);
-      await newClasses.save();
+      const newClasses = await this.create(obj);
       if (newClasses) {
-        return newClasses;
+        return this.cvtJSON(newClasses) as Classes;
       }
       return null;
     } catch (e) {
-      this.loggerService.error(e.message, null, 'CREATE-ClassesService');
+      this._loggerService.error(e.message, null, 'CREATE-ClassesService');
       return null;
     }
   }
 
-  findAll() {
-    return `This action returns all class`;
+  async findAllClasses(
+    query: IQueryFind = { skip: '0', limit: '15' },
+  ): Promise<Array<Classes>> {
+    try {
+      const newClasses = await this.findAll({}, query);
+      if (newClasses) {
+        return this.cvtJSON(newClasses) as Classes[];
+      }
+      return null;
+    } catch (e) {
+      this._loggerService.error(
+        e.message,
+        null,
+        'FIND_ALL_CLASSES-ClassesService',
+      );
+      return null;
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} class`;
+  async findOneClasses(filter = {}): Promise<Classes> {
+    try {
+      const newClasses = await this.findOne(filter);
+      if (newClasses) {
+        return this.cvtJSON(newClasses) as Classes;
+      }
+      return null;
+    } catch (e) {
+      this._loggerService.error(
+        e.message,
+        null,
+        'FIND_ONE_CLASSES-ClassesService',
+      );
+      return null;
+    }
   }
 
-  update(id: number, updateClassDto: UpdateClassDto) {
-    return `This action updates a #${id} class`;
+  async updateClasses(id: string, payload: UpdateClassDto): Promise<Classes> {
+    try {
+      const updateClasses = await this.update(id, payload);
+      if (updateClasses) {
+        return this.cvtJSON(updateClasses) as Classes;
+      }
+      return null;
+    } catch (e) {
+      this._loggerService.error(e.message, null, 'Update-ClassesService');
+      return null;
+    }
   }
-
-  remove(id: number) {
-    return `This action removes a #${id} class`;
+  async removeClasses(id: string) {
+    try {
+      const updateClasses = await this.update(id, {
+        status: DFStatus.inActive,
+      });
+      if (updateClasses) {
+        return this.cvtJSON(updateClasses) as Classes;
+      }
+      return null;
+    } catch (e) {
+      this._loggerService.error(e.message, null, 'Remove-ClassesService');
+      return null;
+    }
   }
 }

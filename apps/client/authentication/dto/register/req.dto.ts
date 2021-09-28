@@ -7,4 +7,10 @@ export class RegisterAuthenticationDto {
   @IsNotEmpty()
   @IsString()
   password: string;
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
+  @IsNotEmpty()
+  @IsString()
+  firstName: string;
 }

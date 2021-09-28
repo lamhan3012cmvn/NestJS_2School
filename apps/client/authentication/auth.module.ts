@@ -11,6 +11,7 @@ import { Auth, AuthSchema } from './entities/auth.entity';
 import { AuthController } from './controller/auth.controller';
 import { LoggerService } from '../../share/services/logger.service';
 import { User, UserSchema } from '../user/entities/user.entity';
+import { PassportModule } from '@nestjs/passport';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -19,6 +20,11 @@ import { User, UserSchema } from '../user/entities/user.entity';
     ]),
     // PassportModule,
     ConfigModule,
+    // PassportModule.register({
+    //   defaultStrategy: 'jwt',
+    //   property: 'user',
+    //   session: false,
+    // }),
     JwtModule.registerAsync(setupJWT('JWT_SECRET')),
   ],
   controllers: [AuthController],
@@ -29,5 +35,6 @@ import { User, UserSchema } from '../user/entities/user.entity';
     ConfigService,
     LoggerService,
   ],
+  // exports: [PassportModule, JwtModule],
 })
 export class AuthModule {}

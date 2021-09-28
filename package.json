@@ -44,6 +44,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.1.0",
     "swagger-ui-express": "^4.1.6",
+    "typegoose": "^5.9.1",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.5"
   },

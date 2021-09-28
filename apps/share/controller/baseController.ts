@@ -28,16 +28,16 @@ export class ApiBaseResponse {
 
 export class Ok {
   constructor(message: string, data: any, statusCode = 200, success = true) {
-    this.StatusCode = statusCode;
-    this.Message = message;
-    this.Success = success;
-    this.Data = data;
+    this.statusCode = statusCode;
+    this.message = message;
+    this.success = success;
+    this.data = data;
   }
 
-  public StatusCode: number;
-  public Message: string;
-  public Success: boolean;
-  public Data: any;
+  public statusCode: number;
+  public message: string;
+  public success: boolean;
+  public data: any;
 }
 
 export abstract class BaseController {
