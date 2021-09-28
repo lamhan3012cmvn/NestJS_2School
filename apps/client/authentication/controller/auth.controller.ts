@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Header, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Header,
+  UseGuards,
+  HttpCode,
+} from '@nestjs/common';
 import { LoginAuthenticationDto } from '../dto/login/req.dto';
 import { LocalStrategy } from '../strategy/local.strategy';
 import { RegisterAuthenticationDto } from '../dto/register/req.dto';
@@ -14,11 +22,11 @@ import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 export class AuthController {
   constructor(
     private readonly authenticationService: AuthService,
-    private readonly localStrategyService: LocalStrategy,
     private readonly loggerService: LoggerService,
   ) {}
 
   @Post('/login')
+  @HttpCode(200)
   @Header('Content-Type', 'application/json')
   async login(@Body() payload: LoginAuthenticationDto) {
     try {
@@ -39,6 +47,7 @@ export class AuthController {
 
   @Post('/register')
   @Header('Content-Type', 'application/json')
+  @HttpCode(200)
   async register(@Body() payload: RegisterAuthenticationDto) {
     try {
       const result: IAuth = await this.authenticationService.register(
@@ -58,6 +67,7 @@ export class AuthController {
   }
 
   @Post('/forgot-password')
+  @HttpCode(200)
   @Header('Content-Type', 'application/json')
   async forgotPassword(@Body() payload: RegisterAuthenticationDto) {
     try {
@@ -76,6 +86,7 @@ export class AuthController {
   }
 
   @Get('/findAllUser')
+  @HttpCode(200)
   @Header('Content-Type', 'application/json')
   @UseGuards(JwtAuthGuard)
   async findAllUser() {

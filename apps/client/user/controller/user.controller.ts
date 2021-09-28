@@ -1,3 +1,4 @@
+import { Usr } from './../../authentication/decorator/user.decorator';
 import {
   ApiBaseResponse,
   BaseController,
@@ -12,12 +13,17 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { IQueryFind } from '../../../share/interfaces/query.interface';
 
 import { UserService } from '../service/user.service';
 import { LoggerService } from '../../../share/services/logger.service';
 import { UpdateUserDto } from '../dto/updateUser/res.dto';
+import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
+import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
+import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
 
 @Controller('api/user')
 export class UserController extends BaseController {
@@ -58,17 +64,15 @@ export class UserController extends BaseController {
     }
   }
 
-  @Get()
-  async findById(@Query('id') id: string) {
+  @Get('info')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async getUser(@Usr() user) {
     try {
-      const result = await this.userService.findById(id);
-      if (result) {
-        return new Ok('Get User Success', result);
-      }
-      return new ApiBaseResponse(404);
+      return new Ok('Get User Success', JSON.parse(JSON.stringify(user)));
     } catch (e) {
       this.loggerService.error(e.message, null, 'findById-UserController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 
@@ -79,10 +83,10 @@ export class UserController extends BaseController {
       if (result) {
         return new Ok('Get User Success', result);
       }
-      return new ApiBaseResponse(404);
+      throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'update-UserController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 }
