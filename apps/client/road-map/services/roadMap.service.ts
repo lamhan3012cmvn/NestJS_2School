@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { BaseService } from 'apps/share/services/baseService.service';
 import { ModelType } from 'typegoose';
 import { RoadMap } from '../entities/road-map.entity';
+import { CreateRoadMapDto } from '../dto/CreateRoadMap/res.dto';
 
 @Injectable()
 export class RoadMapService extends BaseService<RoadMap> {
@@ -14,5 +15,26 @@ export class RoadMapService extends BaseService<RoadMap> {
   ) {
     super();
     this._model = _roadMapModel;
+  }
+
+  async createRoadMap(
+    createdBy: string,
+    createDto: CreateRoadMapDto,
+  ): Promise<RoadMap> {
+    try {
+      const obj: any = { ...createDto };
+      obj.createdBy = createdBy;
+      const newRoadMap = RoadMap.createModel(obj);
+
+      const newClasses = await this.create(newRoadMap);
+      if (newClasses) {
+        return this.cvtJSON(newClasses) as RoadMap;
+      }
+      return null;
+    } catch (e) {
+      console.log(e);
+      this._loggerService.error(e.message, null, 'CREATE-ClassesService');
+      return null;
+    }
   }
 }

@@ -556,11 +556,30 @@ class BaseService {
         return this._model.findByIdAndRemove(this.toObjectId(id)).exec();
     }
     async update(id, item) {
-        return this._model
-            .findByIdAndUpdate(this.toObjectId(id), item, {
-            new: true,
-        })
-            .exec();
+        try {
+            return this._model
+                .findByIdAndUpdate(this.toObjectId(id), item, {
+                new: true,
+            })
+                .exec();
+        }
+        catch (e) {
+            console.log(e);
+            return null;
+        }
+    }
+    async findOneAndUpdate(query, item) {
+        try {
+            return this._model
+                .findOneAndUpdate(query, item, {
+                new: true,
+            })
+                .exec();
+        }
+        catch (e) {
+            console.log(e);
+            return null;
+        }
     }
     async clearCollection(filter = {}) {
         return this._model.deleteMany(filter).exec();
@@ -1289,10 +1308,7 @@ class Classes extends baseModel_entity_1.BaseModel {
         return this.model.modelName;
     }
     static createModel(payload) {
-        console.log(`LHA:  ===> file: class.entity.ts ===> line 45 ===> payload`, payload);
-        console.log(this.model);
         const result = new this.model(payload);
-        console.log(`LHA:  ===> file: class.entity.ts ===> line 50 ===> result`, result);
         return result;
     }
 }
@@ -1481,18 +1497,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e;
+var _a, _b, _c, _d, _e, _f, _g, _h;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassController = void 0;
 const common_1 = __webpack_require__(2);
 const class_service_1 = __webpack_require__(36);
 const create_class_dto_1 = __webpack_require__(42);
+const update_class_dto_1 = __webpack_require__(71);
 const baseController_1 = __webpack_require__(44);
 const logger_service_1 = __webpack_require__(9);
 const jwt_auth_guard_1 = __webpack_require__(14);
 const user_decorator_1 = __webpack_require__(13);
 const user_entity_1 = __webpack_require__(16);
 const resource_exception_1 = __webpack_require__(18);
+const status_enum_1 = __webpack_require__(38);
 let ClassController = class ClassController extends baseController_1.BaseController {
     constructor(loggerService, classService) {
         super();
@@ -1512,6 +1530,19 @@ let ClassController = class ClassController extends baseController_1.BaseControl
             return new baseController_1.ApiBaseResponse(500);
         }
     }
+    async update(user, query, updateClassDto) {
+        try {
+            const result = await this.classService.findOneAndUpdate({ createdBy: user.createdBy, _id: query.id }, updateClassDto);
+            if (result) {
+                return new baseController_1.Ok('Update Class success', result);
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'Update-ClassController');
+            return new baseController_1.ApiBaseResponse(500);
+        }
+    }
     async findAll(user) {
         try {
             const result = await this.classService.findAllClasses(user, {
@@ -1528,6 +1559,22 @@ let ClassController = class ClassController extends baseController_1.BaseControl
             return new baseController_1.ApiBaseResponse(500);
         }
     }
+    async changeStatusClass(user, query) {
+        try {
+            const result = await this.classService.update(query.id, {
+                status: status_enum_1.DFStatus[status_enum_1.DFStatus[(query === null || query === void 0 ? void 0 : query.status) || 0]],
+            });
+            if (result) {
+                return new baseController_1.Ok('Get Class success', this.classService.cvtJSON(result));
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            console.log(e);
+            this.loggerService.error(e.message, null, 'changeStatus-ClassController');
+            return new baseController_1.ApiBaseResponse(500);
+        }
+    }
 };
 __decorate([
     common_1.Post(),
@@ -1539,16 +1586,35 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ClassController.prototype, "create", null);
 __decorate([
+    common_1.Post(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __param(2, common_1.Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_c = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _c : Object, Object, typeof (_d = typeof update_class_dto_1.UpdateClassDto !== "undefined" && update_class_dto_1.UpdateClassDto) === "function" ? _d : Object]),
+    __metadata("design:returntype", Promise)
+], ClassController.prototype, "update", null);
+__decorate([
     common_1.Get(),
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, user_decorator_1.Usr()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_c = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _c : Object]),
+    __metadata("design:paramtypes", [typeof (_e = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _e : Object]),
     __metadata("design:returntype", Promise)
 ], ClassController.prototype, "findAll", null);
+__decorate([
+    common_1.Get('changeStatus'),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_f = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _f : Object, Object]),
+    __metadata("design:returntype", Promise)
+], ClassController.prototype, "changeStatusClass", null);
 ClassController = __decorate([
     common_1.Controller('api/classes'),
-    __metadata("design:paramtypes", [typeof (_d = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _d : Object, typeof (_e = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _e : Object])
+    __metadata("design:paramtypes", [typeof (_g = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _g : Object, typeof (_h = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _h : Object])
 ], ClassController);
 exports.ClassController = ClassController;
 
@@ -2572,6 +2638,26 @@ exports.setupSwagger = setupSwagger;
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
+
+/***/ }),
+/* 71 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UpdateClassDto = void 0;
+const mapped_types_1 = __webpack_require__(72);
+const create_class_dto_1 = __webpack_require__(42);
+class UpdateClassDto extends mapped_types_1.PartialType(create_class_dto_1.CreateClassDto) {
+}
+exports.UpdateClassDto = UpdateClassDto;
+
+
+/***/ }),
+/* 72 */
+/***/ ((module) => {
+
+module.exports = require("@nestjs/mapped-types");
 
 /***/ })
 /******/ 	]);

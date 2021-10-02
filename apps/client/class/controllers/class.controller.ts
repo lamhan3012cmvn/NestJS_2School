@@ -11,6 +11,7 @@ import {
   BadRequestException,
   UnauthorizedException,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ClassService } from '../services/class.service';
 import { CreateClassDto } from '../dto/createClass/create-class.dto';
@@ -26,6 +27,7 @@ import { Usr } from 'apps/client/authentication/decorator/user.decorator';
 import { Request } from 'express';
 import { User } from 'apps/client/user/entities/user.entity';
 import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
+import { DFStatus } from 'apps/share/enums/status.enum';
 
 @Controller('api/classes')
 export class ClassController extends BaseController {
@@ -53,6 +55,27 @@ export class ClassController extends BaseController {
       return new ApiBaseResponse(500);
     }
   }
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @Usr() user: User,
+    @Query() query,
+    @Body() updateClassDto: UpdateClassDto,
+  ) {
+    try {
+      const result = await this.classService.findOneAndUpdate(
+        { createdBy: user.createdBy, _id: query.id },
+        updateClassDto,
+      );
+      if (result) {
+        return new Ok('Update Class success', result);
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'Update-ClassController');
+      return new ApiBaseResponse(500);
+    }
+  }
 
   @Get()
   @UseGuards(JwtAuthGuard)
@@ -68,6 +91,24 @@ export class ClassController extends BaseController {
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'create-ClassController');
+      return new ApiBaseResponse(500);
+    }
+  }
+
+  @Get('changeStatus')
+  @UseGuards(JwtAuthGuard)
+  async changeStatusClass(@Usr() user: User, @Query() query) {
+    try {
+      const result = await this.classService.update(query.id, {
+        status: DFStatus[DFStatus[query?.status || 0]],
+      });
+      if (result) {
+        return new Ok('Get Class success', this.classService.cvtJSON(result));
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      console.log(e);
+      this.loggerService.error(e.message, null, 'changeStatus-ClassController');
       return new ApiBaseResponse(500);
     }
   }

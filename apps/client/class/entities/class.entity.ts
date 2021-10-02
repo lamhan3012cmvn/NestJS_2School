@@ -42,16 +42,7 @@ export class Classes extends BaseModel<Classes> {
   }
 
   static createModel(payload: Classes): InstanceType<Classes> {
-    console.log(
-      `LHA:  ===> file: class.entity.ts ===> line 45 ===> payload`,
-      payload,
-    );
-    console.log(this.model);
     const result = new this.model(payload);
-    console.log(
-      `LHA:  ===> file: class.entity.ts ===> line 50 ===> result`,
-      result,
-    );
     return result;
   }
 }

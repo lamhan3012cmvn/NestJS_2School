@@ -69,11 +69,32 @@ export abstract class BaseService<T extends Typegoose> {
     id: string,
     item: UpdateQuery<InstanceType<T>>,
   ): Promise<InstanceType<T>> {
-    return this._model
-      .findByIdAndUpdate(this.toObjectId(id), item, {
-        new: true,
-      })
-      .exec();
+    try {
+      return this._model
+        .findByIdAndUpdate(this.toObjectId(id), item, {
+          new: true,
+        })
+        .exec();
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
+
+  async findOneAndUpdate(
+    query: any,
+    item: UpdateQuery<InstanceType<T>>,
+  ): Promise<InstanceType<T>> {
+    try {
+      return this._model
+        .findOneAndUpdate(query, item, {
+          new: true,
+        })
+        .exec();
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
   }
 
   async clearCollection(filter = {}): Promise<{ ok?: number; n?: number }> {
