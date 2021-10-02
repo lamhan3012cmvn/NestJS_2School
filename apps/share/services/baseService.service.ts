@@ -52,7 +52,13 @@ export abstract class BaseService<T extends Typegoose> {
   }
 
   async create(item: InstanceType<T>): Promise<InstanceType<T>> {
-    return this._model.create(item);
+    console.log('create', item);
+    try {
+      return this._model.create(item);
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
   }
 
   async delete(id: string): Promise<InstanceType<T>> {
@@ -77,7 +83,7 @@ export abstract class BaseService<T extends Typegoose> {
   private toObjectId(id: string): Types.ObjectId {
     return Types.ObjectId(id);
   }
-  protected cvtJSON(data: any): any {
+  cvtJSON(data: any): any {
     return JSON.parse(JSON.stringify(data));
   }
 }

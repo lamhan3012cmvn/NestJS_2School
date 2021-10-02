@@ -21,7 +21,7 @@ export class DeviceService extends BaseService<Device> {
       const result = await this.create(newDevice);
       return JSON.parse(JSON.stringify(result)) as Device;
     } catch (e) {
-      this._loggerService.error(e.message, null, 'Remove-ClassesService');
+      this._loggerService.error(e.message, null, 'createDevice-DeviceService');
     }
   }
   async updateDevice(id: string, payload: Device) {
@@ -30,7 +30,7 @@ export class DeviceService extends BaseService<Device> {
       const result = await this.update(id, newDevice);
       return JSON.parse(JSON.stringify(result)) as Device;
     } catch (e) {
-      this._loggerService.error(e.message, null, 'Update-ClassesService');
+      this._loggerService.error(e.message, null, 'updateDevice-DeviceService');
     }
   }
   async findAllDevice(filter = {}) {
@@ -38,7 +38,7 @@ export class DeviceService extends BaseService<Device> {
       const result = await this.findAll(filter);
       return JSON.parse(JSON.stringify(result)) as Device;
     } catch (e) {
-      this._loggerService.error(e.message, null, 'Update-ClassesService');
+      this._loggerService.error(e.message, null, 'findAllDevice-DeviceService');
     }
   }
 }

@@ -1,17 +1,34 @@
+import { schemaOptions } from './../../../share/mongodb/baseModel.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { CreateBy } from 'apps/share/mongodb/createBy.entity';
-import { Document } from 'mongoose';
+import { BaseModel } from 'apps/share/mongodb/baseModel.entity';
+import { Expose } from 'class-transformer';
+import { ModelType, InstanceType } from 'typegoose';
 
-export type QuestionEntity = Question & Document;
-
-@Schema({ timestamps: true })
-export class Question extends CreateBy {
+export class Question extends BaseModel<Question> {
   @Prop({ default: '' })
+  @Expose()
   name: string;
   @Prop({ default: '' })
+  @Expose()
   description: string;
   @Prop({ default: '' })
+  @Expose()
   usedTimes: string;
-}
+  @Prop({ RegExp: /^[A-Fa-f0-9]{24}$/ })
+  @Expose()
+  createdBy: string;
 
-export const QuestionSchema = SchemaFactory.createForClass(Question);
+  static get model(): ModelType<Question> {
+    return new Question().getModelForClass(Question, {
+      schemaOptions,
+    });
+  }
+
+  static get modelName(): string {
+    return this.model.modelName;
+  }
+
+  static createModel(payload: Question): InstanceType<Question> {
+    return new this.model(payload);
+  }
+}

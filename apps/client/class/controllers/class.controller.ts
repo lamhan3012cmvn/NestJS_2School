@@ -18,12 +18,14 @@ import { UpdateClassDto } from '../dto/updateClass/update-class.dto';
 import {
   ApiBaseResponse,
   BaseController,
+  Ok,
 } from 'apps/share/controller/baseController';
 import { LoggerService } from 'apps/share/services/logger.service';
 import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
 import { Usr } from 'apps/client/authentication/decorator/user.decorator';
 import { Request } from 'express';
 import { User } from 'apps/client/user/entities/user.entity';
+import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
 
 @Controller('api/classes')
 export class ClassController extends BaseController {
@@ -42,7 +44,10 @@ export class ClassController extends BaseController {
         user.createdBy,
         createClassDto,
       );
-      this.resApi(result, 'Create Class success');
+      if (result) {
+        return new Ok('Create Class success', result);
+      }
+      throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'create-ClassController');
       return new ApiBaseResponse(500);
@@ -51,11 +56,19 @@ export class ClassController extends BaseController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  findAll(@Usr() user: User) {
-    console.log(
-      `LHA:  ===> file: class.controller.ts ===> line 52 ===> user`,
-      user,
-    );
-    return 'Ken';
+  async findAll(@Usr() user: User) {
+    try {
+      const result = await this.classService.findAllClasses(user, {
+        limit: '15',
+        skip: '0',
+      });
+      if (result) {
+        return new Ok('Get Class success', result);
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'create-ClassController');
+      return new ApiBaseResponse(500);
+    }
   }
 }

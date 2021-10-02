@@ -28,7 +28,7 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 
 export interface ISchemaUser {
-  _id: string;
+  _id?: string;
   firstName?: string;
   lastName?: string;
   displayName?: string;

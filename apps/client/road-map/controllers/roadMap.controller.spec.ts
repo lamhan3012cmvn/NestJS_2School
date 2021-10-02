@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RoadMapController } from './road-map.controller';
-import { RoadMapService } from './road-map.service';
+import { RoadMapController } from './roadMap.controller';
+import { RoadMapService } from '../services/roadMap.service';
 
 describe('RoadMapController', () => {
   let controller: RoadMapController;

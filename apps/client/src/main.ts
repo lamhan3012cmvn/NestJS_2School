@@ -28,15 +28,15 @@ async function bootstrap() {
 
     const loggerService = app.select(SharedModule).get(LoggerService);
     app.useLogger(loggerService);
-    app.use(
-      morgan('combined', {
-        stream: {
-          write: (message) => {
-            loggerService.log(message);
-          },
-        },
-      }),
-    );
+    // app.use(
+    //   morgan('combined', {
+    //     stream: {
+    //       write: (message) => {
+    //         loggerService.log(message);
+    //       },
+    //     },
+    //   }),
+    // );
 
     app.use(helmet());
     app.use(

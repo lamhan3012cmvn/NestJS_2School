@@ -18,13 +18,7 @@ import { PassportModule } from '@nestjs/passport';
       { name: Auth.name, schema: AuthSchema },
       { name: User.name, schema: UserSchema },
     ]),
-    // PassportModule,
     ConfigModule,
-    // PassportModule.register({
-    //   defaultStrategy: 'jwt',
-    //   property: 'user',
-    //   session: false,
-    // }),
     JwtModule.registerAsync(setupJWT('JWT_SECRET')),
   ],
   controllers: [AuthController],

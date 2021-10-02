@@ -7,7 +7,7 @@ export function setupJWT(jwtSecret: string) {
     inject: [ConfigService],
     useFactory: async (configService: ConfigService) => ({
       secret: configService.get(jwtSecret),
-      signOptions: { expiresIn: '60h' },
+      signOptions: { expiresIn: '365d' },
     }),
   };
 }

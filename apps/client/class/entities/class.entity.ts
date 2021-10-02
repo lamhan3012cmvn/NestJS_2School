@@ -4,29 +4,32 @@ import {
 } from './../../../share/mongodb/baseModel.entity';
 import { Prop } from '@nestjs/mongoose';
 import { Expose } from 'class-transformer';
-import { ModelType, InstanceType } from 'typegoose';
+import { ModelType, InstanceType, prop } from 'typegoose';
 import { DFStatus } from 'apps/share/enums/status.enum';
 
 export class Classes extends BaseModel<Classes> {
-  @Prop({ default: '' })
+  @prop()
   @Expose()
   name?: string;
-  @Prop({ default: '' })
+  @prop()
   @Expose()
   intro?: string;
-  @Prop({ default: '' })
+  @prop()
+  @Expose()
+  topic?: string;
+  @prop({ default: '' })
   @Expose()
   image?: string;
-  @Prop({ default: '' })
+  @prop({ default: '' })
   @Expose()
   blurHash?: string;
-  @Prop({ default: [] })
+  @prop({ default: [] })
   @Expose()
   member?: Array<string>;
-  @Prop({ default: DFStatus.Active })
+  @prop({ default: DFStatus.Active })
   @Expose()
   status?: number;
-  @Prop({ RegExp: /^[A-Fa-f0-9]{24}$/ })
+  @prop()
   @Expose()
   createdBy: string;
 
@@ -39,6 +42,16 @@ export class Classes extends BaseModel<Classes> {
   }
 
   static createModel(payload: Classes): InstanceType<Classes> {
-    return new this.model(payload);
+    console.log(
+      `LHA:  ===> file: class.entity.ts ===> line 45 ===> payload`,
+      payload,
+    );
+    console.log(this.model);
+    const result = new this.model(payload);
+    console.log(
+      `LHA:  ===> file: class.entity.ts ===> line 50 ===> result`,
+      result,
+    );
+    return result;
   }
 }
