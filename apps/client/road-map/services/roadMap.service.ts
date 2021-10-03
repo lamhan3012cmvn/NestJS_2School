@@ -23,7 +23,7 @@ export class RoadMapService extends BaseService<RoadMap> {
   ): Promise<RoadMap> {
     try {
       const obj: any = { ...createDto };
-      obj.createdBy = createdBy;
+      obj.createBy = createdBy;
       const newRoadMap = RoadMap.createModel(obj);
 
       const roadMapS = await this.create(newRoadMap);

@@ -1,19 +1,20 @@
 import { BaseModel } from 'apps/share/mongodb/baseModel.entity';
 import { schemaOptions } from './../../../share/mongodb/baseModel.entity';
-import { InstanceType, ModelType } from 'typegoose';
-import { Prop } from '@nestjs/mongoose';
-import { regexpObjectId } from 'apps/share/mongodb/RegExp';
+import { InstanceType, ModelType, prop } from 'typegoose';
+import { DFStatus } from 'apps/share/enums/status.enum';
 
 export class RoadMapContent extends BaseModel<RoadMapContent> {
-  @Prop({ default: '' })
+  @prop({ default: '' })
   name: string;
-  @Prop({ default: '' })
+  @prop({ default: '' })
   description: string;
-  @Prop({ default: 0 })
+  @prop({ default: DFStatus.Active })
+  status: number;
+  @prop({ default: 0 })
   type: 0 | 1 | 2 | 3;
-  @Prop({ required: true, type: [String] })
+  @prop({ required: true })
   data: string;
-  @Prop({ required: true, RegExp: regexpObjectId })
+  @prop({ required: true })
   idRoadMap: string;
 
   static get model(): ModelType<RoadMapContent> {

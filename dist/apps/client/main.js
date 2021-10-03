@@ -19,12 +19,12 @@ const shared_module_1 = __webpack_require__(3);
 const terminus_1 = __webpack_require__(10);
 const question_module_1 = __webpack_require__(11);
 const roadMap_module_1 = __webpack_require__(27);
-const device_module_1 = __webpack_require__(34);
-const class_module_1 = __webpack_require__(38);
-const auth_module_1 = __webpack_require__(51);
+const device_module_1 = __webpack_require__(36);
+const class_module_1 = __webpack_require__(40);
+const auth_module_1 = __webpack_require__(53);
 const mongoose_1 = __webpack_require__(17);
-const setup_1 = __webpack_require__(65);
-const user_module_1 = __webpack_require__(47);
+const setup_1 = __webpack_require__(67);
+const user_module_1 = __webpack_require__(49);
 let ClientModule = class ClientModule {
 };
 ClientModule = __decorate([
@@ -813,7 +813,7 @@ let RoadMapService = class RoadMapService extends baseService_service_1.BaseServ
     async createRoadMap(createdBy, createDto) {
         try {
             const obj = Object.assign({}, createDto);
-            obj.createdBy = createdBy;
+            obj.createBy = createdBy;
             const newRoadMap = road_map_entity_1.RoadMap.createModel(obj);
             const roadMapS = await this.create(newRoadMap);
             if (roadMapS) {
@@ -850,15 +850,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var RoadMap_1;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RoadMap = void 0;
 const baseModel_entity_1 = __webpack_require__(24);
+const typegoose_1 = __webpack_require__(20);
 const baseModel_entity_2 = __webpack_require__(24);
-const mongoose_1 = __webpack_require__(17);
-let RoadMap = RoadMap_1 = class RoadMap extends baseModel_entity_2.BaseModel {
+const status_enum_1 = __webpack_require__(43);
+class RoadMap extends baseModel_entity_2.BaseModel {
     static get model() {
-        return new RoadMap_1().getModelForClass(RoadMap_1, {
+        return new RoadMap().getModelForClass(RoadMap, {
             schemaOptions: baseModel_entity_1.schemaOptions,
         });
     }
@@ -868,22 +868,23 @@ let RoadMap = RoadMap_1 = class RoadMap extends baseModel_entity_2.BaseModel {
     static createModel(payload) {
         return new this.model(payload);
     }
-};
+}
 __decorate([
-    mongoose_1.Prop({ default: '' }),
+    typegoose_1.prop({ default: '' }),
     __metadata("design:type", String)
 ], RoadMap.prototype, "name", void 0);
 __decorate([
-    mongoose_1.Prop({ default: '' }),
+    typegoose_1.prop({ default: '' }),
     __metadata("design:type", String)
 ], RoadMap.prototype, "description", void 0);
 __decorate([
-    mongoose_1.Prop({ default: '' }),
+    typegoose_1.prop({ default: status_enum_1.DFStatus.Active }),
+    __metadata("design:type", Number)
+], RoadMap.prototype, "status", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
     __metadata("design:type", String)
 ], RoadMap.prototype, "createBy", void 0);
-RoadMap = RoadMap_1 = __decorate([
-    mongoose_1.Schema({ timestamps: true })
-], RoadMap);
 exports.RoadMap = RoadMap;
 
 
@@ -904,33 +905,61 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d;
+var _a, _b, _c, _d, _e, _f, _g, _h;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RoadMapController = void 0;
+const query_dto_1 = __webpack_require__(31);
 const user_decorator_1 = __webpack_require__(13);
 const roadMap_service_1 = __webpack_require__(28);
 const common_1 = __webpack_require__(2);
 const jwt_auth_guard_1 = __webpack_require__(14);
 const user_entity_1 = __webpack_require__(16);
-const res_dto_1 = __webpack_require__(31);
+const res_dto_1 = __webpack_require__(33);
 const resource_exception_1 = __webpack_require__(18);
-const baseController_1 = __webpack_require__(33);
+const baseController_1 = __webpack_require__(34);
 const logger_service_1 = __webpack_require__(9);
+const res_dto_2 = __webpack_require__(35);
 let RoadMapController = class RoadMapController {
     constructor(roadMapService, loggerService) {
         this.roadMapService = roadMapService;
         this.loggerService = loggerService;
     }
-    async create(user, createRoadMap) {
+    async createRoadMap(user, createRoadMap) {
         try {
             const result = await this.roadMapService.createRoadMap(user.createdBy, createRoadMap);
             if (result) {
-                return new baseController_1.Ok('Create RoadMap success', result);
+                return new baseController_1.Ok('Create RoadMap success', this.roadMapService.cvtJSON(result));
             }
             throw new resource_exception_1.ResourceFoundException();
         }
         catch (e) {
-            this.loggerService.error(e.message, null, 'create-ClassController');
+            this.loggerService.error(e.message, null, 'create-RoadMapController');
+            return new baseController_1.ApiBaseResponse(500);
+        }
+    }
+    async updateRoadMap(user, query, updateRoadMap) {
+        try {
+            const result = await this.roadMapService.findOneAndUpdate({ createBy: user.createdBy, _id: query.id }, updateRoadMap);
+            if (result) {
+                return new baseController_1.Ok('Update RoadMap success', this.roadMapService.cvtJSON(result));
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'update-RoadMapController');
+            return new baseController_1.ApiBaseResponse(500);
+        }
+    }
+    async changeRoadMap(user, query) {
+        try {
+            const result = await this.roadMapService.findOneAndUpdate({ createBy: user.createdBy, _id: query.id }, { status: ~~query.status });
+            if (result) {
+                return new baseController_1.Ok('Delete RoadMap success', this.roadMapService.cvtJSON(result));
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'Delete-RoadMapController');
             return new baseController_1.ApiBaseResponse(500);
         }
     }
@@ -938,21 +967,86 @@ let RoadMapController = class RoadMapController {
 __decorate([
     common_1.Post(),
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.HttpCode(200),
     __param(0, user_decorator_1.Usr()),
     __param(1, common_1.Body()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object, typeof (_b = typeof res_dto_1.CreateRoadMapDto !== "undefined" && res_dto_1.CreateRoadMapDto) === "function" ? _b : Object]),
     __metadata("design:returntype", Promise)
-], RoadMapController.prototype, "create", null);
+], RoadMapController.prototype, "createRoadMap", null);
+__decorate([
+    common_1.Patch(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.HttpCode(200),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __param(2, common_1.Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_c = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _c : Object, Object, typeof (_d = typeof res_dto_2.UpdateRoadMap !== "undefined" && res_dto_2.UpdateRoadMap) === "function" ? _d : Object]),
+    __metadata("design:returntype", Promise)
+], RoadMapController.prototype, "updateRoadMap", null);
+__decorate([
+    common_1.Delete(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.HttpCode(200),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_e = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _e : Object, typeof (_f = typeof query_dto_1.QueryDeleteRoadMap !== "undefined" && query_dto_1.QueryDeleteRoadMap) === "function" ? _f : Object]),
+    __metadata("design:returntype", Promise)
+], RoadMapController.prototype, "changeRoadMap", null);
 RoadMapController = __decorate([
-    common_1.Controller('road-map'),
-    __metadata("design:paramtypes", [typeof (_c = typeof roadMap_service_1.RoadMapService !== "undefined" && roadMap_service_1.RoadMapService) === "function" ? _c : Object, typeof (_d = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _d : Object])
+    common_1.Controller('api/road-map'),
+    __metadata("design:paramtypes", [typeof (_g = typeof roadMap_service_1.RoadMapService !== "undefined" && roadMap_service_1.RoadMapService) === "function" ? _g : Object, typeof (_h = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _h : Object])
 ], RoadMapController);
 exports.RoadMapController = RoadMapController;
 
 
 /***/ }),
 /* 31 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QueryDeleteRoadMap = void 0;
+const class_validator_1 = __webpack_require__(32);
+var statusRoadMap;
+(function (statusRoadMap) {
+    statusRoadMap[statusRoadMap["Inactive"] = 0] = "Inactive";
+    statusRoadMap[statusRoadMap["Active"] = 1] = "Active";
+})(statusRoadMap || (statusRoadMap = {}));
+class QueryDeleteRoadMap {
+}
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], QueryDeleteRoadMap.prototype, "id", void 0);
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], QueryDeleteRoadMap.prototype, "status", void 0);
+exports.QueryDeleteRoadMap = QueryDeleteRoadMap;
+
+
+/***/ }),
+/* 32 */
+/***/ ((module) => {
+
+module.exports = require("class-validator");
+
+/***/ }),
+/* 33 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -984,13 +1078,7 @@ exports.CreateRoadMapDto = CreateRoadMapDto;
 
 
 /***/ }),
-/* 32 */
-/***/ ((module) => {
-
-module.exports = require("class-validator");
-
-/***/ }),
-/* 33 */
+/* 34 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -1039,7 +1127,39 @@ exports.BaseController = BaseController;
 
 
 /***/ }),
-/* 34 */
+/* 35 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UpdateRoadMap = void 0;
+const class_validator_1 = __webpack_require__(32);
+class UpdateRoadMap {
+}
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], UpdateRoadMap.prototype, "name", void 0);
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], UpdateRoadMap.prototype, "description", void 0);
+exports.UpdateRoadMap = UpdateRoadMap;
+
+
+/***/ }),
+/* 36 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1051,10 +1171,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DeviceModule = void 0;
-const device_entity_1 = __webpack_require__(35);
+const device_entity_1 = __webpack_require__(37);
 const common_1 = __webpack_require__(2);
-const device_service_1 = __webpack_require__(36);
-const device_controller_1 = __webpack_require__(37);
+const device_service_1 = __webpack_require__(38);
+const device_controller_1 = __webpack_require__(39);
 const mongoose_1 = __webpack_require__(17);
 let DeviceModule = class DeviceModule {
 };
@@ -1073,7 +1193,7 @@ exports.DeviceModule = DeviceModule;
 
 
 /***/ }),
-/* 35 */
+/* 37 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1137,7 +1257,7 @@ exports.Device = Device;
 
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1161,7 +1281,7 @@ const mongoose_1 = __webpack_require__(17);
 const baseService_service_1 = __webpack_require__(21);
 const logger_service_1 = __webpack_require__(9);
 const typegoose_1 = __webpack_require__(20);
-const device_entity_1 = __webpack_require__(35);
+const device_entity_1 = __webpack_require__(37);
 let DeviceService = class DeviceService extends baseService_service_1.BaseService {
     constructor(_deviceModel, _loggerService) {
         super();
@@ -1208,7 +1328,7 @@ exports.DeviceService = DeviceService;
 
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1228,7 +1348,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DeviceController = void 0;
 const common_1 = __webpack_require__(2);
-const device_service_1 = __webpack_require__(36);
+const device_service_1 = __webpack_require__(38);
 let DeviceController = class DeviceController {
     constructor(deviceService) {
         this.deviceService = deviceService;
@@ -1252,7 +1372,7 @@ exports.DeviceController = DeviceController;
 
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1266,12 +1386,12 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassModule = void 0;
 const logger_service_1 = __webpack_require__(9);
 const common_1 = __webpack_require__(2);
-const class_service_1 = __webpack_require__(39);
-const class_controller_1 = __webpack_require__(44);
+const class_service_1 = __webpack_require__(41);
+const class_controller_1 = __webpack_require__(46);
 const mongoose_1 = __webpack_require__(17);
-const class_entity_1 = __webpack_require__(40);
-const user_service_1 = __webpack_require__(42);
-const user_module_1 = __webpack_require__(47);
+const class_entity_1 = __webpack_require__(42);
+const user_service_1 = __webpack_require__(44);
+const user_module_1 = __webpack_require__(49);
 const user_entity_1 = __webpack_require__(16);
 let ClassModule = class ClassModule {
 };
@@ -1292,7 +1412,7 @@ exports.ClassModule = ClassModule;
 
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1311,14 +1431,14 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassService = void 0;
-const class_entity_1 = __webpack_require__(40);
+const class_entity_1 = __webpack_require__(42);
 const common_1 = __webpack_require__(2);
 const mongoose_1 = __webpack_require__(17);
 const logger_service_1 = __webpack_require__(9);
 const baseService_service_1 = __webpack_require__(21);
 const typegoose_1 = __webpack_require__(20);
-const status_enum_1 = __webpack_require__(41);
-const user_service_1 = __webpack_require__(42);
+const status_enum_1 = __webpack_require__(43);
+const user_service_1 = __webpack_require__(44);
 let ClassService = class ClassService extends baseService_service_1.BaseService {
     constructor(_classModel, _loggerService, _userService) {
         super();
@@ -1417,7 +1537,7 @@ exports.ClassService = ClassService;
 
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1436,7 +1556,7 @@ exports.Classes = void 0;
 const baseModel_entity_1 = __webpack_require__(24);
 const class_transformer_1 = __webpack_require__(25);
 const typegoose_1 = __webpack_require__(20);
-const status_enum_1 = __webpack_require__(41);
+const status_enum_1 = __webpack_require__(43);
 class Classes extends baseModel_entity_1.BaseModel {
     static get model() {
         return new Classes().getModelForClass(Classes, { schemaOptions: baseModel_entity_1.schemaOptions });
@@ -1493,7 +1613,7 @@ exports.Classes = Classes;
 
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -1507,7 +1627,7 @@ var DFStatus;
 
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1529,7 +1649,7 @@ exports.UserService = void 0;
 const logger_service_1 = __webpack_require__(9);
 const common_1 = __webpack_require__(2);
 const mongoose_1 = __webpack_require__(17);
-const respone_service_1 = __webpack_require__(43);
+const respone_service_1 = __webpack_require__(45);
 const mongoose_2 = __webpack_require__(22);
 const user_entity_1 = __webpack_require__(16);
 let UserService = class UserService extends respone_service_1.ResponseService {
@@ -1603,7 +1723,7 @@ exports.UserService = UserService;
 
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -1618,7 +1738,7 @@ exports.ResponseService = ResponseService;
 
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1638,16 +1758,16 @@ var _a, _b, _c, _d, _e, _f, _g, _h;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassController = void 0;
 const common_1 = __webpack_require__(2);
-const class_service_1 = __webpack_require__(39);
-const create_class_dto_1 = __webpack_require__(45);
-const update_class_dto_1 = __webpack_require__(46);
-const baseController_1 = __webpack_require__(33);
+const class_service_1 = __webpack_require__(41);
+const create_class_dto_1 = __webpack_require__(47);
+const update_class_dto_1 = __webpack_require__(48);
+const baseController_1 = __webpack_require__(34);
 const logger_service_1 = __webpack_require__(9);
 const jwt_auth_guard_1 = __webpack_require__(14);
 const user_decorator_1 = __webpack_require__(13);
 const user_entity_1 = __webpack_require__(16);
 const resource_exception_1 = __webpack_require__(18);
-const status_enum_1 = __webpack_require__(41);
+const status_enum_1 = __webpack_require__(43);
 let ClassController = class ClassController extends baseController_1.BaseController {
     constructor(loggerService, classService) {
         super();
@@ -1757,7 +1877,7 @@ exports.ClassController = ClassController;
 
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1794,7 +1914,7 @@ exports.CreateClassDto = CreateClassDto;
 
 
 /***/ }),
-/* 46 */
+/* 48 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -1806,7 +1926,7 @@ exports.UpdateClassDto = UpdateClassDto;
 
 
 /***/ }),
-/* 47 */
+/* 49 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1820,9 +1940,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserModule = void 0;
 const common_1 = __webpack_require__(2);
 const mongoose_1 = __webpack_require__(17);
-const user_controller_1 = __webpack_require__(48);
+const user_controller_1 = __webpack_require__(50);
 const user_entity_1 = __webpack_require__(16);
-const user_service_1 = __webpack_require__(42);
+const user_service_1 = __webpack_require__(44);
 const logger_service_1 = __webpack_require__(9);
 let UserModule = class UserModule {
 };
@@ -1839,7 +1959,7 @@ exports.UserModule = UserModule;
 
 
 /***/ }),
-/* 48 */
+/* 50 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1859,12 +1979,12 @@ var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserController = void 0;
 const user_decorator_1 = __webpack_require__(13);
-const baseController_1 = __webpack_require__(33);
+const baseController_1 = __webpack_require__(34);
 const common_1 = __webpack_require__(2);
-const query_interface_1 = __webpack_require__(49);
-const user_service_1 = __webpack_require__(42);
+const query_interface_1 = __webpack_require__(51);
+const user_service_1 = __webpack_require__(44);
 const logger_service_1 = __webpack_require__(9);
-const res_dto_1 = __webpack_require__(50);
+const res_dto_1 = __webpack_require__(52);
 const errors_exception_1 = __webpack_require__(26);
 const jwt_auth_guard_1 = __webpack_require__(14);
 const resource_exception_1 = __webpack_require__(18);
@@ -1939,7 +2059,7 @@ exports.UserController = UserController;
 
 
 /***/ }),
-/* 49 */
+/* 51 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -1947,7 +2067,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 
 /***/ }),
-/* 50 */
+/* 52 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1990,7 +2110,7 @@ exports.UpdateUserDto = UpdateUserDto;
 
 
 /***/ }),
-/* 51 */
+/* 53 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2002,17 +2122,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthModule = void 0;
-const auth_service_1 = __webpack_require__(52);
+const auth_service_1 = __webpack_require__(54);
 const common_1 = __webpack_require__(2);
 const mongoose_1 = __webpack_require__(17);
-const local_strategy_1 = __webpack_require__(56);
-const configService_module_1 = __webpack_require__(59);
+const local_strategy_1 = __webpack_require__(58);
+const configService_module_1 = __webpack_require__(61);
 const config_service_1 = __webpack_require__(5);
-const setupJwt_1 = __webpack_require__(60);
-const jwt_1 = __webpack_require__(54);
-const jwt_strategy_1 = __webpack_require__(61);
-const auth_entity_1 = __webpack_require__(55);
-const auth_controller_1 = __webpack_require__(62);
+const setupJwt_1 = __webpack_require__(62);
+const jwt_1 = __webpack_require__(56);
+const jwt_strategy_1 = __webpack_require__(63);
+const auth_entity_1 = __webpack_require__(57);
+const auth_controller_1 = __webpack_require__(64);
 const logger_service_1 = __webpack_require__(9);
 const user_entity_1 = __webpack_require__(16);
 let AuthModule = class AuthModule {
@@ -2041,7 +2161,7 @@ exports.AuthModule = AuthModule;
 
 
 /***/ }),
-/* 52 */
+/* 54 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2063,12 +2183,12 @@ exports.AuthService = void 0;
 const common_1 = __webpack_require__(2);
 const mongoose_1 = __webpack_require__(17);
 const mongoose_2 = __webpack_require__(22);
-const bcrypt = __webpack_require__(53);
+const bcrypt = __webpack_require__(55);
 const config_service_1 = __webpack_require__(5);
 const logger_service_1 = __webpack_require__(9);
-const respone_service_1 = __webpack_require__(43);
-const jwt_1 = __webpack_require__(54);
-const auth_entity_1 = __webpack_require__(55);
+const respone_service_1 = __webpack_require__(45);
+const jwt_1 = __webpack_require__(56);
+const auth_entity_1 = __webpack_require__(57);
 const user_entity_1 = __webpack_require__(16);
 let AuthService = class AuthService extends respone_service_1.ResponseService {
     constructor(accountModel, userModel, configService, loggerService, jwtService) {
@@ -2179,19 +2299,19 @@ exports.AuthService = AuthService;
 
 
 /***/ }),
-/* 53 */
+/* 55 */
 /***/ ((module) => {
 
 module.exports = require("bcrypt");
 
 /***/ }),
-/* 54 */
+/* 56 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/jwt");
 
 /***/ }),
-/* 55 */
+/* 57 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2229,7 +2349,7 @@ exports.AuthSchema = mongoose_1.SchemaFactory.createForClass(Auth);
 
 
 /***/ }),
-/* 56 */
+/* 58 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2245,11 +2365,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LocalStrategy = void 0;
-const passport_jwt_1 = __webpack_require__(57);
-const passport_local_1 = __webpack_require__(58);
+const passport_jwt_1 = __webpack_require__(59);
+const passport_local_1 = __webpack_require__(60);
 const passport_1 = __webpack_require__(15);
 const common_1 = __webpack_require__(2);
-const auth_service_1 = __webpack_require__(52);
+const auth_service_1 = __webpack_require__(54);
 let LocalStrategy = class LocalStrategy extends passport_1.PassportStrategy(passport_local_1.Strategy) {
     constructor(authService) {
         super({
@@ -2275,19 +2395,19 @@ exports.LocalStrategy = LocalStrategy;
 
 
 /***/ }),
-/* 57 */
+/* 59 */
 /***/ ((module) => {
 
 module.exports = require("passport-jwt");
 
 /***/ }),
-/* 58 */
+/* 60 */
 /***/ ((module) => {
 
 module.exports = require("passport-local");
 
 /***/ }),
-/* 59 */
+/* 61 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2319,13 +2439,13 @@ exports.ConfigModule = ConfigModule;
 
 
 /***/ }),
-/* 60 */
+/* 62 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupJWT = void 0;
-const configService_module_1 = __webpack_require__(59);
+const configService_module_1 = __webpack_require__(61);
 const config_service_1 = __webpack_require__(5);
 function setupJWT(jwtSecret) {
     return {
@@ -2341,7 +2461,7 @@ exports.setupJWT = setupJWT;
 
 
 /***/ }),
-/* 61 */
+/* 63 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2357,11 +2477,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtStrategy = void 0;
-const passport_jwt_1 = __webpack_require__(57);
+const passport_jwt_1 = __webpack_require__(59);
 const passport_1 = __webpack_require__(15);
 const common_1 = __webpack_require__(2);
 const config_service_1 = __webpack_require__(5);
-const auth_service_1 = __webpack_require__(52);
+const auth_service_1 = __webpack_require__(54);
 let JwtStrategy = class JwtStrategy extends passport_1.PassportStrategy(passport_jwt_1.Strategy) {
     constructor(configService, authService) {
         super({
@@ -2390,7 +2510,7 @@ exports.JwtStrategy = JwtStrategy;
 
 
 /***/ }),
-/* 62 */
+/* 64 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2410,12 +2530,12 @@ var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthController = void 0;
 const common_1 = __webpack_require__(2);
-const req_dto_1 = __webpack_require__(63);
-const req_dto_2 = __webpack_require__(64);
+const req_dto_1 = __webpack_require__(65);
+const req_dto_2 = __webpack_require__(66);
 const logger_service_1 = __webpack_require__(9);
-const baseController_1 = __webpack_require__(33);
+const baseController_1 = __webpack_require__(34);
 const jwt_auth_guard_1 = __webpack_require__(14);
-const auth_service_1 = __webpack_require__(52);
+const auth_service_1 = __webpack_require__(54);
 const resource_exception_1 = __webpack_require__(18);
 const errors_exception_1 = __webpack_require__(26);
 let AuthController = class AuthController {
@@ -2520,7 +2640,7 @@ exports.AuthController = AuthController;
 
 
 /***/ }),
-/* 63 */
+/* 65 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2552,7 +2672,7 @@ exports.LoginAuthenticationDto = LoginAuthenticationDto;
 
 
 /***/ }),
-/* 64 */
+/* 66 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2594,13 +2714,13 @@ exports.RegisterAuthenticationDto = RegisterAuthenticationDto;
 
 
 /***/ }),
-/* 65 */
+/* 67 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupMongoDb = void 0;
-const configService_module_1 = __webpack_require__(59);
+const configService_module_1 = __webpack_require__(61);
 const config_service_1 = __webpack_require__(5);
 function setupMongoDb(mongoUri) {
     return {
@@ -2619,7 +2739,7 @@ exports.setupMongoDb = setupMongoDb;
 
 
 /***/ }),
-/* 66 */
+/* 68 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2682,37 +2802,37 @@ exports.HttpExceptionFilter = HttpExceptionFilter;
 
 
 /***/ }),
-/* 67 */
+/* 69 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
 
 /***/ }),
-/* 68 */
+/* 70 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-express");
 
 /***/ }),
-/* 69 */
+/* 71 */
 /***/ ((module) => {
 
 module.exports = require("express-rate-limit");
 
 /***/ }),
-/* 70 */
+/* 72 */
 /***/ ((module) => {
 
 module.exports = require("helmet");
 
 /***/ }),
-/* 71 */
+/* 73 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupSwagger = void 0;
-const swagger_1 = __webpack_require__(72);
+const swagger_1 = __webpack_require__(74);
 function setupSwagger(app, config) {
     const options = new swagger_1.DocumentBuilder()
         .setTitle(config.title || 'DocumentApi')
@@ -2728,7 +2848,7 @@ exports.setupSwagger = setupSwagger;
 
 
 /***/ }),
-/* 72 */
+/* 74 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
@@ -2768,16 +2888,16 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const client_module_1 = __webpack_require__(1);
-const http_exception_filter_1 = __webpack_require__(66);
+const http_exception_filter_1 = __webpack_require__(68);
 const config_service_1 = __webpack_require__(5);
 const logger_service_1 = __webpack_require__(9);
 const shared_module_1 = __webpack_require__(3);
-const core_1 = __webpack_require__(67);
-const platform_express_1 = __webpack_require__(68);
-const rateLimit = __webpack_require__(69);
-const helmet = __webpack_require__(70);
+const core_1 = __webpack_require__(69);
+const platform_express_1 = __webpack_require__(70);
+const rateLimit = __webpack_require__(71);
+const helmet = __webpack_require__(72);
 const common_1 = __webpack_require__(2);
-const setup_1 = __webpack_require__(71);
+const setup_1 = __webpack_require__(73);
 async function bootstrap() {
     try {
         const app = await core_1.NestFactory.create(client_module_1.ClientModule, new platform_express_1.ExpressAdapter(), {

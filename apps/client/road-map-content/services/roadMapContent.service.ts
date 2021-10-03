@@ -15,4 +15,28 @@ export class RoadMapContentService extends BaseService<RoadMapContent> {
     super();
     this._model = _setOfQuestionsModel;
   }
+  async createRoadMapContent(
+    createdBy: string,
+    createDto,
+  ): Promise<RoadMapContent> {
+    try {
+      const obj: any = { ...createDto };
+      obj.createBy = createdBy;
+      const newRoadMap = RoadMapContent.createModel(obj);
+
+      const roadMapS = await this.create(newRoadMap);
+      if (roadMapS) {
+        return this.cvtJSON(roadMapS) as RoadMapContent;
+      }
+      return null;
+    } catch (e) {
+      console.log(e);
+      this._loggerService.error(
+        e.message,
+        null,
+        'CREATE-RoadMapContentService',
+      );
+      return null;
+    }
+  }
 }

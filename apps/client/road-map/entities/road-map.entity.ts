@@ -1,16 +1,16 @@
 import { schemaOptions } from './../../../share/mongodb/baseModel.entity';
-import { RoadMapContent } from './../../road-map-content/entities/roadMapContent.entity';
-import { ModelType, InstanceType } from 'typegoose';
+import { ModelType, InstanceType, prop } from 'typegoose';
 import { BaseModel } from 'apps/share/mongodb/baseModel.entity';
-import { Prop, Schema } from '@nestjs/mongoose';
+import { DFStatus } from 'apps/share/enums/status.enum';
 
-@Schema({ timestamps: true })
 export class RoadMap extends BaseModel<RoadMap> {
-  @Prop({ default: '' })
+  @prop({ default: '' })
   name: string;
-  @Prop({ default: '' })
+  @prop({ default: '' })
   description: string;
-  @Prop({ default: '' })
+  @prop({ default: DFStatus.Active })
+  status: number;
+  @prop({ default: '' })
   createBy: string;
 
   static get model(): ModelType<RoadMap> {
