@@ -26,9 +26,9 @@ export class RoadMapService extends BaseService<RoadMap> {
       obj.createdBy = createdBy;
       const newRoadMap = RoadMap.createModel(obj);
 
-      const newClasses = await this.create(newRoadMap);
-      if (newClasses) {
-        return this.cvtJSON(newClasses) as RoadMap;
+      const roadMapS = await this.create(newRoadMap);
+      if (roadMapS) {
+        return this.cvtJSON(roadMapS) as RoadMap;
       }
       return null;
     } catch (e) {
