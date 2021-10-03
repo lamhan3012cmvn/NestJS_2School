@@ -18,13 +18,14 @@ const common_1 = __webpack_require__(2);
 const shared_module_1 = __webpack_require__(3);
 const terminus_1 = __webpack_require__(10);
 const question_module_1 = __webpack_require__(11);
-const roadMap_module_1 = __webpack_require__(27);
-const device_module_1 = __webpack_require__(36);
-const class_module_1 = __webpack_require__(40);
+const roadMap_module_1 = __webpack_require__(28);
+const device_module_1 = __webpack_require__(37);
+const class_module_1 = __webpack_require__(41);
 const auth_module_1 = __webpack_require__(53);
 const mongoose_1 = __webpack_require__(17);
 const setup_1 = __webpack_require__(67);
 const user_module_1 = __webpack_require__(49);
+const set_of_questions_module_1 = __webpack_require__(75);
 let ClientModule = class ClientModule {
 };
 ClientModule = __decorate([
@@ -34,6 +35,7 @@ ClientModule = __decorate([
             terminus_1.TerminusModule,
             mongoose_1.MongooseModule.forRootAsync(setup_1.setupMongoDb('MONGODB_URI')),
             question_module_1.QuestionModule,
+            set_of_questions_module_1.SetOfQuestionsModule,
             roadMap_module_1.RoadMapModule,
             device_module_1.DeviceModule,
             class_module_1.ClassModule,
@@ -296,7 +298,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b;
+var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.QuestionController = void 0;
 const user_decorator_1 = __webpack_require__(13);
@@ -306,21 +308,42 @@ const user_entity_1 = __webpack_require__(16);
 const resource_exception_1 = __webpack_require__(18);
 const question_service_1 = __webpack_require__(19);
 const errors_exception_1 = __webpack_require__(26);
+const baseController_1 = __webpack_require__(27);
+const logger_service_1 = __webpack_require__(9);
 let QuestionController = class QuestionController {
-    constructor(questionService) {
+    constructor(questionService, loggerService) {
         this.questionService = questionService;
+        this.loggerService = loggerService;
     }
-    async login(user, payload) {
+    async createQuestion(user, payload) {
         try {
+            const result = await this.questionService.createQuestion(user.createdBy, payload);
+            if (result) {
+                return new baseController_1.Ok('Create Class success', result);
+            }
             throw new resource_exception_1.ResourceFoundException();
         }
         catch (e) {
+            this.loggerService.error(e.message, null, 'create-ClassController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+    async updateQuestion(user, query, payload) {
+        try {
+            const result = await this.questionService.findOneAndUpdate({ createBy: user.createdBy, _id: query.id }, payload);
+            if (result) {
+                return new baseController_1.Ok('Create Class success', result);
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'create-ClassController');
             throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
 };
 __decorate([
-    common_1.Post('/'),
+    common_1.Post(),
     common_1.HttpCode(200),
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
     common_1.Header('Content-Type', 'application/json'),
@@ -329,10 +352,22 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object, Object]),
     __metadata("design:returntype", Promise)
-], QuestionController.prototype, "login", null);
+], QuestionController.prototype, "createQuestion", null);
+__decorate([
+    common_1.Patch(),
+    common_1.HttpCode(200),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.Header('Content-Type', 'application/json'),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __param(2, common_1.Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_b = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _b : Object, Object, Object]),
+    __metadata("design:returntype", Promise)
+], QuestionController.prototype, "updateQuestion", null);
 QuestionController = __decorate([
     common_1.Controller('question'),
-    __metadata("design:paramtypes", [typeof (_b = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _b : Object])
+    __metadata("design:paramtypes", [typeof (_c = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _c : Object, typeof (_d = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _d : Object])
 ], QuestionController);
 exports.QuestionController = QuestionController;
 
@@ -501,6 +536,23 @@ let QuestionService = class QuestionService extends baseService_service_1.BaseSe
         this._setOfQuestionsModel = _setOfQuestionsModel;
         this._loggerService = _loggerService;
     }
+    async createQuestion(createdBy, payload) {
+        try {
+            const obj = Object.assign({}, payload);
+            obj.createdBy = createdBy;
+            const model = question_entity_1.Question.createModel(obj);
+            const newQuestions = await this.create(model);
+            if (newQuestions) {
+                return this.cvtJSON(newQuestions);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'CREATE-ClassesService');
+            return null;
+        }
+    }
 };
 QuestionService = __decorate([
     common_1.Injectable(),
@@ -614,16 +666,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Question = void 0;
 const baseModel_entity_1 = __webpack_require__(24);
-const mongoose_1 = __webpack_require__(17);
 const baseModel_entity_2 = __webpack_require__(24);
 const class_transformer_1 = __webpack_require__(25);
-class Question extends baseModel_entity_2.BaseModel {
+const typegoose_1 = __webpack_require__(20);
+class Question extends baseModel_entity_1.BaseModel {
     static get model() {
         return new Question().getModelForClass(Question, {
-            schemaOptions: baseModel_entity_1.schemaOptions,
+            schemaOptions: baseModel_entity_2.schemaOptions,
         });
     }
     static get modelName() {
@@ -634,22 +687,32 @@ class Question extends baseModel_entity_2.BaseModel {
     }
 }
 __decorate([
-    mongoose_1.Prop({ default: '' }),
+    typegoose_1.prop({ default: '' }),
     class_transformer_1.Expose(),
     __metadata("design:type", String)
-], Question.prototype, "name", void 0);
+], Question.prototype, "question", void 0);
 __decorate([
-    mongoose_1.Prop({ default: '' }),
+    typegoose_1.prop({ default: [] }),
     class_transformer_1.Expose(),
-    __metadata("design:type", String)
-], Question.prototype, "description", void 0);
+    __metadata("design:type", typeof (_a = typeof Array !== "undefined" && Array) === "function" ? _a : Object)
+], Question.prototype, "answers", void 0);
 __decorate([
-    mongoose_1.Prop({ default: '' }),
+    typegoose_1.prop({ required: true }),
     class_transformer_1.Expose(),
-    __metadata("design:type", String)
-], Question.prototype, "usedTimes", void 0);
+    __metadata("design:type", Number)
+], Question.prototype, "duration", void 0);
 __decorate([
-    mongoose_1.Prop({ RegExp: /^[A-Fa-f0-9]{24}$/ }),
+    typegoose_1.prop({ default: 0 }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], Question.prototype, "qIndex", void 0);
+__decorate([
+    typegoose_1.prop({}),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], Question.prototype, "idSetOfQuestions", void 0);
+__decorate([
+    typegoose_1.prop({}),
     class_transformer_1.Expose(),
     __metadata("design:type", String)
 ], Question.prototype, "createdBy", void 0);
@@ -745,340 +808,6 @@ exports.Error2SchoolException = Error2SchoolException;
 
 /***/ }),
 /* 27 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RoadMapModule = void 0;
-const common_1 = __webpack_require__(2);
-const roadMap_service_1 = __webpack_require__(28);
-const mongoose_1 = __webpack_require__(17);
-const road_map_entity_1 = __webpack_require__(29);
-const roadMap_controller_1 = __webpack_require__(30);
-let RoadMapModule = class RoadMapModule {
-};
-RoadMapModule = __decorate([
-    common_1.Module({
-        imports: [
-            mongoose_1.MongooseModule.forFeature([
-                { name: road_map_entity_1.RoadMap.modelName, schema: road_map_entity_1.RoadMap.model.schema },
-            ]),
-        ],
-        controllers: [roadMap_controller_1.RoadMapController],
-        providers: [roadMap_service_1.RoadMapService],
-    })
-], RoadMapModule);
-exports.RoadMapModule = RoadMapModule;
-
-
-/***/ }),
-/* 28 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RoadMapService = void 0;
-const logger_service_1 = __webpack_require__(9);
-const common_1 = __webpack_require__(2);
-const mongoose_1 = __webpack_require__(17);
-const baseService_service_1 = __webpack_require__(21);
-const typegoose_1 = __webpack_require__(20);
-const road_map_entity_1 = __webpack_require__(29);
-let RoadMapService = class RoadMapService extends baseService_service_1.BaseService {
-    constructor(_roadMapModel, _loggerService) {
-        super();
-        this._roadMapModel = _roadMapModel;
-        this._loggerService = _loggerService;
-        this._model = _roadMapModel;
-    }
-    async createRoadMap(createdBy, createDto) {
-        try {
-            const obj = Object.assign({}, createDto);
-            obj.createBy = createdBy;
-            const newRoadMap = road_map_entity_1.RoadMap.createModel(obj);
-            const roadMapS = await this.create(newRoadMap);
-            if (roadMapS) {
-                return this.cvtJSON(roadMapS);
-            }
-            return null;
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'CREATE-ClassesService');
-            return null;
-        }
-    }
-};
-RoadMapService = __decorate([
-    common_1.Injectable(),
-    __param(0, mongoose_1.InjectModel(road_map_entity_1.RoadMap.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
-], RoadMapService);
-exports.RoadMapService = RoadMapService;
-
-
-/***/ }),
-/* 29 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RoadMap = void 0;
-const baseModel_entity_1 = __webpack_require__(24);
-const typegoose_1 = __webpack_require__(20);
-const baseModel_entity_2 = __webpack_require__(24);
-const status_enum_1 = __webpack_require__(43);
-class RoadMap extends baseModel_entity_2.BaseModel {
-    static get model() {
-        return new RoadMap().getModelForClass(RoadMap, {
-            schemaOptions: baseModel_entity_1.schemaOptions,
-        });
-    }
-    static get modelName() {
-        return this.model.modelName;
-    }
-    static createModel(payload) {
-        return new this.model(payload);
-    }
-}
-__decorate([
-    typegoose_1.prop({ default: '' }),
-    __metadata("design:type", String)
-], RoadMap.prototype, "name", void 0);
-__decorate([
-    typegoose_1.prop({ default: '' }),
-    __metadata("design:type", String)
-], RoadMap.prototype, "description", void 0);
-__decorate([
-    typegoose_1.prop({ default: status_enum_1.DFStatus.Active }),
-    __metadata("design:type", Number)
-], RoadMap.prototype, "status", void 0);
-__decorate([
-    typegoose_1.prop({ default: '' }),
-    __metadata("design:type", String)
-], RoadMap.prototype, "createBy", void 0);
-exports.RoadMap = RoadMap;
-
-
-/***/ }),
-/* 30 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var _a, _b, _c, _d, _e, _f, _g, _h;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RoadMapController = void 0;
-const query_dto_1 = __webpack_require__(31);
-const user_decorator_1 = __webpack_require__(13);
-const roadMap_service_1 = __webpack_require__(28);
-const common_1 = __webpack_require__(2);
-const jwt_auth_guard_1 = __webpack_require__(14);
-const user_entity_1 = __webpack_require__(16);
-const res_dto_1 = __webpack_require__(33);
-const resource_exception_1 = __webpack_require__(18);
-const baseController_1 = __webpack_require__(34);
-const logger_service_1 = __webpack_require__(9);
-const res_dto_2 = __webpack_require__(35);
-let RoadMapController = class RoadMapController {
-    constructor(roadMapService, loggerService) {
-        this.roadMapService = roadMapService;
-        this.loggerService = loggerService;
-    }
-    async createRoadMap(user, createRoadMap) {
-        try {
-            const result = await this.roadMapService.createRoadMap(user.createdBy, createRoadMap);
-            if (result) {
-                return new baseController_1.Ok('Create RoadMap success', this.roadMapService.cvtJSON(result));
-            }
-            throw new resource_exception_1.ResourceFoundException();
-        }
-        catch (e) {
-            this.loggerService.error(e.message, null, 'create-RoadMapController');
-            return new baseController_1.ApiBaseResponse(500);
-        }
-    }
-    async updateRoadMap(user, query, updateRoadMap) {
-        try {
-            const result = await this.roadMapService.findOneAndUpdate({ createBy: user.createdBy, _id: query.id }, updateRoadMap);
-            if (result) {
-                return new baseController_1.Ok('Update RoadMap success', this.roadMapService.cvtJSON(result));
-            }
-            throw new resource_exception_1.ResourceFoundException();
-        }
-        catch (e) {
-            this.loggerService.error(e.message, null, 'update-RoadMapController');
-            return new baseController_1.ApiBaseResponse(500);
-        }
-    }
-    async changeRoadMap(user, query) {
-        try {
-            const result = await this.roadMapService.findOneAndUpdate({ createBy: user.createdBy, _id: query.id }, { status: ~~query.status });
-            if (result) {
-                return new baseController_1.Ok('Delete RoadMap success', this.roadMapService.cvtJSON(result));
-            }
-            throw new resource_exception_1.ResourceFoundException();
-        }
-        catch (e) {
-            this.loggerService.error(e.message, null, 'Delete-RoadMapController');
-            return new baseController_1.ApiBaseResponse(500);
-        }
-    }
-};
-__decorate([
-    common_1.Post(),
-    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
-    common_1.HttpCode(200),
-    __param(0, user_decorator_1.Usr()),
-    __param(1, common_1.Body()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object, typeof (_b = typeof res_dto_1.CreateRoadMapDto !== "undefined" && res_dto_1.CreateRoadMapDto) === "function" ? _b : Object]),
-    __metadata("design:returntype", Promise)
-], RoadMapController.prototype, "createRoadMap", null);
-__decorate([
-    common_1.Patch(),
-    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
-    common_1.HttpCode(200),
-    __param(0, user_decorator_1.Usr()),
-    __param(1, common_1.Query()),
-    __param(2, common_1.Body()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_c = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _c : Object, Object, typeof (_d = typeof res_dto_2.UpdateRoadMap !== "undefined" && res_dto_2.UpdateRoadMap) === "function" ? _d : Object]),
-    __metadata("design:returntype", Promise)
-], RoadMapController.prototype, "updateRoadMap", null);
-__decorate([
-    common_1.Delete(),
-    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
-    common_1.HttpCode(200),
-    __param(0, user_decorator_1.Usr()),
-    __param(1, common_1.Query()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_e = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _e : Object, typeof (_f = typeof query_dto_1.QueryDeleteRoadMap !== "undefined" && query_dto_1.QueryDeleteRoadMap) === "function" ? _f : Object]),
-    __metadata("design:returntype", Promise)
-], RoadMapController.prototype, "changeRoadMap", null);
-RoadMapController = __decorate([
-    common_1.Controller('api/road-map'),
-    __metadata("design:paramtypes", [typeof (_g = typeof roadMap_service_1.RoadMapService !== "undefined" && roadMap_service_1.RoadMapService) === "function" ? _g : Object, typeof (_h = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _h : Object])
-], RoadMapController);
-exports.RoadMapController = RoadMapController;
-
-
-/***/ }),
-/* 31 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.QueryDeleteRoadMap = void 0;
-const class_validator_1 = __webpack_require__(32);
-var statusRoadMap;
-(function (statusRoadMap) {
-    statusRoadMap[statusRoadMap["Inactive"] = 0] = "Inactive";
-    statusRoadMap[statusRoadMap["Active"] = 1] = "Active";
-})(statusRoadMap || (statusRoadMap = {}));
-class QueryDeleteRoadMap {
-}
-__decorate([
-    class_validator_1.IsNotEmpty(),
-    class_validator_1.IsString(),
-    __metadata("design:type", String)
-], QueryDeleteRoadMap.prototype, "id", void 0);
-__decorate([
-    class_validator_1.IsNotEmpty(),
-    class_validator_1.IsString(),
-    __metadata("design:type", String)
-], QueryDeleteRoadMap.prototype, "status", void 0);
-exports.QueryDeleteRoadMap = QueryDeleteRoadMap;
-
-
-/***/ }),
-/* 32 */
-/***/ ((module) => {
-
-module.exports = require("class-validator");
-
-/***/ }),
-/* 33 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.CreateRoadMapDto = void 0;
-const class_validator_1 = __webpack_require__(32);
-class CreateRoadMapDto {
-}
-__decorate([
-    class_validator_1.IsNotEmpty(),
-    class_validator_1.IsString(),
-    __metadata("design:type", String)
-], CreateRoadMapDto.prototype, "name", void 0);
-__decorate([
-    class_validator_1.IsNotEmpty(),
-    class_validator_1.IsString(),
-    __metadata("design:type", String)
-], CreateRoadMapDto.prototype, "description", void 0);
-exports.CreateRoadMapDto = CreateRoadMapDto;
-
-
-/***/ }),
-/* 34 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -1127,6 +856,323 @@ exports.BaseController = BaseController;
 
 
 /***/ }),
+/* 28 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RoadMapModule = void 0;
+const common_1 = __webpack_require__(2);
+const roadMap_service_1 = __webpack_require__(29);
+const mongoose_1 = __webpack_require__(17);
+const road_map_entity_1 = __webpack_require__(30);
+const roadMap_controller_1 = __webpack_require__(32);
+let RoadMapModule = class RoadMapModule {
+};
+RoadMapModule = __decorate([
+    common_1.Module({
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: road_map_entity_1.RoadMap.modelName, schema: road_map_entity_1.RoadMap.model.schema },
+            ]),
+        ],
+        controllers: [roadMap_controller_1.RoadMapController],
+        providers: [roadMap_service_1.RoadMapService],
+    })
+], RoadMapModule);
+exports.RoadMapModule = RoadMapModule;
+
+
+/***/ }),
+/* 29 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RoadMapService = void 0;
+const logger_service_1 = __webpack_require__(9);
+const common_1 = __webpack_require__(2);
+const mongoose_1 = __webpack_require__(17);
+const baseService_service_1 = __webpack_require__(21);
+const typegoose_1 = __webpack_require__(20);
+const road_map_entity_1 = __webpack_require__(30);
+let RoadMapService = class RoadMapService extends baseService_service_1.BaseService {
+    constructor(_roadMapModel, _loggerService) {
+        super();
+        this._roadMapModel = _roadMapModel;
+        this._loggerService = _loggerService;
+        this._model = _roadMapModel;
+    }
+    async createRoadMap(createdBy, createDto) {
+        try {
+            const obj = Object.assign({}, createDto);
+            obj.createBy = createdBy;
+            const newRoadMap = road_map_entity_1.RoadMap.createModel(obj);
+            const roadMapS = await this.create(newRoadMap);
+            if (roadMapS) {
+                return this.cvtJSON(roadMapS);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'CREATE-ClassesService');
+            return null;
+        }
+    }
+};
+RoadMapService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(road_map_entity_1.RoadMap.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], RoadMapService);
+exports.RoadMapService = RoadMapService;
+
+
+/***/ }),
+/* 30 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RoadMap = void 0;
+const baseModel_entity_1 = __webpack_require__(24);
+const typegoose_1 = __webpack_require__(20);
+const baseModel_entity_2 = __webpack_require__(24);
+const status_enum_1 = __webpack_require__(31);
+class RoadMap extends baseModel_entity_2.BaseModel {
+    static get model() {
+        return new RoadMap().getModelForClass(RoadMap, {
+            schemaOptions: baseModel_entity_1.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+}
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    __metadata("design:type", String)
+], RoadMap.prototype, "name", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    __metadata("design:type", String)
+], RoadMap.prototype, "description", void 0);
+__decorate([
+    typegoose_1.prop({ default: status_enum_1.DFStatus.Active }),
+    __metadata("design:type", Number)
+], RoadMap.prototype, "status", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    __metadata("design:type", String)
+], RoadMap.prototype, "createBy", void 0);
+exports.RoadMap = RoadMap;
+
+
+/***/ }),
+/* 31 */
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DFStatus = void 0;
+var DFStatus;
+(function (DFStatus) {
+    DFStatus[DFStatus["inActive"] = 0] = "inActive";
+    DFStatus[DFStatus["Active"] = 1] = "Active";
+})(DFStatus = exports.DFStatus || (exports.DFStatus = {}));
+
+
+/***/ }),
+/* 32 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b, _c, _d, _e, _f, _g, _h;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RoadMapController = void 0;
+const query_dto_1 = __webpack_require__(33);
+const user_decorator_1 = __webpack_require__(13);
+const roadMap_service_1 = __webpack_require__(29);
+const common_1 = __webpack_require__(2);
+const jwt_auth_guard_1 = __webpack_require__(14);
+const user_entity_1 = __webpack_require__(16);
+const res_dto_1 = __webpack_require__(35);
+const resource_exception_1 = __webpack_require__(18);
+const baseController_1 = __webpack_require__(27);
+const logger_service_1 = __webpack_require__(9);
+const res_dto_2 = __webpack_require__(36);
+const errors_exception_1 = __webpack_require__(26);
+let RoadMapController = class RoadMapController {
+    constructor(roadMapService, loggerService) {
+        this.roadMapService = roadMapService;
+        this.loggerService = loggerService;
+    }
+    async createRoadMap(user, createRoadMap) {
+        try {
+            const result = await this.roadMapService.createRoadMap(user.createdBy, createRoadMap);
+            if (result) {
+                return new baseController_1.Ok('Create RoadMap success', this.roadMapService.cvtJSON(result));
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'create-RoadMapController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+    async updateRoadMap(user, query, updateRoadMap) {
+        try {
+            const result = await this.roadMapService.findOneAndUpdate({ createBy: user.createdBy, _id: query.id }, updateRoadMap);
+            if (result) {
+                return new baseController_1.Ok('Update RoadMap success', this.roadMapService.cvtJSON(result));
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'update-RoadMapController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+    async changeRoadMap(user, query) {
+        try {
+            const result = await this.roadMapService.findOneAndUpdate({ createBy: user.createdBy, _id: query.id }, { status: ~~query.status });
+            if (result) {
+                return new baseController_1.Ok('Delete RoadMap success', this.roadMapService.cvtJSON(result));
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'Delete-RoadMapController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+};
+__decorate([
+    common_1.Post(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.HttpCode(200),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object, typeof (_b = typeof res_dto_1.CreateRoadMapDto !== "undefined" && res_dto_1.CreateRoadMapDto) === "function" ? _b : Object]),
+    __metadata("design:returntype", Promise)
+], RoadMapController.prototype, "createRoadMap", null);
+__decorate([
+    common_1.Patch(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.HttpCode(200),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __param(2, common_1.Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_c = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _c : Object, Object, typeof (_d = typeof res_dto_2.UpdateRoadMap !== "undefined" && res_dto_2.UpdateRoadMap) === "function" ? _d : Object]),
+    __metadata("design:returntype", Promise)
+], RoadMapController.prototype, "updateRoadMap", null);
+__decorate([
+    common_1.Delete(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.HttpCode(200),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_e = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _e : Object, typeof (_f = typeof query_dto_1.QueryDeleteRoadMap !== "undefined" && query_dto_1.QueryDeleteRoadMap) === "function" ? _f : Object]),
+    __metadata("design:returntype", Promise)
+], RoadMapController.prototype, "changeRoadMap", null);
+RoadMapController = __decorate([
+    common_1.Controller('api/road-map'),
+    __metadata("design:paramtypes", [typeof (_g = typeof roadMap_service_1.RoadMapService !== "undefined" && roadMap_service_1.RoadMapService) === "function" ? _g : Object, typeof (_h = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _h : Object])
+], RoadMapController);
+exports.RoadMapController = RoadMapController;
+
+
+/***/ }),
+/* 33 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QueryDeleteRoadMap = void 0;
+const class_validator_1 = __webpack_require__(34);
+var statusRoadMap;
+(function (statusRoadMap) {
+    statusRoadMap[statusRoadMap["Inactive"] = 0] = "Inactive";
+    statusRoadMap[statusRoadMap["Active"] = 1] = "Active";
+})(statusRoadMap || (statusRoadMap = {}));
+class QueryDeleteRoadMap {
+}
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], QueryDeleteRoadMap.prototype, "id", void 0);
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], QueryDeleteRoadMap.prototype, "status", void 0);
+exports.QueryDeleteRoadMap = QueryDeleteRoadMap;
+
+
+/***/ }),
+/* 34 */
+/***/ ((module) => {
+
+module.exports = require("class-validator");
+
+/***/ }),
 /* 35 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
@@ -1141,8 +1187,40 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CreateRoadMapDto = void 0;
+const class_validator_1 = __webpack_require__(34);
+class CreateRoadMapDto {
+}
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], CreateRoadMapDto.prototype, "name", void 0);
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], CreateRoadMapDto.prototype, "description", void 0);
+exports.CreateRoadMapDto = CreateRoadMapDto;
+
+
+/***/ }),
+/* 36 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpdateRoadMap = void 0;
-const class_validator_1 = __webpack_require__(32);
+const class_validator_1 = __webpack_require__(34);
 class UpdateRoadMap {
 }
 __decorate([
@@ -1159,7 +1237,7 @@ exports.UpdateRoadMap = UpdateRoadMap;
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1171,10 +1249,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DeviceModule = void 0;
-const device_entity_1 = __webpack_require__(37);
+const device_entity_1 = __webpack_require__(38);
 const common_1 = __webpack_require__(2);
-const device_service_1 = __webpack_require__(38);
-const device_controller_1 = __webpack_require__(39);
+const device_service_1 = __webpack_require__(39);
+const device_controller_1 = __webpack_require__(40);
 const mongoose_1 = __webpack_require__(17);
 let DeviceModule = class DeviceModule {
 };
@@ -1193,7 +1271,7 @@ exports.DeviceModule = DeviceModule;
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1257,7 +1335,7 @@ exports.Device = Device;
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1281,7 +1359,7 @@ const mongoose_1 = __webpack_require__(17);
 const baseService_service_1 = __webpack_require__(21);
 const logger_service_1 = __webpack_require__(9);
 const typegoose_1 = __webpack_require__(20);
-const device_entity_1 = __webpack_require__(37);
+const device_entity_1 = __webpack_require__(38);
 let DeviceService = class DeviceService extends baseService_service_1.BaseService {
     constructor(_deviceModel, _loggerService) {
         super();
@@ -1328,7 +1406,7 @@ exports.DeviceService = DeviceService;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1348,7 +1426,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DeviceController = void 0;
 const common_1 = __webpack_require__(2);
-const device_service_1 = __webpack_require__(38);
+const device_service_1 = __webpack_require__(39);
 let DeviceController = class DeviceController {
     constructor(deviceService) {
         this.deviceService = deviceService;
@@ -1372,7 +1450,7 @@ exports.DeviceController = DeviceController;
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1386,10 +1464,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassModule = void 0;
 const logger_service_1 = __webpack_require__(9);
 const common_1 = __webpack_require__(2);
-const class_service_1 = __webpack_require__(41);
+const class_service_1 = __webpack_require__(42);
 const class_controller_1 = __webpack_require__(46);
 const mongoose_1 = __webpack_require__(17);
-const class_entity_1 = __webpack_require__(42);
+const class_entity_1 = __webpack_require__(43);
 const user_service_1 = __webpack_require__(44);
 const user_module_1 = __webpack_require__(49);
 const user_entity_1 = __webpack_require__(16);
@@ -1412,7 +1490,7 @@ exports.ClassModule = ClassModule;
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1431,13 +1509,13 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassService = void 0;
-const class_entity_1 = __webpack_require__(42);
+const class_entity_1 = __webpack_require__(43);
 const common_1 = __webpack_require__(2);
 const mongoose_1 = __webpack_require__(17);
 const logger_service_1 = __webpack_require__(9);
 const baseService_service_1 = __webpack_require__(21);
 const typegoose_1 = __webpack_require__(20);
-const status_enum_1 = __webpack_require__(43);
+const status_enum_1 = __webpack_require__(31);
 const user_service_1 = __webpack_require__(44);
 let ClassService = class ClassService extends baseService_service_1.BaseService {
     constructor(_classModel, _loggerService, _userService) {
@@ -1537,7 +1615,7 @@ exports.ClassService = ClassService;
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1556,7 +1634,7 @@ exports.Classes = void 0;
 const baseModel_entity_1 = __webpack_require__(24);
 const class_transformer_1 = __webpack_require__(25);
 const typegoose_1 = __webpack_require__(20);
-const status_enum_1 = __webpack_require__(43);
+const status_enum_1 = __webpack_require__(31);
 class Classes extends baseModel_entity_1.BaseModel {
     static get model() {
         return new Classes().getModelForClass(Classes, { schemaOptions: baseModel_entity_1.schemaOptions });
@@ -1610,20 +1688,6 @@ __decorate([
     __metadata("design:type", String)
 ], Classes.prototype, "createdBy", void 0);
 exports.Classes = Classes;
-
-
-/***/ }),
-/* 43 */
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.DFStatus = void 0;
-var DFStatus;
-(function (DFStatus) {
-    DFStatus[DFStatus["inActive"] = 0] = "inActive";
-    DFStatus[DFStatus["Active"] = 1] = "Active";
-})(DFStatus = exports.DFStatus || (exports.DFStatus = {}));
 
 
 /***/ }),
@@ -1754,20 +1818,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h;
+var _a, _b, _c, _d, _e, _f, _g;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassController = void 0;
 const common_1 = __webpack_require__(2);
-const class_service_1 = __webpack_require__(41);
+const class_service_1 = __webpack_require__(42);
 const create_class_dto_1 = __webpack_require__(47);
-const update_class_dto_1 = __webpack_require__(48);
-const baseController_1 = __webpack_require__(34);
+const baseController_1 = __webpack_require__(27);
 const logger_service_1 = __webpack_require__(9);
 const jwt_auth_guard_1 = __webpack_require__(14);
 const user_decorator_1 = __webpack_require__(13);
 const user_entity_1 = __webpack_require__(16);
 const resource_exception_1 = __webpack_require__(18);
-const status_enum_1 = __webpack_require__(43);
+const status_enum_1 = __webpack_require__(31);
+const errors_exception_1 = __webpack_require__(26);
 let ClassController = class ClassController extends baseController_1.BaseController {
     constructor(loggerService, classService) {
         super();
@@ -1784,20 +1848,21 @@ let ClassController = class ClassController extends baseController_1.BaseControl
         }
         catch (e) {
             this.loggerService.error(e.message, null, 'create-ClassController');
-            return new baseController_1.ApiBaseResponse(500);
+            throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
     async update(user, query, updateClassDto) {
         try {
+            console.log(`LHA:  ===> file: class.controller.ts ===> line 66 ===> updateClassDto`, updateClassDto);
             const result = await this.classService.findOneAndUpdate({ createdBy: user.createdBy, _id: query.id }, updateClassDto);
             if (result) {
-                return new baseController_1.Ok('Update Class success', result);
+                return new baseController_1.Ok('Update Class success', this.classService.cvtJSON(result));
             }
             throw new resource_exception_1.ResourceFoundException();
         }
         catch (e) {
             this.loggerService.error(e.message, null, 'Update-ClassController');
-            return new baseController_1.ApiBaseResponse(500);
+            throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
     async findAll(user) {
@@ -1813,7 +1878,7 @@ let ClassController = class ClassController extends baseController_1.BaseControl
         }
         catch (e) {
             this.loggerService.error(e.message, null, 'create-ClassController');
-            return new baseController_1.ApiBaseResponse(500);
+            throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
     async changeStatusClass(user, query) {
@@ -1829,7 +1894,7 @@ let ClassController = class ClassController extends baseController_1.BaseControl
         catch (e) {
             console.log(e);
             this.loggerService.error(e.message, null, 'changeStatus-ClassController');
-            return new baseController_1.ApiBaseResponse(500);
+            throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
 };
@@ -1843,13 +1908,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ClassController.prototype, "create", null);
 __decorate([
-    common_1.Post(),
+    common_1.Patch(),
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, user_decorator_1.Usr()),
     __param(1, common_1.Query()),
     __param(2, common_1.Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_c = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _c : Object, Object, typeof (_d = typeof update_class_dto_1.UpdateClassDto !== "undefined" && update_class_dto_1.UpdateClassDto) === "function" ? _d : Object]),
+    __metadata("design:paramtypes", [typeof (_c = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _c : Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], ClassController.prototype, "update", null);
 __decorate([
@@ -1857,7 +1922,7 @@ __decorate([
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, user_decorator_1.Usr()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_e = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _e : Object]),
+    __metadata("design:paramtypes", [typeof (_d = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _d : Object]),
     __metadata("design:returntype", Promise)
 ], ClassController.prototype, "findAll", null);
 __decorate([
@@ -1866,12 +1931,12 @@ __decorate([
     __param(0, user_decorator_1.Usr()),
     __param(1, common_1.Query()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_f = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _f : Object, Object]),
+    __metadata("design:paramtypes", [typeof (_e = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _e : Object, Object]),
     __metadata("design:returntype", Promise)
 ], ClassController.prototype, "changeStatusClass", null);
 ClassController = __decorate([
     common_1.Controller('api/classes'),
-    __metadata("design:paramtypes", [typeof (_g = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _g : Object, typeof (_h = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _h : Object])
+    __metadata("design:paramtypes", [typeof (_f = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _f : Object, typeof (_g = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _g : Object])
 ], ClassController);
 exports.ClassController = ClassController;
 
@@ -1892,7 +1957,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateClassDto = void 0;
-const class_validator_1 = __webpack_require__(32);
+const class_validator_1 = __webpack_require__(34);
 class CreateClassDto {
 }
 __decorate([
@@ -1914,18 +1979,7 @@ exports.CreateClassDto = CreateClassDto;
 
 
 /***/ }),
-/* 48 */
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UpdateClassDto = void 0;
-class UpdateClassDto {
-}
-exports.UpdateClassDto = UpdateClassDto;
-
-
-/***/ }),
+/* 48 */,
 /* 49 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
@@ -1979,7 +2033,7 @@ var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserController = void 0;
 const user_decorator_1 = __webpack_require__(13);
-const baseController_1 = __webpack_require__(34);
+const baseController_1 = __webpack_require__(27);
 const common_1 = __webpack_require__(2);
 const query_interface_1 = __webpack_require__(51);
 const user_service_1 = __webpack_require__(44);
@@ -2001,7 +2055,7 @@ let UserController = class UserController extends baseController_1.BaseControlle
         }
         catch (e) {
             this.loggerService.error(e.message, null, 'findAll-UserController');
-            return new baseController_1.ApiBaseResponse(500);
+            throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
     async getUser(user) {
@@ -2082,7 +2136,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpdateUserDto = void 0;
-const class_validator_1 = __webpack_require__(32);
+const class_validator_1 = __webpack_require__(34);
 class UpdateUserDto {
 }
 __decorate([
@@ -2533,7 +2587,7 @@ const common_1 = __webpack_require__(2);
 const req_dto_1 = __webpack_require__(65);
 const req_dto_2 = __webpack_require__(66);
 const logger_service_1 = __webpack_require__(9);
-const baseController_1 = __webpack_require__(34);
+const baseController_1 = __webpack_require__(27);
 const jwt_auth_guard_1 = __webpack_require__(14);
 const auth_service_1 = __webpack_require__(54);
 const resource_exception_1 = __webpack_require__(18);
@@ -2655,7 +2709,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LoginAuthenticationDto = void 0;
-const class_validator_1 = __webpack_require__(32);
+const class_validator_1 = __webpack_require__(34);
 class LoginAuthenticationDto {
 }
 __decorate([
@@ -2687,7 +2741,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RegisterAuthenticationDto = void 0;
-const class_validator_1 = __webpack_require__(32);
+const class_validator_1 = __webpack_require__(34);
 class RegisterAuthenticationDto {
 }
 __decorate([
@@ -2852,6 +2906,353 @@ exports.setupSwagger = setupSwagger;
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
+
+/***/ }),
+/* 75 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SetOfQuestionsModule = void 0;
+const mongoose_1 = __webpack_require__(17);
+const common_1 = __webpack_require__(2);
+const setOfQuestions_controller_1 = __webpack_require__(76);
+const setOfQuestions_service_1 = __webpack_require__(77);
+const setOfQuestions_entity_1 = __webpack_require__(78);
+const shared_module_1 = __webpack_require__(3);
+let SetOfQuestionsModule = class SetOfQuestionsModule {
+};
+SetOfQuestionsModule = __decorate([
+    common_1.Module({
+        imports: [
+            shared_module_1.SharedModule,
+            mongoose_1.MongooseModule.forFeature([
+                { name: setOfQuestions_entity_1.SetOfQuestion.modelName, schema: setOfQuestions_entity_1.SetOfQuestion.model.schema },
+            ]),
+        ],
+        controllers: [setOfQuestions_controller_1.SetOfQuestionsController],
+        providers: [setOfQuestions_service_1.SetOfQuestionsService],
+    })
+], SetOfQuestionsModule);
+exports.SetOfQuestionsModule = SetOfQuestionsModule;
+
+
+/***/ }),
+/* 76 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b, _c, _d, _e, _f, _g;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SetOfQuestionsController = void 0;
+const user_decorator_1 = __webpack_require__(13);
+const common_1 = __webpack_require__(2);
+const jwt_auth_guard_1 = __webpack_require__(14);
+const logger_service_1 = __webpack_require__(9);
+const setOfQuestions_service_1 = __webpack_require__(77);
+const baseController_1 = __webpack_require__(27);
+const resource_exception_1 = __webpack_require__(18);
+const errors_exception_1 = __webpack_require__(26);
+const user_entity_1 = __webpack_require__(16);
+const req_dto_1 = __webpack_require__(79);
+const req_dto_2 = __webpack_require__(80);
+let SetOfQuestionsController = class SetOfQuestionsController {
+    constructor(_setOfQuestionsService, loggerService) {
+        this._setOfQuestionsService = _setOfQuestionsService;
+        this.loggerService = loggerService;
+    }
+    async createSetOfQuestions(user, payload) {
+        try {
+            const result = await this._setOfQuestionsService.createSetOfQuestions(user.createdBy, payload);
+            if (result) {
+                return new baseController_1.Ok('Create SetOfQuestions success', this._setOfQuestionsService.cvtJSON(result));
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'create-SetOfQuestionsController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+    async updateSetOfQuestions(user, query, payload) {
+        try {
+            console.log(query);
+            const result = await this._setOfQuestionsService.findOneAndUpdate({ createBy: user.createdBy, _id: query.id }, payload);
+            if (result) {
+                return new baseController_1.Ok('Update SetOfQuestions success', this._setOfQuestionsService.cvtJSON(result));
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            console.log(e);
+            this.loggerService.error(e.message, null, 'update-SetOfQuestionsController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+    async changeSetOfQuestions(user, query) {
+        try {
+            const result = await this._setOfQuestionsService.findOneAndUpdate({ createBy: user.createdBy, _id: query.id }, { status: ~~query.status });
+            if (result) {
+                return new baseController_1.Ok('Delete SetOfQuestions success', this._setOfQuestionsService.cvtJSON(result));
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'Delete-SetOfQuestionsController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+};
+__decorate([
+    common_1.Post(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.HttpCode(200),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object, typeof (_b = typeof req_dto_1.CreateSetOfQuestionDto !== "undefined" && req_dto_1.CreateSetOfQuestionDto) === "function" ? _b : Object]),
+    __metadata("design:returntype", Promise)
+], SetOfQuestionsController.prototype, "createSetOfQuestions", null);
+__decorate([
+    common_1.Patch(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.HttpCode(200),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __param(2, common_1.Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_c = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _c : Object, Object, typeof (_d = typeof req_dto_2.UpdateSetOfQuestionDto !== "undefined" && req_dto_2.UpdateSetOfQuestionDto) === "function" ? _d : Object]),
+    __metadata("design:returntype", Promise)
+], SetOfQuestionsController.prototype, "updateSetOfQuestions", null);
+__decorate([
+    common_1.Delete(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.HttpCode(200),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_e = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _e : Object, Object]),
+    __metadata("design:returntype", Promise)
+], SetOfQuestionsController.prototype, "changeSetOfQuestions", null);
+SetOfQuestionsController = __decorate([
+    common_1.Controller('api/set-of-questions'),
+    __metadata("design:paramtypes", [typeof (_f = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _f : Object, typeof (_g = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _g : Object])
+], SetOfQuestionsController);
+exports.SetOfQuestionsController = SetOfQuestionsController;
+
+
+/***/ }),
+/* 77 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SetOfQuestionsService = void 0;
+const common_1 = __webpack_require__(2);
+const mongoose_1 = __webpack_require__(17);
+const baseService_service_1 = __webpack_require__(21);
+const logger_service_1 = __webpack_require__(9);
+const typegoose_1 = __webpack_require__(20);
+const setOfQuestions_entity_1 = __webpack_require__(78);
+let SetOfQuestionsService = class SetOfQuestionsService extends baseService_service_1.BaseService {
+    constructor(_setOfQuestionsModel, _loggerService) {
+        super();
+        this._setOfQuestionsModel = _setOfQuestionsModel;
+        this._loggerService = _loggerService;
+        this._model = _setOfQuestionsModel;
+    }
+    async createSetOfQuestions(createdBy, payload) {
+        try {
+            const obj = Object.assign({}, payload);
+            obj.createdBy = createdBy;
+            const model = setOfQuestions_entity_1.SetOfQuestion.createModel(obj);
+            const newSetOfQuestion = await this.create(model);
+            if (newSetOfQuestion) {
+                return this.cvtJSON(newSetOfQuestion);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'CREATE-SetOfQuestionsService');
+            return null;
+        }
+    }
+};
+SetOfQuestionsService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(setOfQuestions_entity_1.SetOfQuestion.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], SetOfQuestionsService);
+exports.SetOfQuestionsService = SetOfQuestionsService;
+
+
+/***/ }),
+/* 78 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SetOfQuestion = void 0;
+const baseModel_entity_1 = __webpack_require__(24);
+const baseModel_entity_2 = __webpack_require__(24);
+const class_transformer_1 = __webpack_require__(25);
+const typegoose_1 = __webpack_require__(20);
+const status_enum_1 = __webpack_require__(31);
+class SetOfQuestion extends baseModel_entity_2.BaseModel {
+    static get model() {
+        return new SetOfQuestion().getModelForClass(SetOfQuestion, {
+            schemaOptions: baseModel_entity_1.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+}
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], SetOfQuestion.prototype, "name", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], SetOfQuestion.prototype, "description", void 0);
+__decorate([
+    typegoose_1.prop({ default: status_enum_1.DFStatus.Active }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], SetOfQuestion.prototype, "status", void 0);
+__decorate([
+    typegoose_1.prop({ default: 0 }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], SetOfQuestion.prototype, "usedTimes", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], SetOfQuestion.prototype, "classBy", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], SetOfQuestion.prototype, "createBy", void 0);
+exports.SetOfQuestion = SetOfQuestion;
+
+
+/***/ }),
+/* 79 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CreateSetOfQuestionDto = void 0;
+const class_validator_1 = __webpack_require__(34);
+class CreateSetOfQuestionDto {
+}
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], CreateSetOfQuestionDto.prototype, "name", void 0);
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], CreateSetOfQuestionDto.prototype, "description", void 0);
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], CreateSetOfQuestionDto.prototype, "classBy", void 0);
+exports.CreateSetOfQuestionDto = CreateSetOfQuestionDto;
+
+
+/***/ }),
+/* 80 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UpdateSetOfQuestionDto = void 0;
+const class_validator_1 = __webpack_require__(34);
+class UpdateSetOfQuestionDto {
+}
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], UpdateSetOfQuestionDto.prototype, "name", void 0);
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsString(),
+    __metadata("design:type", String)
+], UpdateSetOfQuestionDto.prototype, "description", void 0);
+exports.UpdateSetOfQuestionDto = UpdateSetOfQuestionDto;
+
 
 /***/ })
 /******/ 	]);

@@ -45,7 +45,7 @@ export class UserController extends BaseController {
   //     // return new ApiBaseResponse(404);
   //   } catch (e) {
   //     this.loggerService.error(e.message, null, 'create-UserController');
-  //     return new ApiBaseResponse(500);
+  //     throw new Error2SchoolException(e.message);
   //   }
   // }
 
@@ -60,7 +60,7 @@ export class UserController extends BaseController {
       // return new ApiBaseResponse(404);
     } catch (e) {
       this.loggerService.error(e.message, null, 'findAll-UserController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 

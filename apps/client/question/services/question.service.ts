@@ -14,4 +14,21 @@ export class QuestionService extends BaseService<Question> {
   ) {
     super();
   }
+  async createQuestion(createdBy: string, payload): Promise<Question> {
+    try {
+      const obj: any = { ...payload };
+      obj.createdBy = createdBy;
+      const model = Question.createModel(obj);
+
+      const newQuestions = await this.create(model);
+      if (newQuestions) {
+        return this.cvtJSON(newQuestions) as Question;
+      }
+      return null;
+    } catch (e) {
+      console.log(e);
+      this._loggerService.error(e.message, null, 'CREATE-ClassesService');
+      return null;
+    }
+  }
 }

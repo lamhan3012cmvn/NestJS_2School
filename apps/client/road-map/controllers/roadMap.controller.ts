@@ -20,6 +20,7 @@ import { ResourceFoundException } from 'apps/share/exceptions/resource.exception
 import { ApiBaseResponse, Ok } from 'apps/share/controller/baseController';
 import { LoggerService } from 'apps/share/services/logger.service';
 import { UpdateRoadMap } from '../dto/UpdateRoadMap/res.dto';
+import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 
 @Controller('api/road-map')
 export class RoadMapController {
@@ -48,7 +49,7 @@ export class RoadMapController {
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'create-RoadMapController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 
@@ -74,7 +75,7 @@ export class RoadMapController {
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'update-RoadMapController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 
@@ -96,7 +97,7 @@ export class RoadMapController {
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'Delete-RoadMapController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 }

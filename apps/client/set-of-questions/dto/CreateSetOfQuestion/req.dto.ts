@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateQuestionDto {
+export class CreateSetOfQuestionDto {
   @IsNotEmpty()
   @IsString()
   name: string;
@@ -9,5 +9,5 @@ export class CreateQuestionDto {
   description: string;
   @IsNotEmpty()
   @IsString()
-  topic: string;
+  classBy: string;
 }

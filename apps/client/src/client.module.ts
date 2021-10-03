@@ -9,6 +9,7 @@ import { AuthModule } from '../authentication/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { setupMongoDb } from 'apps/share/mongodb/setup';
 import { UserModule } from '../user/user.module';
+import { SetOfQuestionsModule } from '../set-of-questions/set-of-questions.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserModule } from '../user/user.module';
     TerminusModule,
     MongooseModule.forRootAsync(setupMongoDb('MONGODB_URI')),
     QuestionModule,
+    SetOfQuestionsModule,
     RoadMapModule,
     DeviceModule,
     ClassModule,

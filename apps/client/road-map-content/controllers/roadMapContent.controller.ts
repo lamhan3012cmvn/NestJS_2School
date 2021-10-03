@@ -40,7 +40,7 @@ export class RoadMapContentController {
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'create-RoadMapController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 
@@ -66,7 +66,7 @@ export class RoadMapContentController {
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'update-RoadMapController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 
@@ -88,7 +88,7 @@ export class RoadMapContentController {
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'Delete-RoadMapController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 }

@@ -28,6 +28,7 @@ import { Request } from 'express';
 import { User } from 'apps/client/user/entities/user.entity';
 import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
 import { DFStatus } from 'apps/share/enums/status.enum';
+import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 
 @Controller('api/classes')
 export class ClassController extends BaseController {
@@ -52,28 +53,31 @@ export class ClassController extends BaseController {
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'create-ClassController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
-  @Post()
+  @Patch()
   @UseGuards(JwtAuthGuard)
-  async update(
-    @Usr() user: User,
-    @Query() query,
-    @Body() updateClassDto: UpdateClassDto,
-  ) {
+  async update(@Usr() user: User, @Query() query, @Body() updateClassDto: any) {
     try {
+      console.log(
+        `LHA:  ===> file: class.controller.ts ===> line 66 ===> updateClassDto`,
+        updateClassDto,
+      );
       const result = await this.classService.findOneAndUpdate(
         { createdBy: user.createdBy, _id: query.id },
         updateClassDto,
       );
       if (result) {
-        return new Ok('Update Class success', result);
+        return new Ok(
+          'Update Class success',
+          this.classService.cvtJSON(result),
+        );
       }
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'Update-ClassController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 
@@ -91,7 +95,7 @@ export class ClassController extends BaseController {
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'create-ClassController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 
@@ -109,7 +113,7 @@ export class ClassController extends BaseController {
     } catch (e) {
       console.log(e);
       this.loggerService.error(e.message, null, 'changeStatus-ClassController');
-      return new ApiBaseResponse(500);
+      throw new Error2SchoolException(e.message);
     }
   }
 }

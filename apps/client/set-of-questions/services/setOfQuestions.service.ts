@@ -15,4 +15,29 @@ export class SetOfQuestionsService extends BaseService<SetOfQuestion> {
     super();
     this._model = _setOfQuestionsModel;
   }
+
+  async createSetOfQuestions(
+    createdBy: string,
+    payload,
+  ): Promise<SetOfQuestion> {
+    try {
+      const obj: any = { ...payload };
+      obj.createdBy = createdBy;
+      const model = SetOfQuestion.createModel(obj);
+
+      const newSetOfQuestion = await this.create(model);
+      if (newSetOfQuestion) {
+        return this.cvtJSON(newSetOfQuestion) as SetOfQuestion;
+      }
+      return null;
+    } catch (e) {
+      console.log(e);
+      this._loggerService.error(
+        e.message,
+        null,
+        'CREATE-SetOfQuestionsService',
+      );
+      return null;
+    }
+  }
 }

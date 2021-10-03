@@ -1,20 +1,26 @@
-import { schemaOptions } from './../../../share/mongodb/baseModel.entity';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { BaseModel } from 'apps/share/mongodb/baseModel.entity';
+import { schemaOptions } from './../../../share/mongodb/baseModel.entity';
 import { Expose } from 'class-transformer';
-import { ModelType, InstanceType } from 'typegoose';
+import { ModelType, InstanceType, prop } from 'typegoose';
+import { DFStatus } from 'apps/share/enums/status.enum';
 
 export class Question extends BaseModel<Question> {
-  @Prop({ default: '' })
+  @prop({ default: '' })
   @Expose()
-  name: string;
-  @Prop({ default: '' })
+  question: string;
+  @prop({ default: [] })
   @Expose()
-  description: string;
-  @Prop({ default: '' })
+  answers: Array<string>;
+  @prop({ required: true })
   @Expose()
-  usedTimes: string;
-  @Prop({ RegExp: /^[A-Fa-f0-9]{24}$/ })
+  duration: number;
+  @prop({ default: 0 })
+  @Expose()
+  qIndex: number;
+  @prop({})
+  @Expose()
+  idSetOfQuestions: number;
+  @prop({})
   @Expose()
   createdBy: string;
 

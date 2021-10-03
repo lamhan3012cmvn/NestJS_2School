@@ -3,27 +3,28 @@ import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { BaseModel } from 'apps/share/mongodb/baseModel.entity';
 import { regexpObjectId } from 'apps/share/mongodb/RegExp';
 import { Expose } from 'class-transformer';
-import { ModelType, InstanceType } from 'typegoose';
+import { ModelType, InstanceType, prop } from 'typegoose';
+import { DFStatus } from 'apps/share/enums/status.enum';
 
 export class SetOfQuestion extends BaseModel<SetOfQuestion> {
-  @Prop({ default: '' })
+  @prop({ default: '' })
   @Expose()
-  question: string;
-  @Prop({ default: [] })
+  name: string;
+  @prop({ default: '' })
   @Expose()
-  answers: Array<string>;
-  @Prop({ required: true })
+  description: string;
+  @prop({ default: DFStatus.Active })
   @Expose()
-  duration: number;
-  @Prop({ default: 0 })
+  status: number;
+  @prop({ default: 0 })
   @Expose()
-  qIndex: number;
-  @Prop({ RegExp: regexpObjectId })
+  usedTimes: string;
+  @prop({ default: '' })
   @Expose()
-  idSetOfQuestions: number;
-  @Prop({ RegExp: /^[A-Fa-f0-9]{24}$/ })
+  classBy: string;
+  @prop({ default: '' })
   @Expose()
-  createdBy: string;
+  createBy: string;
 
   static get model(): ModelType<SetOfQuestion> {
     return new SetOfQuestion().getModelForClass(SetOfQuestion, {
