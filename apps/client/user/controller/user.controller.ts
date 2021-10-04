@@ -1,4 +1,4 @@
-import { Usr } from './../../authentication/decorator/user.decorator';
+import { Usr } from 'apps/client/authentication/decorator/user.decorator';
 import {
   ApiBaseResponse,
   BaseController,
@@ -24,6 +24,7 @@ import { UpdateUserDto } from '../dto/updateUser/res.dto';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
 import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
+import { User } from '../entities/user.entity';
 
 @Controller('api/user')
 export class UserController extends BaseController {
@@ -77,9 +78,14 @@ export class UserController extends BaseController {
   }
 
   @Patch()
-  async update(@Query('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async update(@Usr() user: User, @Body() updateUserDto: UpdateUserDto) {
     try {
-      const result = await this.userService.update(id, updateUserDto);
+      const result = await this.userService.update(
+        user.createdBy,
+        updateUserDto,
+      );
       if (result) {
         return new Ok('Get User Success', result);
       }

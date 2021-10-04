@@ -67,7 +67,7 @@ export class UserService extends ResponseService {
       const obj: any = { ...payload };
       obj.displayName = payload.firstName + ' ' + payload.lastName;
       const user = await this.userModel
-        .findByIdAndUpdate(id, obj, { new: true })
+        .findOneAndUpdate({ createdBy: id }, obj, { new: true })
         .lean();
       if (user) return this.ResponseServiceSuccess(user);
       return null;
