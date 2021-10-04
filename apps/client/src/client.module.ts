@@ -10,6 +10,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { setupMongoDb } from 'apps/share/mongodb/setup';
 import { UserModule } from '../user/user.module';
 import { SetOfQuestionsModule } from '../set-of-questions/set-of-questions.module';
+import { SocketModule } from '../socket/socket.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { SetOfQuestionsModule } from '../set-of-questions/set-of-questions.modul
     ClassModule,
     AuthModule,
     UserModule,
+    SocketModule,
   ],
   controllers: [],
 })

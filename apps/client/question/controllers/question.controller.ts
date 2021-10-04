@@ -20,8 +20,9 @@ import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 import { Ok } from 'apps/share/controller/baseController';
 import { LoggerService } from 'apps/share/services/logger.service';
 import { query } from 'winston';
+import { CreateQuestionDto } from '../dto/CreateQuestion/res.dto';
 
-@Controller('question')
+@Controller('api/question')
 export class QuestionController {
   constructor(
     private readonly questionService: QuestionService,
@@ -31,18 +32,19 @@ export class QuestionController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @Header('Content-Type', 'application/json')
-  async createQuestion(@Usr() user: User, @Body() payload: any) {
+  async createQuestion(@Usr() user: User, @Body() payload: CreateQuestionDto) {
     try {
       const result = await this.questionService.createQuestion(
         user.createdBy,
         payload,
       );
       if (result) {
-        return new Ok('Create Class success', result);
+        return new Ok('Create Question success', result);
       }
       throw new ResourceFoundException();
     } catch (e) {
-      this.loggerService.error(e.message, null, 'create-ClassController');
+      console.log(e);
+      this.loggerService.error(e.message, null, 'create-QuestionController');
       throw new Error2SchoolException(e.message);
     }
   }
@@ -67,6 +69,29 @@ export class QuestionController {
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'create-ClassController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  @Get()
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
+  @Header('Content-Type', 'application/json')
+  async getQuestionBySetOf(@Usr() user: User, @Query() query) {
+    try {
+      const result = await this.questionService.findAll({
+        createBy: user.createdBy,
+        idSetOfQuestions: query.idSetOfQuestions,
+      });
+      if (result) {
+        return new Ok(
+          'Create Question success',
+          this.questionService.cvtJSON(result),
+        );
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'create-QuestionController');
       throw new Error2SchoolException(e.message);
     }
   }

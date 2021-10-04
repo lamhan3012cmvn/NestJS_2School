@@ -22,7 +22,7 @@ export class SetOfQuestionsService extends BaseService<SetOfQuestion> {
   ): Promise<SetOfQuestion> {
     try {
       const obj: any = { ...payload };
-      obj.createdBy = createdBy;
+      obj.createBy = createdBy;
       const model = SetOfQuestion.createModel(obj);
 
       const newSetOfQuestion = await this.create(model);

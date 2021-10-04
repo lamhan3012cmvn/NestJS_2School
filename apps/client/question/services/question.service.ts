@@ -13,11 +13,12 @@ export class QuestionService extends BaseService<Question> {
     private readonly _loggerService: LoggerService,
   ) {
     super();
+    this._model = _setOfQuestionsModel;
   }
   async createQuestion(createdBy: string, payload): Promise<Question> {
     try {
       const obj: any = { ...payload };
-      obj.createdBy = createdBy;
+      obj.createBy = createdBy;
       const model = Question.createModel(obj);
 
       const newQuestions = await this.create(model);

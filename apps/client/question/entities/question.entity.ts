@@ -3,7 +3,6 @@ import { schemaOptions } from './../../../share/mongodb/baseModel.entity';
 import { Expose } from 'class-transformer';
 import { ModelType, InstanceType, prop } from 'typegoose';
 import { DFStatus } from 'apps/share/enums/status.enum';
-
 export class Question extends BaseModel<Question> {
   @prop({ default: '' })
   @Expose()
@@ -11,18 +10,18 @@ export class Question extends BaseModel<Question> {
   @prop({ default: [] })
   @Expose()
   answers: Array<string>;
+  @prop({ default: [] })
+  @Expose()
+  correct: Array<number>;
   @prop({ required: true })
   @Expose()
   duration: number;
-  @prop({ default: 0 })
-  @Expose()
-  qIndex: number;
   @prop({})
   @Expose()
-  idSetOfQuestions: number;
+  idSetOfQuestions: string;
   @prop({})
   @Expose()
-  createdBy: string;
+  createBy: string;
 
   static get model(): ModelType<Question> {
     return new Question().getModelForClass(Question, {

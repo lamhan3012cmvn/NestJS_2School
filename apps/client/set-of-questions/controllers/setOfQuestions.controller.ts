@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   Patch,
   Post,
@@ -19,6 +20,7 @@ import { User } from 'apps/client/user/entities/user.entity';
 import { UpdateRoadMap } from 'apps/client/road-map/dto/UpdateRoadMap/res.dto';
 import { CreateSetOfQuestionDto } from '../dto/CreateSetOfQuestion/req.dto';
 import { UpdateSetOfQuestionDto } from '../dto/UpdateSetOfQuestion/req.dto';
+import { QueryGetSetOfQuestion } from '../dto/GetSetOfQuestion/query.dto';
 
 @Controller('api/set-of-questions')
 export class SetOfQuestionsController {
@@ -65,7 +67,6 @@ export class SetOfQuestionsController {
     @Body() payload: UpdateSetOfQuestionDto,
   ) {
     try {
-      console.log(query);
       const result = await this._setOfQuestionsService.findOneAndUpdate(
         { createBy: user.createdBy, _id: query.id },
         payload,
@@ -110,6 +111,32 @@ export class SetOfQuestionsController {
         null,
         'Delete-SetOfQuestionsController',
       );
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async getSetOfQuestions(
+    @Usr() user: User,
+    @Query() query: QueryGetSetOfQuestion,
+  ) {
+    try {
+      const result = await this._setOfQuestionsService.findAll({
+        createBy: user.createdBy,
+        classBy: query.classId,
+        status: query.status,
+      });
+      if (result) {
+        return new Ok(
+          'Get SetOfQuestions success',
+          this._setOfQuestionsService.cvtJSON(result),
+        );
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'Get-SetOfQuestionsController');
       throw new Error2SchoolException(e.message);
     }
   }

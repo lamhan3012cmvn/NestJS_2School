@@ -1,7 +1,5 @@
 import { schemaOptions } from './../../../share/mongodb/baseModel.entity';
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { BaseModel } from 'apps/share/mongodb/baseModel.entity';
-import { regexpObjectId } from 'apps/share/mongodb/RegExp';
 import { Expose } from 'class-transformer';
 import { ModelType, InstanceType, prop } from 'typegoose';
 import { DFStatus } from 'apps/share/enums/status.enum';
@@ -18,7 +16,7 @@ export class SetOfQuestion extends BaseModel<SetOfQuestion> {
   status: number;
   @prop({ default: 0 })
   @Expose()
-  usedTimes: string;
+  usedTimes: number;
   @prop({ default: '' })
   @Expose()
   classBy: string;
