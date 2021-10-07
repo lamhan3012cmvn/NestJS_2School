@@ -41,18 +41,19 @@ workflows:
     jobs:
       - build-and-push:
         filters:
-          branches:
-            only:
-              - dev
-              - master
+            branches:
+              only:
+                - dev
+                - master
       - deploy:
-        requires:
-          - build-and-push
+        # requires:
+        # - build-and-push
         filters:
           branches:
             only:
               - dev
               - master
+
 
       # - node/test:
       #     version: '16.10'
