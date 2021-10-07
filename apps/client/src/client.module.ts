@@ -1,3 +1,4 @@
+import { HealcheckModule } from './../healcheck/healcheck.module';
 import { Module } from '@nestjs/common';
 import { SharedModule } from 'apps/share/shared.module';
 import { TerminusModule } from '@nestjs/terminus';
@@ -25,6 +26,7 @@ import { SocketModule } from '../socket/socket.module';
     AuthModule,
     UserModule,
     SocketModule,
+    HealcheckModule,
   ],
   controllers: [],
 })

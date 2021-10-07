@@ -1,0 +1,44 @@
+version: '3.7'
+
+services:
+  app:
+    container_name: nest
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 8080:3000
+    volumes:
+      - nest:/data/app
+    command: yarn dev
+    networks:
+      - common
+    environment:
+      NODE_ENV: development
+      JWT_SECRET: AKENZY
+      HOST: 0.0.0.0
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo/nest_school
+      SALT_OF_ROUNDS: 10
+      #SWAGGER
+      SWAGGER_PATH: /api/docs
+      SWAGGER_TITLE: 2School
+      SWAGGER_DESCRIPTION: The 2 2School API Description
+      SWAGGER_VERSION: beta
+      SWAGGER_SCHEME: http
+
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - nest:/data/db
+    networks:
+      - common
+
+networks:
+  common:
+
+volumes: 
+  nest: {}

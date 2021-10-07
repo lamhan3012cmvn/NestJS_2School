@@ -35,21 +35,6 @@ export class UserController extends BaseController {
     super();
   }
 
-  // @Post()
-  // async create(@Body() createUserDto: CreateUserDto) {
-  //   try {
-  //     const result = await this.userService.create(createUserDto);
-  //     return this.resApi(result, 'Create User Success');
-  //     // if (result) {
-  //     //   return new Ok('Create User Success', result);
-  //     // }
-  //     // return new ApiBaseResponse(404);
-  //   } catch (e) {
-  //     this.loggerService.error(e.message, null, 'create-UserController');
-  //     throw new Error2SchoolException(e.message);
-  //   }
-  // }
-
   @Get()
   async findAll(@Query() queries: IQueryFind) {
     try {
