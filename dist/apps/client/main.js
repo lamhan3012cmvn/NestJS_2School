@@ -1766,7 +1766,15 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
                 _id: { $nin: arrClass },
                 status: status_enum_1.DFStatus.Active,
             });
-            return classes;
+            const result = [];
+            for (const c of classes) {
+                const u = await this._userService.findOne({ createdBy: c.createdBy });
+                const obj = Object.assign({}, c);
+                if (u)
+                    obj.createdBy = this.cvtJSON(u);
+                result.push(obj);
+            }
+            return result;
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'recommendClasses-ClassesService');

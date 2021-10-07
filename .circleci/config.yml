@@ -39,6 +39,21 @@ jobs:
 workflows:
   sample:
     jobs:
+      - build-and-push:
+        filters:
+          branches:
+            only:
+              - dev
+              - master
+      - deploy:
+        requires:
+          - build-and-push
+        filters:
+          branches:
+            only:
+              - dev
+              - master
+
       # - node/test:
       #     version: '16.10'
       #     # # If you are using yarn, change the line below from "npm" to "yarn"
@@ -58,17 +73,3 @@ workflows:
       # - deploy:
       #     requires:
       #       - node/test
-      - build-and-push:
-        filters:
-            branches:
-              only:
-                - dev
-                - master
-      - deploy:
-        requires:
-          - build-and-push
-        filters:
-          branches:
-            only:
-              - dev
-              - master
