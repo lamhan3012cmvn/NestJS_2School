@@ -58,9 +58,15 @@ workflows:
       # - deploy:
       #     requires:
       #       - node/test
-      - deploy:
+      - build-and-push:
         filters:
-          branches:
-            only:
-              - dev
-              - master
+            branches:
+              only:
+                - dev
+                - master
+      # - deploy:
+      #   filters:
+      #     branches:
+      #       only:
+      #         - dev
+      #         - master
