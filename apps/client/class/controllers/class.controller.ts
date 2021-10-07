@@ -25,10 +25,11 @@ import { LoggerService } from 'apps/share/services/logger.service';
 import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
 import { Usr } from 'apps/client/authentication/decorator/user.decorator';
 import { Request } from 'express';
-import { User } from 'apps/client/user/entities/user.entity';
+import { ISchemaUser, User } from 'apps/client/user/entities/user.entity';
 import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
 import { DFStatus } from 'apps/share/enums/status.enum';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
+import { JoinClassQuery } from '../dto/joinClass/query.dto';
 
 @Controller('api/classes')
 export class ClassController extends BaseController {
@@ -116,4 +117,72 @@ export class ClassController extends BaseController {
       throw new Error2SchoolException(e.message);
     }
   }
+
+  @Post('joinMember')
+  @UseGuards(JwtAuthGuard)
+  async joinMemberClass(
+    @Usr() user: ISchemaUser,
+    @Body() payload: JoinClassQuery,
+  ) {
+    try {
+      const result = await this.classService.joinMemberClass(
+        user.createdBy,
+        payload.idClass,
+      );
+      if (result) {
+        return new Ok('Join Class success', this.classService.cvtJSON(result));
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      console.log(e);
+      this.loggerService.error(e.message, null, 'joinMember-ClassController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+  @Delete('leaveClass')
+  @UseGuards(JwtAuthGuard)
+  async leaveClass(@Usr() user: ISchemaUser, @Body() payload: JoinClassQuery) {
+    try {
+      const result: boolean = await this.classService.leaveMemberClass(
+        user.createdBy,
+        payload.idClass,
+      );
+      console.log(
+        `LHA:  ===> file: class.controller.ts ===> line 150 ===> result`,
+        result,
+      );
+      if (result) {
+        return new Ok('Leave Class success', this.classService.cvtJSON(result));
+      } else {
+        return new Ok(
+          'Dont Find Member Leave success',
+          this.classService.cvtJSON(result),
+        );
+      }
+    } catch (e) {
+      console.log(e);
+      this.loggerService.error(e.message, null, 'Leave-ClassController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  @Get('recommendClasses')
+  @UseGuards(JwtAuthGuard)
+  async recommendClasses(
+    @Usr() user: ISchemaUser,
+    // @Body() payload: JoinClassQuery,
+  ) {
+    try {
+      const result = await this.classService.recommendClasses(user.createdBy);
+      if (result) {
+        return new Ok('Join Class success', this.classService.cvtJSON(result));
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      console.log(e);
+      this.loggerService.error(e.message, null, 'joinMember-ClassController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
 }
+// recommendClasses

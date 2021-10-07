@@ -65,6 +65,10 @@ export abstract class BaseService<T extends Typegoose> {
     return this._model.findByIdAndRemove(this.toObjectId(id)).exec();
   }
 
+  // async findOneAndDelete(obj: any): Promise<InstanceType<T>> {
+  //   return this._model.findOneAndRemove(obj).exec();
+  // }
+
   async update(
     id: string,
     item: UpdateQuery<InstanceType<T>>,

@@ -12,6 +12,9 @@ import { ModelType } from 'typegoose';
 import { DFStatus } from 'apps/share/enums/status.enum';
 import { User } from 'apps/client/user/entities/user.entity';
 import { UserService } from 'apps/client/user/service/user.service';
+import { MemberClassService } from 'apps/client/memberClass/services/memberClass.service';
+import { ApiPreconditionFailedResponse } from '@nestjs/swagger';
+import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 
 @Injectable()
 export class ClassService extends BaseService<Classes> {
@@ -20,6 +23,7 @@ export class ClassService extends BaseService<Classes> {
     private _classModel: ModelType<Classes>,
     private _loggerService: LoggerService,
     private _userService: UserService,
+    private _memberClassService: MemberClassService,
   ) {
     super();
     this._model = _classModel;
@@ -50,8 +54,11 @@ export class ClassService extends BaseService<Classes> {
     query: IQueryFind = { skip: '0', limit: '15' },
   ): Promise<Array<Classes>> {
     try {
+      const classMember = await this._memberClassService.getClassByUserJoined(
+        user.createdBy,
+      );
       const newClasses = await this.findAll(
-        { $or: [{ createdBy: user.createdBy }, { member: user.createdBy }] },
+        { $or: [{ createdBy: user.createdBy }, { _id: { $in: classMember } }] },
         query,
       );
       const classes = this.cvtJSON(newClasses) as Classes[];
@@ -114,6 +121,63 @@ export class ClassService extends BaseService<Classes> {
         return this.cvtJSON(updateClasses) as Classes;
       }
       return null;
+    } catch (e) {
+      this._loggerService.error(e.message, null, 'Remove-ClassesService');
+      return null;
+    }
+  }
+
+  async recommendClasses(idUser: string) {
+    try {
+      const memberClass = await this._memberClassService.findAll({
+        idUser: idUser,
+      });
+      const arrClass = memberClass.map((e) => e.idClass);
+
+      const classes = await this.findAll({
+        _id: { $nin: arrClass },
+        status: DFStatus.Active,
+      });
+      return classes;
+    } catch (e) {
+      this._loggerService.error(
+        e.message,
+        null,
+        'recommendClasses-ClassesService',
+      );
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  async joinMemberClass(idUser: string, idClass: string) {
+    try {
+      const newMemberClass = await this._memberClassService.joinClass(
+        idUser,
+        idClass,
+      );
+      if (newMemberClass) {
+        return true;
+      }
+      return null;
+    } catch (e) {
+      this._loggerService.error(e.message, null, 'Remove-ClassesService');
+      return null;
+    }
+  }
+  async leaveMemberClass(idUser: string, idClass: string) {
+    try {
+      const newMemberClass = await this._memberClassService.leaveClass(
+        idUser,
+        idClass,
+      );
+      console.log(
+        `LHA:  ===> file: class.service.ts ===> line 165 ===> newMemberClass`,
+        newMemberClass,
+      );
+      if (newMemberClass) {
+        return true;
+      }
+      return false;
     } catch (e) {
       this._loggerService.error(e.message, null, 'Remove-ClassesService');
       return null;
