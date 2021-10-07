@@ -9,16 +9,16 @@ WORKDIR /AKENZY/src/app
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
 COPY package*.json ./
-COPY yarn.lock ./
+# COPY yarn.lock ./
 
-RUN yarn
+RUN npm i
 # If you are building your code for production
 # RUN npm ci --only=productiondo
 
 # Bundle app source
 COPY . .
 
-RUN yarn build
+RUN npm run build
 
 EXPOSE 3000
 CMD [ "node", "dist/apps/client/main.js" ]
