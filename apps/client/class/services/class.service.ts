@@ -138,7 +138,14 @@ export class ClassService extends BaseService<Classes> {
         _id: { $nin: arrClass },
         status: DFStatus.Active,
       });
-      return classes;
+      const result = [];
+      for (const c of classes) {
+        const u = await this._userService.findOne({ createdBy: c.createdBy });
+        const obj = { ...c };
+        if (u) obj.createdBy = this.cvtJSON(u);
+        result.push(obj);
+      }
+      return result;
     } catch (e) {
       this._loggerService.error(
         e.message,
