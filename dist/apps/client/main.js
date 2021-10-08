@@ -1762,10 +1762,10 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
                 idUser: idUser,
             });
             const arrClass = memberClass.map((e) => e.idClass);
-            const classes = await this.findAll({
+            const classes = this.cvtJSON(await this.findAll({
                 _id: { $nin: arrClass },
                 status: status_enum_1.DFStatus.Active,
-            });
+            }));
             const result = [];
             for (const c of classes) {
                 const u = await this._userService.findOne({ createdBy: c.createdBy });
@@ -1774,7 +1774,7 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
                     obj.createdBy = this.cvtJSON(u);
                 result.push(obj);
             }
-            return result;
+            return this.cvtJSON(result);
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'recommendClasses-ClassesService');

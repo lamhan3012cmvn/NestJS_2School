@@ -134,10 +134,12 @@ export class ClassService extends BaseService<Classes> {
       });
       const arrClass = memberClass.map((e) => e.idClass);
 
-      const classes = await this.findAll({
-        _id: { $nin: arrClass },
-        status: DFStatus.Active,
-      });
+      const classes = this.cvtJSON(
+        await this.findAll({
+          _id: { $nin: arrClass },
+          status: DFStatus.Active,
+        }),
+      );
       const result = [];
       for (const c of classes) {
         const u = await this._userService.findOne({ createdBy: c.createdBy });
@@ -145,7 +147,7 @@ export class ClassService extends BaseService<Classes> {
         if (u) obj.createdBy = this.cvtJSON(u);
         result.push(obj);
       }
-      return result;
+      return this.cvtJSON(result);
     } catch (e) {
       this._loggerService.error(
         e.message,
