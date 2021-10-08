@@ -23,9 +23,9 @@ export class Classes extends BaseModel<Classes> {
   @prop({ default: '' })
   @Expose()
   blurHash?: string;
-  @prop({ default: [] })
-  @Expose()
-  member?: Array<string>;
+  // @prop({ default: [] })
+  // @Expose()
+  // member?: Array<string>;
   @prop({ default: DFStatus.Active })
   @Expose()
   status?: number;

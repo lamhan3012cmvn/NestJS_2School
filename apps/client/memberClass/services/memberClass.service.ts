@@ -39,11 +39,12 @@ export class MemberClassService extends BaseService<MemberClasses> {
       return null;
     }
   }
-  async joinClass(idUser: string, idClass: string) {
+  async joinClass(idUser: string, idClass: string, role = 0) {
     try {
       const obj: any = {
         idUser: idUser,
         idClass: idClass,
+        role: role,
       };
       const exitsClass = await this.findOne(obj);
       if (!exitsClass) {

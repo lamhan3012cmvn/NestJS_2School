@@ -14,6 +14,9 @@ export class MemberClasses extends BaseModel<MemberClasses> {
   @prop()
   @Expose()
   idClass?: string;
+  @prop({ default: 0 })
+  @Expose()
+  role?: number;
   @prop({ default: DFStatus.Active })
   @Expose()
   status?: number;

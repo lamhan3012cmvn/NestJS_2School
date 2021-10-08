@@ -1681,6 +1681,9 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
             obj.createdBy = createdBy;
             const newClass = class_entity_1.Classes.createModel(obj);
             const newClasses = await this.create(newClass);
+            console.log(`LHA:  ===> file: class.service.ts ===> line 41 ===> newClasses`, newClasses);
+            const joinMember = await this.joinMemberClass(createdBy, newClass._id, 2);
+            console.log(`LHA:  ===> file: class.service.ts ===> line 43 ===> joinMember`, joinMember);
             if (newClasses) {
                 return this.cvtJSON(newClasses);
             }
@@ -1781,9 +1784,9 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
             throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
-    async joinMemberClass(idUser, idClass) {
+    async joinMemberClass(idUser, idClass, role = 0) {
         try {
-            const newMemberClass = await this._memberClassService.joinClass(idUser, idClass);
+            const newMemberClass = await this._memberClassService.joinClass(idUser, idClass, role);
             if (newMemberClass) {
                 return true;
             }
@@ -1831,7 +1834,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Classes = void 0;
 const baseModel_entity_1 = __webpack_require__(26);
@@ -1875,11 +1877,6 @@ __decorate([
     class_transformer_1.Expose(),
     __metadata("design:type", String)
 ], Classes.prototype, "blurHash", void 0);
-__decorate([
-    typegoose_1.prop({ default: [] }),
-    class_transformer_1.Expose(),
-    __metadata("design:type", typeof (_a = typeof Array !== "undefined" && Array) === "function" ? _a : Object)
-], Classes.prototype, "member", void 0);
 __decorate([
     typegoose_1.prop({ default: status_enum_1.DFStatus.Active }),
     class_transformer_1.Expose(),
@@ -2053,11 +2050,12 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
             return null;
         }
     }
-    async joinClass(idUser, idClass) {
+    async joinClass(idUser, idClass, role = 0) {
         try {
             const obj = {
                 idUser: idUser,
                 idClass: idClass,
+                role: role,
             };
             const exitsClass = await this.findOne(obj);
             if (!exitsClass) {
@@ -2144,6 +2142,11 @@ __decorate([
     class_transformer_1.Expose(),
     __metadata("design:type", String)
 ], MemberClasses.prototype, "idClass", void 0);
+__decorate([
+    typegoose_1.prop({ default: 0 }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], MemberClasses.prototype, "role", void 0);
 __decorate([
     typegoose_1.prop({ default: status_enum_1.DFStatus.Active }),
     class_transformer_1.Expose(),
@@ -3055,7 +3058,7 @@ let AuthController = class AuthController {
             if (result) {
                 return new baseController_1.Ok('Login Success', result);
             }
-            throw new resource_exception_1.ResourceFoundException();
+            throw new common_1.UnauthorizedException('Login False');
         }
         catch (e) {
             this.loggerService.error(e.message, null, 'LOGIN-Controller');

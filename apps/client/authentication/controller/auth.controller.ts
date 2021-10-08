@@ -6,6 +6,7 @@ import {
   Header,
   UseGuards,
   HttpCode,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { LoginAuthenticationDto } from '../dto/login/req.dto';
 import { LocalStrategy } from '../strategy/local.strategy';
@@ -38,7 +39,7 @@ export class AuthController {
       if (result) {
         return new Ok('Login Success', result);
       }
-      throw new ResourceFoundException();
+      throw new UnauthorizedException('Login False');
     } catch (e) {
       this.loggerService.error(e.message, null, 'LOGIN-Controller');
       throw new Error2SchoolException(e.message);

@@ -38,6 +38,17 @@ export class ClassService extends BaseService<Classes> {
       const newClass = Classes.createModel(obj);
 
       const newClasses = await this.create(newClass);
+      console.log(
+        `LHA:  ===> file: class.service.ts ===> line 41 ===> newClasses`,
+        newClasses,
+      );
+
+      const joinMember = await this.joinMemberClass(createdBy, newClass._id, 2);
+      console.log(
+        `LHA:  ===> file: class.service.ts ===> line 43 ===> joinMember`,
+        joinMember,
+      );
+
       if (newClasses) {
         return this.cvtJSON(newClasses) as Classes;
       }
@@ -158,11 +169,12 @@ export class ClassService extends BaseService<Classes> {
     }
   }
 
-  async joinMemberClass(idUser: string, idClass: string) {
+  async joinMemberClass(idUser: string, idClass: string, role = 0) {
     try {
       const newMemberClass = await this._memberClassService.joinClass(
         idUser,
         idClass,
+        role,
       );
       if (newMemberClass) {
         return true;
