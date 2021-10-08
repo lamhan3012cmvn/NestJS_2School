@@ -1,6 +1,6 @@
 import { Classes } from './../entities/class.entity';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateClassDto } from '../dto/createClass/create-class.dto';
 import { UpdateClassDto } from '../dto/updateClass/update-class.dto';
@@ -15,6 +15,7 @@ import { UserService } from 'apps/client/user/service/user.service';
 import { MemberClassService } from 'apps/client/memberClass/services/memberClass.service';
 import { ApiPreconditionFailedResponse } from '@nestjs/swagger';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
+import * as mongoose from 'mongoose';
 
 @Injectable()
 export class ClassService extends BaseService<Classes> {
@@ -24,6 +25,7 @@ export class ClassService extends BaseService<Classes> {
     private _loggerService: LoggerService,
     private _userService: UserService,
     private _memberClassService: MemberClassService,
+    @InjectConnection() private readonly connection: mongoose.Connection, // private _mongoose:
   ) {
     super();
     this._model = _classModel;

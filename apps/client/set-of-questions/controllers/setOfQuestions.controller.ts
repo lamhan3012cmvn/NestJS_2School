@@ -98,13 +98,17 @@ export class SetOfQuestionsController {
         { createBy: user.createdBy, _id: query.id },
         { status: ~~query.status },
       );
+      console.log(
+        `LHA:  ===> file: setOfQuestions.controller.ts ===> line 101 ===> result`,
+        result,
+      );
       if (result) {
         return new Ok(
           'Delete SetOfQuestions success',
           this._setOfQuestionsService.cvtJSON(result),
         );
       }
-      throw new ResourceFoundException();
+      throw new ResourceFoundException('Dont find Set Of Question');
     } catch (e) {
       this.loggerService.error(
         e.message,

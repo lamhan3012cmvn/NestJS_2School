@@ -141,15 +141,11 @@ export class ClassController extends BaseController {
   }
   @Delete('leaveClass')
   @UseGuards(JwtAuthGuard)
-  async leaveClass(@Usr() user: ISchemaUser, @Body() payload: JoinClassQuery) {
+  async leaveClass(@Usr() user: ISchemaUser, @Query() payload: JoinClassQuery) {
     try {
       const result: boolean = await this.classService.leaveMemberClass(
         user.createdBy,
         payload.idClass,
-      );
-      console.log(
-        `LHA:  ===> file: class.controller.ts ===> line 150 ===> result`,
-        result,
       );
       if (result) {
         return new Ok('Leave Class success', this.classService.cvtJSON(result));

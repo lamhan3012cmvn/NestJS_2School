@@ -1653,7 +1653,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d;
+var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassService = void 0;
 const class_entity_1 = __webpack_require__(46);
@@ -1666,13 +1666,15 @@ const status_enum_1 = __webpack_require__(35);
 const user_service_1 = __webpack_require__(47);
 const memberClass_service_1 = __webpack_require__(49);
 const errors_exception_1 = __webpack_require__(28);
+const mongoose = __webpack_require__(24);
 let ClassService = class ClassService extends baseService_service_1.BaseService {
-    constructor(_classModel, _loggerService, _userService, _memberClassService) {
+    constructor(_classModel, _loggerService, _userService, _memberClassService, connection) {
         super();
         this._classModel = _classModel;
         this._loggerService = _loggerService;
         this._userService = _userService;
         this._memberClassService = _memberClassService;
+        this.connection = connection;
         this._model = _classModel;
     }
     async createClasses(createdBy, createClassDto) {
@@ -1815,7 +1817,8 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
 ClassService = __decorate([
     common_1.Injectable(),
     __param(0, mongoose_1.InjectModel(class_entity_1.Classes.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof user_service_1.UserService !== "undefined" && user_service_1.UserService) === "function" ? _c : Object, typeof (_d = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _d : Object])
+    __param(4, mongoose_1.InjectConnection()),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof user_service_1.UserService !== "undefined" && user_service_1.UserService) === "function" ? _c : Object, typeof (_d = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _d : Object, typeof (_e = typeof mongoose !== "undefined" && mongoose.Connection) === "function" ? _e : Object])
 ], ClassService);
 exports.ClassService = ClassService;
 
@@ -2269,7 +2272,6 @@ let ClassController = class ClassController extends baseController_1.BaseControl
     async leaveClass(user, payload) {
         try {
             const result = await this.classService.leaveMemberClass(user.createdBy, payload.idClass);
-            console.log(`LHA:  ===> file: class.controller.ts ===> line 150 ===> result`, result);
             if (result) {
                 return new baseController_1.Ok('Leave Class success', this.classService.cvtJSON(result));
             }
@@ -2347,7 +2349,7 @@ __decorate([
     common_1.Delete('leaveClass'),
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, user_decorator_1.Usr()),
-    __param(1, common_1.Body()),
+    __param(1, common_1.Query()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [typeof (_h = typeof user_entity_1.ISchemaUser !== "undefined" && user_entity_1.ISchemaUser) === "function" ? _h : Object, typeof (_j = typeof query_dto_1.JoinClassQuery !== "undefined" && query_dto_1.JoinClassQuery) === "function" ? _j : Object]),
     __metadata("design:returntype", Promise)
@@ -3350,10 +3352,11 @@ let SetOfQuestionsController = class SetOfQuestionsController {
     async changeSetOfQuestions(user, query) {
         try {
             const result = await this._setOfQuestionsService.findOneAndUpdate({ createBy: user.createdBy, _id: query.id }, { status: ~~query.status });
+            console.log(`LHA:  ===> file: setOfQuestions.controller.ts ===> line 101 ===> result`, result);
             if (result) {
                 return new baseController_1.Ok('Delete SetOfQuestions success', this._setOfQuestionsService.cvtJSON(result));
             }
-            throw new resource_exception_1.ResourceFoundException();
+            throw new resource_exception_1.ResourceFoundException('Dont find Set Of Question');
         }
         catch (e) {
             this.loggerService.error(e.message, null, 'Delete-SetOfQuestionsController');
