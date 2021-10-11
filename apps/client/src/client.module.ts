@@ -12,6 +12,7 @@ import { setupMongoDb } from 'apps/share/mongodb/setup';
 import { UserModule } from '../user/user.module';
 import { SetOfQuestionsModule } from '../set-of-questions/set-of-questions.module';
 import { SocketModule } from '../socket/socket.module';
+import { UpLoadFileModule } from '../up-load-file/up-load-file.module';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { SocketModule } from '../socket/socket.module';
     UserModule,
     SocketModule,
     HealcheckModule,
+    UpLoadFileModule,
   ],
-  controllers: [],
 })
 export class ClientModule {}
