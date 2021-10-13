@@ -3309,16 +3309,17 @@ let JwtStrategy = class JwtStrategy extends passport_1.PassportStrategy(passport
         this.uploadFileService = uploadFileService;
     }
     async validate(req, payload, done) {
-        console.log(`LHA:  ===> file: jwt.strategy.ts ===> line 29 ===> req`, req.headers);
         const headers = req.headers;
         const user = await this.authService.validateUser({ id: payload.data });
         if (user) {
-            const image = await this.uploadFileService.findById(user.image);
-            if (image) {
-                const host = headers.host;
-                const api = 'api/up-load-file';
-                const link = `${host}/${api}?id=${image.path}`;
-                user.image = link;
+            if (!(user.image === '')) {
+                const image = await this.uploadFileService.findById(user.image);
+                if (image) {
+                    const host = headers.host;
+                    const api = 'api/up-load-file';
+                    const link = `${host}/${api}?id=${image.path}`;
+                    user.image = link;
+                }
             }
             done(null, user);
         }
@@ -4190,6 +4191,9 @@ __decorate([
                     .fill(null)
                     .map(() => Math.round(Math.random() * 16).toString(16))
                     .join('');
+                if (!fs.existsSync('./uploads')) {
+                    fs.mkdirSync('./uploads');
+                }
                 const path = `./uploads/${randomName}`;
                 const parseFile = path_1.parse(file.originalname);
                 if (!fs.existsSync(path)) {

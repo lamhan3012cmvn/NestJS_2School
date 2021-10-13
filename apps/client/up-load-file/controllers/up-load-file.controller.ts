@@ -42,6 +42,9 @@ export class UpLoadFileController {
             .map(() => Math.round(Math.random() * 16).toString(16))
             .join('');
           //Calling the callback passing the random name generated with the original extension name
+          if (!fs.existsSync('./uploads')) {
+            fs.mkdirSync('./uploads');
+          }
           const path = `./uploads/${randomName}`;
 
           const parseFile = parse(file.originalname);
