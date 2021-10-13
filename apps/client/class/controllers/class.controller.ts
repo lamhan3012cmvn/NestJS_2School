@@ -30,6 +30,8 @@ import { ResourceFoundException } from 'apps/share/exceptions/resource.exception
 import { DFStatus } from 'apps/share/enums/status.enum';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 import { JoinClassQuery } from '../dto/joinClass/query.dto';
+import { UpdateImageDto } from '../dto/updateImage/req,dto';
+import { HostName } from 'apps/share/decorator/host.decorator';
 
 @Controller('api/classes')
 export class ClassController extends BaseController {
@@ -82,14 +84,44 @@ export class ClassController extends BaseController {
     }
   }
 
+  @Patch('image')
+  @UseGuards(JwtAuthGuard)
+  async updateImage(
+    @Usr() user: User,
+    @Query() query,
+    @Body() updateClassDto: UpdateImageDto,
+  ) {
+    try {
+      const result = await this.classService.findOneAndUpdate(
+        { createdBy: user.createdBy, _id: query.id },
+        updateClassDto,
+      );
+      if (result) {
+        return new Ok(
+          'Update Class success',
+          this.classService.cvtJSON(result),
+        );
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'Update-ClassController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard)
-  async findAll(@Usr() user: User) {
+  async findAll(@HostName() host, @Usr() user: User) {
     try {
-      const result = await this.classService.findAllClasses(user, {
-        limit: '15',
-        skip: '0',
-      });
+      console.log(host);
+      const result = await this.classService.findAllClasses(
+        user,
+        {
+          limit: '15',
+          skip: '0',
+        },
+        host,
+      );
       if (result) {
         return new Ok('Get Class success', result);
       }
@@ -110,7 +142,7 @@ export class ClassController extends BaseController {
       if (result) {
         return new Ok('Get Class success', this.classService.cvtJSON(result));
       }
-      throw new ResourceFoundException();
+      throw new ResourceFoundException('Change Status False');
     } catch (e) {
       console.log(e);
       this.loggerService.error(e.message, null, 'changeStatus-ClassController');

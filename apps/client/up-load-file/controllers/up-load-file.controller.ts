@@ -21,6 +21,7 @@ import { LoggerService } from 'apps/share/services/logger.service';
 import { UpLoadFileService } from '../services/up-load-file.service';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
+import { encodeImageToBlurhash } from 'apps/share/helpers/blurHash';
 
 @Controller('api/up-load-file')
 export class UpLoadFileController {
@@ -36,11 +37,6 @@ export class UpLoadFileController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, cb) => {
-          console.log(
-            `LHA:  ===> file: up-load-file.controller.ts ===> line 29 ===> file`,
-            file,
-          );
-          // Generating a 32 random chars long string
           const randomName = Array(32)
             .fill(null)
             .map(() => Math.round(Math.random() * 16).toString(16))
@@ -65,7 +61,11 @@ export class UpLoadFileController {
         parseFile.name,
         file.path,
       );
-      return new Ok('Upload file Success', result);
+      const blurHash = await encodeImageToBlurhash(file.path);
+      return new Ok('Upload file Success', {
+        image: result.id,
+        blurHash: blurHash,
+      });
     } catch (e) {
       this.loggerService.error(e.message, null, 'create-uploadFile');
       throw new Error2SchoolException(e.message);

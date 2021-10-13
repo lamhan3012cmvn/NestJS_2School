@@ -6,6 +6,7 @@ import { ResponseService } from '../../../share/services/respone.service';
 import { Model } from 'mongoose';
 import { ISchemaUser, User } from '../entities/user.entity';
 import { UpdateUserDto } from '../dto/updateUser/res.dto';
+import { UpdateAvatarDto } from '../dto/updateAvatar/res.dto';
 
 @Injectable()
 export class UserService extends ResponseService {
@@ -66,6 +67,20 @@ export class UserService extends ResponseService {
     try {
       const obj: any = { ...payload };
       obj.displayName = payload.firstName + ' ' + payload.lastName;
+      const user = await this.userModel
+        .findOneAndUpdate({ createdBy: id }, obj, { new: true })
+        .lean();
+      if (user) return this.ResponseServiceSuccess(user);
+      return null;
+    } catch (e) {
+      console.log(e);
+      this.loggerService.error(e.message, null, 'findOne-UserService');
+      return null;
+    }
+  }
+  async updateAvatar(id: string, payload: UpdateAvatarDto) {
+    try {
+      const obj: any = { ...payload };
       const user = await this.userModel
         .findOneAndUpdate({ createdBy: id }, obj, { new: true })
         .lean();

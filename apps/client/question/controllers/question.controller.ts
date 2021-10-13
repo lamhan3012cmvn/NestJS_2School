@@ -64,7 +64,10 @@ export class QuestionController {
         payload,
       );
       if (result) {
-        return new Ok('Create Class success', result);
+        return new Ok(
+          'Create Class success',
+          this.questionService.cvtJSON(result),
+        );
       }
       throw new ResourceFoundException();
     } catch (e) {

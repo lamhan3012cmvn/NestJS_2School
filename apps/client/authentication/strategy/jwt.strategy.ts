@@ -4,28 +4,42 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from 'apps/share/services/config.service';
 import { UserService } from 'apps/client/user/service/user.service';
 import { AuthService } from '../services/auth.service';
+import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
     private authService: AuthService,
+    private uploadFileService: UpLoadFileService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: configService.get('JWT_SECRET'),
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: any, done: (error: Error, user: any | false) => any) {
-    console.log('JWT Strategy', payload);
-    const user = await this.authService.validateUser({ id: payload.data });
+  async validate(
+    req: Request,
+    payload: any,
+    done: (error: Error, user: any | false) => any,
+  ) {
     console.log(
-      `LHA:  ===> file: jwt.strategy.ts ===> line 24 ===> user`,
-      user,
+      `LHA:  ===> file: jwt.strategy.ts ===> line 29 ===> req`,
+      req.headers,
     );
+    const headers: any = req.headers;
+    const user = await this.authService.validateUser({ id: payload.data });
     if (user) {
+      const image = await this.uploadFileService.findById(user.image);
+      if (image) {
+        const host = headers.host;
+        const api = 'api/up-load-file';
+        const link = `${host}/${api}?id=${image.path}`;
+        user.image = link;
+      }
       done(null, user);
     }
     return done(new UnauthorizedException(), false);

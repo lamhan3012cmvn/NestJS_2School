@@ -16,6 +16,7 @@ import { MemberClassService } from 'apps/client/memberClass/services/memberClass
 import { ApiPreconditionFailedResponse } from '@nestjs/swagger';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 import * as mongoose from 'mongoose';
+import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
 
 @Injectable()
 export class ClassService extends BaseService<Classes> {
@@ -25,6 +26,7 @@ export class ClassService extends BaseService<Classes> {
     private _loggerService: LoggerService,
     private _userService: UserService,
     private _memberClassService: MemberClassService,
+    private _uploadFileService: UpLoadFileService,
     @InjectConnection() private readonly connection: mongoose.Connection, // private _mongoose:
   ) {
     super();
@@ -65,6 +67,7 @@ export class ClassService extends BaseService<Classes> {
   async findAllClasses(
     user: User,
     query: IQueryFind = { skip: '0', limit: '15' },
+    host: string,
   ): Promise<Array<Classes>> {
     try {
       const classMember = await this._memberClassService.getClassByUserJoined(
@@ -79,7 +82,21 @@ export class ClassService extends BaseService<Classes> {
       for (const c of classes) {
         const u = await this._userService.findOne({ createdBy: c.createdBy });
         const obj = { ...c };
-        if (u) obj.createdBy = this.cvtJSON(u);
+
+        if (!(c.image === '')) {
+          const image = await this._uploadFileService.findById(c.image);
+          if (image) obj.image = `${host}/api/up-load-file?id=${image.path}`;
+        }
+
+        if (u) {
+          const objUser = { ...this.cvtJSON(u) };
+          if (!(u.image === '')) {
+            const image = await this._uploadFileService.findById(u.image);
+            if (image)
+              objUser.image = `${host}/api/up-load-file?id=${image.path}`;
+          }
+          obj.createdBy = objUser;
+        }
         result.push(obj);
       }
       if (newClasses) {

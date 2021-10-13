@@ -1,3 +1,4 @@
+import { UpLoadFileService } from './../up-load-file/services/up-load-file.service';
 import { AuthService } from './services/auth.service';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -12,11 +13,13 @@ import { AuthController } from './controller/auth.controller';
 import { LoggerService } from '../../share/services/logger.service';
 import { User, UserSchema } from '../user/entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
+import { UpLoadFile } from '../up-load-file/entities/upLoadFile.entity';
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Auth.name, schema: AuthSchema },
       { name: User.name, schema: UserSchema },
+      { name: UpLoadFile.modelName, schema: UpLoadFile.model.schema },
     ]),
     ConfigModule,
     JwtModule.registerAsync(setupJWT('JWT_SECRET')),
@@ -28,6 +31,7 @@ import { PassportModule } from '@nestjs/passport';
     JwtStrategy,
     ConfigService,
     LoggerService,
+    UpLoadFileService,
   ],
   // exports: [PassportModule, JwtModule],
 })

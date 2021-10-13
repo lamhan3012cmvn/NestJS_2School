@@ -25,6 +25,7 @@ import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
 import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
 import { User } from '../entities/user.entity';
+import { UpdateAvatarDto } from '../dto/updateAvatar/res.dto';
 
 @Controller('api/user')
 export class UserController extends BaseController {
@@ -75,6 +76,24 @@ export class UserController extends BaseController {
         return new Ok('Get User Success', result);
       }
       throw new ResourceFoundException();
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'update-UserController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+  @Patch('avatar')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async updateAvatar(@Usr() user: User, @Body() payload: UpdateAvatarDto) {
+    try {
+      const result = await this.userService.updateAvatar(
+        user.createdBy,
+        payload,
+      );
+      if (result) {
+        return new Ok('Get User Success', result);
+      }
+      throw new ResourceFoundException('Update Avatar Fail');
     } catch (e) {
       this.loggerService.error(e.message, null, 'update-UserController');
       throw new Error2SchoolException(e.message);

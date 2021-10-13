@@ -15,5 +15,6 @@ import { UpLoadFileService } from './services/up-load-file.service';
   ],
   controllers: [UpLoadFileController],
   providers: [UpLoadFileService, LoggerService],
+  exports: [UpLoadFileService],
 })
 export class UpLoadFileModule {}

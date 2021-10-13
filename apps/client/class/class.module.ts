@@ -10,6 +10,8 @@ import { UserModule } from '../user/user.module';
 import { User, UserSchema } from '../user/entities/user.entity';
 import { MemberClassService } from '../memberClass/services/memberClass.service';
 import { MemberClasses } from '../memberClass/entities/memberClass.entity';
+import { UpLoadFile } from '../up-load-file/entities/upLoadFile.entity';
+import { UpLoadFileService } from '../up-load-file/services/up-load-file.service';
 
 @Module({
   imports: [
@@ -19,9 +21,16 @@ import { MemberClasses } from '../memberClass/entities/memberClass.entity';
       { name: User.name, schema: UserSchema },
       { name: MemberClasses.name, schema: MemberClasses.model.schema },
       { name: Classes.modelName, schema: Classes.model.schema },
+      { name: UpLoadFile.modelName, schema: UpLoadFile.model.schema },
     ]),
   ],
   controllers: [ClassController],
-  providers: [ClassService, LoggerService, MemberClassService, UserService],
+  providers: [
+    ClassService,
+    LoggerService,
+    MemberClassService,
+    UserService,
+    UpLoadFileService,
+  ],
 })
 export class ClassModule {}
