@@ -3,7 +3,7 @@ import { Controller, Get } from '@nestjs/common';
 @Controller('healcheck')
 export class HealcheckController {
   @Get()
-  healcheck() {
+  private healcheck() {
     return 'App run success v4';
   }
 }

@@ -9,9 +9,9 @@ export class UpdateUserDto {
   lastName: string;
   @IsNotEmpty()
   @IsString()
-  intro: string;
+  private intro: string;
   @IsNotEmpty()
   @IsString()
   @IsPhoneNumber('VN')
-  phone: string;
+  private phone: string;
 }

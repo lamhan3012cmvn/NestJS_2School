@@ -103,7 +103,7 @@ exports.HealcheckController = void 0;
 const common_1 = __webpack_require__(3);
 let HealcheckController = class HealcheckController {
     healcheck() {
-        return 'App run success v3';
+        return 'App run success v4';
     }
 };
 __decorate([
@@ -1616,10 +1616,10 @@ const class_entity_1 = __webpack_require__(46);
 const user_service_1 = __webpack_require__(47);
 const user_module_1 = __webpack_require__(59);
 const user_entity_1 = __webpack_require__(18);
-const memberClass_service_1 = __webpack_require__(49);
-const memberClass_entity_1 = __webpack_require__(50);
-const upLoadFile_entity_1 = __webpack_require__(53);
-const up_load_file_service_1 = __webpack_require__(51);
+const memberClass_service_1 = __webpack_require__(52);
+const memberClass_entity_1 = __webpack_require__(53);
+const upLoadFile_entity_1 = __webpack_require__(51);
+const up_load_file_service_1 = __webpack_require__(49);
 let ClassModule = class ClassModule {
 };
 ClassModule = __decorate([
@@ -1674,10 +1674,10 @@ const baseService_service_1 = __webpack_require__(23);
 const typegoose_1 = __webpack_require__(22);
 const status_enum_1 = __webpack_require__(35);
 const user_service_1 = __webpack_require__(47);
-const memberClass_service_1 = __webpack_require__(49);
+const memberClass_service_1 = __webpack_require__(52);
 const errors_exception_1 = __webpack_require__(28);
 const mongoose = __webpack_require__(24);
-const up_load_file_service_1 = __webpack_require__(51);
+const up_load_file_service_1 = __webpack_require__(49);
 let ClassService = class ClassService extends baseService_service_1.BaseService {
     constructor(_classModel, _loggerService, _userService, _memberClassService, _uploadFileService, connection) {
         super();
@@ -1695,9 +1695,7 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
             obj.createdBy = createdBy;
             const newClass = class_entity_1.Classes.createModel(obj);
             const newClasses = await this.create(newClass);
-            console.log(`LHA:  ===> file: class.service.ts ===> line 41 ===> newClasses`, newClasses);
             const joinMember = await this.joinMemberClass(createdBy, newClass._id, 2);
-            console.log(`LHA:  ===> file: class.service.ts ===> line 43 ===> joinMember`, joinMember);
             if (newClasses) {
                 return this.cvtJSON(newClasses);
             }
@@ -1721,15 +1719,16 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
                 if (!(c.image === '')) {
                     const image = await this._uploadFileService.findById(c.image);
                     if (image)
-                        obj.image = `${host}/api/up-load-file?id=${image.path}`;
+                        obj.image = image.path;
                 }
                 if (u) {
                     const objUser = Object.assign({}, this.cvtJSON(u));
                     if (!(u.image === '')) {
                         const image = await this._uploadFileService.findById(u.image);
                         if (image)
-                            objUser.image = `${host}/api/up-load-file?id=${image.path}`;
+                            objUser.image = image.path;
                     }
+                    obj.member = await this._memberClassService.getMemberByClass(obj._id);
                     obj.createdBy = objUser;
                 }
                 result.push(obj);
@@ -1934,7 +1933,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b;
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserService = void 0;
 const logger_service_1 = __webpack_require__(11);
@@ -1943,11 +1942,13 @@ const mongoose_1 = __webpack_require__(19);
 const respone_service_1 = __webpack_require__(48);
 const mongoose_2 = __webpack_require__(24);
 const user_entity_1 = __webpack_require__(18);
+const up_load_file_service_1 = __webpack_require__(49);
 let UserService = class UserService extends respone_service_1.ResponseService {
-    constructor(userModel, loggerService) {
+    constructor(userModel, loggerService, uploadService) {
         super();
         this.userModel = userModel;
         this.loggerService = loggerService;
+        this.uploadService = uploadService;
     }
     async findAll(query) {
         try {
@@ -1968,6 +1969,23 @@ let UserService = class UserService extends respone_service_1.ResponseService {
             const user = await this.userModel.findById(id).lean();
             if (user)
                 return this.ResponseServiceSuccess(user);
+            return null;
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'findById-UserService');
+            return null;
+        }
+    }
+    async findByIdAndImage(id) {
+        try {
+            const user = await this.userModel.findOne({ createdBy: id }).lean();
+            if (user) {
+                if (!!user.image) {
+                    const image = await this.uploadService.findById(user.image);
+                    user.image = image.path;
+                }
+                return user;
+            }
             return null;
         }
         catch (e) {
@@ -2024,7 +2042,7 @@ let UserService = class UserService extends respone_service_1.ResponseService {
 UserService = __decorate([
     common_1.Injectable(),
     __param(0, mongoose_1.InjectModel(user_entity_1.User.name)),
-    __metadata("design:paramtypes", [typeof (_a = typeof mongoose_2.Model !== "undefined" && mongoose_2.Model) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof mongoose_2.Model !== "undefined" && mongoose_2.Model) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof up_load_file_service_1.UpLoadFileService !== "undefined" && up_load_file_service_1.UpLoadFileService) === "function" ? _c : Object])
 ], UserService);
 exports.UserService = UserService;
 
@@ -2063,20 +2081,147 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UpLoadFileService = void 0;
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(19);
+const errors_exception_1 = __webpack_require__(28);
+const user_not_found_exception_1 = __webpack_require__(50);
+const baseService_service_1 = __webpack_require__(23);
+const logger_service_1 = __webpack_require__(11);
+const typegoose_1 = __webpack_require__(22);
+const upLoadFile_entity_1 = __webpack_require__(51);
+let UpLoadFileService = class UpLoadFileService extends baseService_service_1.BaseService {
+    constructor(_upLoadFileModel, _loggerService) {
+        super();
+        this._upLoadFileModel = _upLoadFileModel;
+        this._loggerService = _loggerService;
+        this._model = _upLoadFileModel;
+    }
+    async createUploadFile(fileName, path) {
+        try {
+            const obj = {
+                name: fileName,
+                path: path,
+            };
+            const model = upLoadFile_entity_1.UpLoadFile.createModel(obj);
+            const newUploadFile = await this.create(model);
+            if (newUploadFile) {
+                return { id: newUploadFile.id };
+            }
+            throw new user_not_found_exception_1.UserNotFoundException('Upload file false when save model');
+        }
+        catch (e) {
+            this._loggerService.error(e.message, null, 'upLoadFileService-createUploadFile');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+};
+UpLoadFileService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(upLoadFile_entity_1.UpLoadFile.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], UpLoadFileService);
+exports.UpLoadFileService = UpLoadFileService;
+
+
+/***/ }),
+/* 50 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserNotFoundException = void 0;
+const common_1 = __webpack_require__(3);
+class UserNotFoundException extends common_1.NotFoundException {
+    constructor(error) {
+        super('error.user_not_found', error);
+    }
+}
+exports.UserNotFoundException = UserNotFoundException;
+
+
+/***/ }),
+/* 51 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UpLoadFile = void 0;
+const baseModel_entity_1 = __webpack_require__(26);
+const class_transformer_1 = __webpack_require__(27);
+const typegoose_1 = __webpack_require__(22);
+class UpLoadFile extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new UpLoadFile().getModelForClass(UpLoadFile, {
+            schemaOptions: baseModel_entity_1.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        const result = new this.model(payload);
+        return result;
+    }
+}
+__decorate([
+    typegoose_1.prop(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UpLoadFile.prototype, "name", void 0);
+__decorate([
+    typegoose_1.prop(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UpLoadFile.prototype, "path", void 0);
+exports.UpLoadFile = UpLoadFile;
+
+
+/***/ }),
+/* 52 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b, _c;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MemberClassService = void 0;
-const memberClass_entity_1 = __webpack_require__(50);
+const memberClass_entity_1 = __webpack_require__(53);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(19);
 const logger_service_1 = __webpack_require__(11);
 const baseService_service_1 = __webpack_require__(23);
 const typegoose_1 = __webpack_require__(22);
 const status_enum_1 = __webpack_require__(35);
+const user_service_1 = __webpack_require__(47);
 const errors_exception_1 = __webpack_require__(28);
+const user_not_found_exception_1 = __webpack_require__(50);
 let MemberClassService = class MemberClassService extends baseService_service_1.BaseService {
-    constructor(_memberClassModel, _loggerService) {
+    constructor(_memberClassModel, _loggerService, _userService) {
         super();
         this._memberClassModel = _memberClassModel;
         this._loggerService = _loggerService;
+        this._userService = _userService;
         this._model = _memberClassModel;
     }
     async getClassByUserJoined(idUser) {
@@ -2098,7 +2243,6 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
             const obj = {
                 idUser: idUser,
                 idClass: idClass,
-                role: role,
             };
             const exitsClass = await this.findOne(obj);
             if (!exitsClass) {
@@ -2109,6 +2253,7 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
                 }
                 return null;
             }
+            throw new user_not_found_exception_1.UserNotFoundException('You have to join into layer');
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'joinClass-MemberClassService');
@@ -2132,17 +2277,45 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
             throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
+    async getMemberByClass(idClass, status = 1) {
+        try {
+            const obj = {
+                idClass: idClass,
+                status: status,
+            };
+            const memberClass = await this._model.find(obj).lean();
+            if (memberClass.length > 0) {
+                const results = await Promise.all(memberClass.map(async (e) => {
+                    try {
+                        return {
+                            user: await this._userService.findByIdAndImage(e.idUser),
+                            role: e.role,
+                        };
+                    }
+                    catch (e) {
+                        return e.id;
+                    }
+                }));
+                return this.cvtJSON(results);
+            }
+            return [];
+        }
+        catch (e) {
+            this._loggerService.error(e.message, null, 'leaveClass-MemberClassService');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
 };
 MemberClassService = __decorate([
     common_1.Injectable(),
     __param(0, mongoose_1.InjectModel(memberClass_entity_1.MemberClasses.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof user_service_1.UserService !== "undefined" && user_service_1.UserService) === "function" ? _c : Object])
 ], MemberClassService);
 exports.MemberClassService = MemberClassService;
 
 
 /***/ }),
-/* 50 */
+/* 53 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2196,130 +2369,6 @@ __decorate([
     __metadata("design:type", Number)
 ], MemberClasses.prototype, "status", void 0);
 exports.MemberClasses = MemberClasses;
-
-
-/***/ }),
-/* 51 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UpLoadFileService = void 0;
-const common_1 = __webpack_require__(3);
-const mongoose_1 = __webpack_require__(19);
-const errors_exception_1 = __webpack_require__(28);
-const user_not_found_exception_1 = __webpack_require__(52);
-const baseService_service_1 = __webpack_require__(23);
-const logger_service_1 = __webpack_require__(11);
-const typegoose_1 = __webpack_require__(22);
-const upLoadFile_entity_1 = __webpack_require__(53);
-let UpLoadFileService = class UpLoadFileService extends baseService_service_1.BaseService {
-    constructor(_upLoadFileModel, _loggerService) {
-        super();
-        this._upLoadFileModel = _upLoadFileModel;
-        this._loggerService = _loggerService;
-        this._model = _upLoadFileModel;
-    }
-    async createUploadFile(fileName, path) {
-        try {
-            const obj = {
-                name: fileName,
-                path: path,
-            };
-            const model = upLoadFile_entity_1.UpLoadFile.createModel(obj);
-            const newUploadFile = await this.create(model);
-            if (newUploadFile) {
-                return { id: newUploadFile.id };
-            }
-            throw new user_not_found_exception_1.UserNotFoundException('Upload file false when save model');
-        }
-        catch (e) {
-            this._loggerService.error(e.message, null, 'upLoadFileService-createUploadFile');
-            throw new errors_exception_1.Error2SchoolException(e.message);
-        }
-    }
-};
-UpLoadFileService = __decorate([
-    common_1.Injectable(),
-    __param(0, mongoose_1.InjectModel(upLoadFile_entity_1.UpLoadFile.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
-], UpLoadFileService);
-exports.UpLoadFileService = UpLoadFileService;
-
-
-/***/ }),
-/* 52 */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserNotFoundException = void 0;
-const common_1 = __webpack_require__(3);
-class UserNotFoundException extends common_1.NotFoundException {
-    constructor(error) {
-        super('error.user_not_found', error);
-    }
-}
-exports.UserNotFoundException = UserNotFoundException;
-
-
-/***/ }),
-/* 53 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UpLoadFile = void 0;
-const baseModel_entity_1 = __webpack_require__(26);
-const class_transformer_1 = __webpack_require__(27);
-const typegoose_1 = __webpack_require__(22);
-class UpLoadFile extends baseModel_entity_1.BaseModel {
-    static get model() {
-        return new UpLoadFile().getModelForClass(UpLoadFile, {
-            schemaOptions: baseModel_entity_1.schemaOptions,
-        });
-    }
-    static get modelName() {
-        return this.model.modelName;
-    }
-    static createModel(payload) {
-        const result = new this.model(payload);
-        return result;
-    }
-}
-__decorate([
-    typegoose_1.prop(),
-    class_transformer_1.Expose(),
-    __metadata("design:type", String)
-], UpLoadFile.prototype, "name", void 0);
-__decorate([
-    typegoose_1.prop(),
-    class_transformer_1.Expose(),
-    __metadata("design:type", String)
-], UpLoadFile.prototype, "path", void 0);
-exports.UpLoadFile = UpLoadFile;
 
 
 /***/ }),
@@ -2683,14 +2732,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserModule = void 0;
-const up_load_file_service_1 = __webpack_require__(51);
+const up_load_file_service_1 = __webpack_require__(49);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(19);
 const user_controller_1 = __webpack_require__(60);
 const user_entity_1 = __webpack_require__(18);
 const user_service_1 = __webpack_require__(47);
 const logger_service_1 = __webpack_require__(11);
-const upLoadFile_entity_1 = __webpack_require__(53);
+const upLoadFile_entity_1 = __webpack_require__(51);
 let UserModule = class UserModule {
 };
 UserModule = __decorate([
@@ -2931,7 +2980,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthModule = void 0;
-const up_load_file_service_1 = __webpack_require__(51);
+const up_load_file_service_1 = __webpack_require__(49);
 const auth_service_1 = __webpack_require__(65);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(19);
@@ -2945,7 +2994,7 @@ const auth_entity_1 = __webpack_require__(68);
 const auth_controller_1 = __webpack_require__(75);
 const logger_service_1 = __webpack_require__(11);
 const user_entity_1 = __webpack_require__(18);
-const upLoadFile_entity_1 = __webpack_require__(53);
+const upLoadFile_entity_1 = __webpack_require__(51);
 let AuthModule = class AuthModule {
 };
 AuthModule = __decorate([
@@ -3295,7 +3344,7 @@ const passport_1 = __webpack_require__(17);
 const common_1 = __webpack_require__(3);
 const config_service_1 = __webpack_require__(7);
 const auth_service_1 = __webpack_require__(65);
-const up_load_file_service_1 = __webpack_require__(51);
+const up_load_file_service_1 = __webpack_require__(49);
 let JwtStrategy = class JwtStrategy extends passport_1.PassportStrategy(passport_jwt_1.Strategy) {
     constructor(configService, authService, uploadFileService) {
         super({
@@ -4079,8 +4128,8 @@ const mongoose_1 = __webpack_require__(19);
 const logger_service_1 = __webpack_require__(11);
 const shared_module_1 = __webpack_require__(5);
 const up_load_file_controller_1 = __webpack_require__(91);
-const upLoadFile_entity_1 = __webpack_require__(53);
-const up_load_file_service_1 = __webpack_require__(51);
+const upLoadFile_entity_1 = __webpack_require__(51);
+const up_load_file_service_1 = __webpack_require__(49);
 let UpLoadFileModule = class UpLoadFileModule {
 };
 UpLoadFileModule = __decorate([
@@ -4127,7 +4176,7 @@ const path_1 = __webpack_require__(94);
 const fs = __webpack_require__(95);
 const FileType = __webpack_require__(96);
 const logger_service_1 = __webpack_require__(11);
-const up_load_file_service_1 = __webpack_require__(51);
+const up_load_file_service_1 = __webpack_require__(49);
 const errors_exception_1 = __webpack_require__(28);
 const jwt_auth_guard_1 = __webpack_require__(16);
 const blurHash_1 = __webpack_require__(97);

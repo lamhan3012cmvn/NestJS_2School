@@ -3,8 +3,8 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class CreateRoadMapDto {
   @IsNotEmpty()
   @IsString()
-  name: string;
+  private name: string;
   @IsNotEmpty()
   @IsString()
-  description: string;
+  private description: string;
 }

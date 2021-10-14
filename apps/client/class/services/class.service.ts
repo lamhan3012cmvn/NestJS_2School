@@ -42,16 +42,8 @@ export class ClassService extends BaseService<Classes> {
       const newClass = Classes.createModel(obj);
 
       const newClasses = await this.create(newClass);
-      console.log(
-        `LHA:  ===> file: class.service.ts ===> line 41 ===> newClasses`,
-        newClasses,
-      );
 
       const joinMember = await this.joinMemberClass(createdBy, newClass._id, 2);
-      console.log(
-        `LHA:  ===> file: class.service.ts ===> line 43 ===> joinMember`,
-        joinMember,
-      );
 
       if (newClasses) {
         return this.cvtJSON(newClasses) as Classes;
@@ -81,20 +73,20 @@ export class ClassService extends BaseService<Classes> {
       const result = [];
       for (const c of classes) {
         const u = await this._userService.findOne({ createdBy: c.createdBy });
-        const obj = { ...c };
+        const obj: any = { ...c };
 
         if (!(c.image === '')) {
           const image = await this._uploadFileService.findById(c.image);
-          if (image) obj.image = `${host}/api/up-load-file?id=${image.path}`;
+          if (image) obj.image = image.path;
         }
 
         if (u) {
           const objUser = { ...this.cvtJSON(u) };
           if (!(u.image === '')) {
             const image = await this._uploadFileService.findById(u.image);
-            if (image)
-              objUser.image = `${host}/api/up-load-file?id=${image.path}`;
+            if (image) objUser.image = image.path;
           }
+          obj.member = await this._memberClassService.getMemberByClass(obj._id);
           obj.createdBy = objUser;
         }
         result.push(obj);
@@ -130,7 +122,7 @@ export class ClassService extends BaseService<Classes> {
     }
   }
 
-  async updateClasses(id: string, payload: UpdateClassDto): Promise<Classes> {
+  async updateClasses(id: string, payload: any): Promise<Classes> {
     try {
       const updateClasses = await this.update(id, payload);
       if (updateClasses) {

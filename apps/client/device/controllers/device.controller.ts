@@ -15,7 +15,7 @@ export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
 
   @Post()
-  create(@Body() createDeviceDto: any) {
+  private create(@Body() createDeviceDto: any) {
     return this.deviceService.createDevice(createDeviceDto);
   }
 

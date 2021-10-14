@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { ISchemaUser, User } from '../entities/user.entity';
 import { UpdateUserDto } from '../dto/updateUser/res.dto';
 import { UpdateAvatarDto } from '../dto/updateAvatar/res.dto';
+import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
 
 @Injectable()
 export class UserService extends ResponseService {
@@ -14,6 +15,7 @@ export class UserService extends ResponseService {
     @InjectModel(User.name)
     private userModel: Model<User>,
     private loggerService: LoggerService,
+    private uploadService: UpLoadFileService,
   ) {
     super();
   }
@@ -52,6 +54,24 @@ export class UserService extends ResponseService {
       return null;
     }
   }
+  async findByIdAndImage(id: string) {
+    try {
+      const user = await this.userModel.findOne({ createdBy: id }).lean();
+
+      if (user) {
+        if (!!user.image) {
+          const image = await this.uploadService.findById(user.image);
+          user.image = image.path;
+        }
+        return user;
+      }
+      return null;
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'findById-UserService');
+      return null;
+    }
+  }
+
   async findOne(payload: ISchemaUser) {
     try {
       const user = await this.userModel.findOne(payload).lean();
@@ -84,6 +104,8 @@ export class UserService extends ResponseService {
       const user = await this.userModel
         .findOneAndUpdate({ createdBy: id }, obj, { new: true })
         .lean();
+
+      // uploadService
       if (user) return this.ResponseServiceSuccess(user);
       return null;
     } catch (e) {

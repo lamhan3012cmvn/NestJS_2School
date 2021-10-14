@@ -3,8 +3,8 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class UpdateAvatarDto {
   @IsNotEmpty()
   @IsString()
-  image: string;
+  private image: string;
   @IsNotEmpty()
   @IsString()
-  blurHash: string;
+  private blurHash: string;
 }

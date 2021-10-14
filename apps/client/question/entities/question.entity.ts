@@ -6,22 +6,22 @@ import { DFStatus } from 'apps/share/enums/status.enum';
 export class Question extends BaseModel<Question> {
   @prop({ default: '' })
   @Expose()
-  question: string;
+  private question: string;
   @prop({ default: [] })
   @Expose()
-  answers: Array<string>;
+  private answers: Array<string>;
   @prop({ default: [] })
   @Expose()
-  correct: Array<number>;
+  private correct: Array<number>;
   @prop({ required: true })
   @Expose()
-  duration: number;
+  private duration: number;
   @prop({})
   @Expose()
-  idSetOfQuestions: string;
+  private idSetOfQuestions: string;
   @prop({})
   @Expose()
-  createBy: string;
+  private createBy: string;
 
   static get model(): ModelType<Question> {
     return new Question().getModelForClass(Question, {

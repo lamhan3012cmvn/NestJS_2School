@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
 export class UpdateAccountDto {
-  verify?: boolean;
-  password?: string;
+  private verify?: boolean;
+  private password?: string;
 }

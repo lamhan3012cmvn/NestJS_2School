@@ -3,11 +3,11 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class UpdateQuestionDto {
   @IsNotEmpty()
   @IsString()
-  name: string;
+  private name: string;
   @IsNotEmpty()
   @IsString()
-  intro: string;
+  private intro: string;
   @IsNotEmpty()
   @IsString()
-  topic: string;
+  private topic: string;
 }

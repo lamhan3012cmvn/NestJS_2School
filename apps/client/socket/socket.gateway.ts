@@ -13,11 +13,11 @@ import { Socket, Server } from 'socket.io';
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  @WebSocketServer() server: Server;
+  @WebSocketServer() private server: Server;
   private logger: Logger = new Logger('AppGateway');
 
   @SubscribeMessage('msgToServer')
-  handleMessage(client: Socket, payload: string): void {
+  private handleMessage(client: Socket, payload: string): void {
     this.server.emit('msgToClient', payload);
   }
 
