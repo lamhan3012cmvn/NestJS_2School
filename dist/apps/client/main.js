@@ -28,7 +28,7 @@ const setup_1 = __webpack_require__(78);
 const user_module_1 = __webpack_require__(59);
 const set_of_questions_module_1 = __webpack_require__(79);
 const socket_module_1 = __webpack_require__(86);
-const up_load_file_module_1 = __webpack_require__(90);
+const up_load_file_module_1 = __webpack_require__(91);
 let ClientModule = class ClientModule {
 };
 ClientModule = __decorate([
@@ -4031,15 +4031,50 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SocketModule = void 0;
+const setOfQuestions_entity_1 = __webpack_require__(82);
+const setOfQuestions_service_1 = __webpack_require__(81);
 const common_1 = __webpack_require__(3);
 const socket_gateway_1 = __webpack_require__(87);
+const mongoose_1 = __webpack_require__(19);
+const question_entity_1 = __webpack_require__(25);
+const question_service_1 = __webpack_require__(21);
+const userSocket_service_1 = __webpack_require__(111);
+const userSocket_entity_1 = __webpack_require__(112);
+const userScoreQuizSocket_entity_1 = __webpack_require__(113);
+const userScoreQuizSocket_service_1 = __webpack_require__(114);
+const userHostSocket_service_1 = __webpack_require__(115);
+const userHostSocket_entity_1 = __webpack_require__(116);
 let SocketModule = class SocketModule {
 };
 SocketModule = __decorate([
     common_1.Module({
-        imports: [],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: setOfQuestions_entity_1.SetOfQuestion.modelName, schema: setOfQuestions_entity_1.SetOfQuestion.model.schema },
+                { name: question_entity_1.Question.modelName, schema: question_entity_1.Question.model.schema },
+                {
+                    name: userSocket_entity_1.UserMemberSocket.modelName,
+                    schema: userSocket_entity_1.UserMemberSocket.model.schema,
+                },
+                {
+                    name: userScoreQuizSocket_entity_1.UserScoreQuizSocket.modelName,
+                    schema: userScoreQuizSocket_entity_1.UserScoreQuizSocket.model.schema,
+                },
+                {
+                    name: userHostSocket_entity_1.UserHostSocket.modelName,
+                    schema: userHostSocket_entity_1.UserHostSocket.model.schema,
+                },
+            ]),
+        ],
         controllers: [],
-        providers: [socket_gateway_1.AppGateway],
+        providers: [
+            socket_gateway_1.AppGateway,
+            setOfQuestions_service_1.SetOfQuestionsService,
+            question_service_1.QuestionService,
+            userSocket_service_1.UserMemberSocketService,
+            userScoreQuizSocket_service_1.UserScoreQuizSocketService,
+            userHostSocket_service_1.UserHostSocketService,
+        ],
     })
 ], SocketModule);
 exports.SocketModule = SocketModule;
@@ -4059,18 +4094,107 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppGateway = void 0;
-const websockets_1 = __webpack_require__(88);
+const socket_events_1 = __webpack_require__(88);
+const websockets_1 = __webpack_require__(89);
 const common_1 = __webpack_require__(3);
-const socket_io_1 = __webpack_require__(89);
+const socket_io_1 = __webpack_require__(90);
+const setOfQuestions_service_1 = __webpack_require__(81);
+const question_service_1 = __webpack_require__(21);
+const userHostSocket_service_1 = __webpack_require__(115);
+const userScoreQuizSocket_service_1 = __webpack_require__(114);
+const userSocket_service_1 = __webpack_require__(111);
 let AppGateway = class AppGateway {
-    constructor() {
+    constructor(_questionService, _userHostSocketService, _userScoreQuizSocketService, _userMemberSocketService, _setOfQuestionsService) {
+        this._questionService = _questionService;
+        this._userHostSocketService = _userHostSocketService;
+        this._userScoreQuizSocketService = _userScoreQuizSocketService;
+        this._userMemberSocketService = _userMemberSocketService;
+        this._setOfQuestionsService = _setOfQuestionsService;
         this.logger = new common_1.Logger('AppGateway');
     }
-    handleMessage(client, payload) {
-        this.server.emit('msgToClient', payload);
+    async handleCreateRoom(client, payload) {
+        const idRoom = '1234';
+        client.join(idRoom);
+        console.log(client.id);
+        const questions = await this._questionService.findAll({
+            idSetOfQuestions: payload.idSetOfQuestions,
+        });
+        const mapIdQuestions = questions.map((e) => e._id);
+        const userHostSocket = await this._userHostSocketService.createUserHostSocket({
+            idRoom: idRoom,
+            host: client.id,
+            questions: mapIdQuestions,
+        });
+        if (userHostSocket) {
+            this.server.emit(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_SSC, {
+                msg: 'Create Room Quiz Success',
+                idRoom: idRoom,
+            });
+        }
+        else {
+            this.server.emit(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_SSC, {
+                msg: 'Create Room Quiz Fail',
+                idRoom: null,
+            });
+        }
+    }
+    async handleJoinRoom(client, payload) {
+        client.join(payload.idRoom);
+        console.log(client.id);
+        const newMember = await this._userMemberSocketService.createMemberSocket({
+            idRoom: payload.idRoom,
+            userId: client.id,
+        });
+        if (newMember) {
+            this.server.emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
+                msg: 'Join Room Quiz Success',
+                user: newMember,
+            });
+            return;
+        }
+        this.server.emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
+            msg: 'Join Room Quiz False',
+            user: null,
+        });
+        return;
+    }
+    async handleStartQuiz(client, payload) {
+        const host = await this._userHostSocketService.findOne({
+            idRoom: payload.idRoom,
+            host: client.id,
+        });
+        if (host) {
+            const startGame = await this._userHostSocketService.findOneAndUpdate({ _id: host._id }, { play: true });
+            if (startGame) {
+                client.broadcast.to(host.idRoom).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
+                    msg: 'Start Game Success',
+                    data: startGame,
+                });
+            }
+            client.broadcast.to(host.idRoom).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
+                msg: 'Fail Game Success',
+                data: startGame,
+            });
+        }
+        this.server.emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
+            msg: 'Dont find host start game',
+            data: null,
+        });
+    }
+    handleLeaveRoom(client, payload) {
+        this.server.emit(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_SSC, payload);
+    }
+    handleStatistQuiz(client, payload) {
+        this.server.emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_SSC, payload);
+    }
+    handleAnswerTheQuestion(client, payload) {
+        this.server.emit(socket_events_1.SOCKET_EVENT.ANSWER_THE_QUESTION_SSC, payload);
+    }
+    handleTakeTheQuestion(client, payload) {
+        this.server.emit(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_SSC, payload);
     }
     afterInit(server) {
         this.logger.log('Init');
@@ -4087,31 +4211,87 @@ __decorate([
     __metadata("design:type", typeof (_a = typeof socket_io_1.Server !== "undefined" && socket_io_1.Server) === "function" ? _a : Object)
 ], AppGateway.prototype, "server", void 0);
 __decorate([
-    websockets_1.SubscribeMessage('msgToServer'),
+    websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_CSS),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_b = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _b : Object, String]),
+    __metadata("design:paramtypes", [typeof (_b = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _b : Object, Object]),
+    __metadata("design:returntype", typeof (_c = typeof Promise !== "undefined" && Promise) === "function" ? _c : Object)
+], AppGateway.prototype, "handleCreateRoom", null);
+__decorate([
+    websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.JOIN_ROOM_CSS),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_d = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _d : Object, Object]),
+    __metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
+], AppGateway.prototype, "handleJoinRoom", null);
+__decorate([
+    websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.START_QUIZ_CSS),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_f = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _f : Object, Object]),
+    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
+], AppGateway.prototype, "handleStartQuiz", null);
+__decorate([
+    websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_CSS),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_h = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _h : Object, Object]),
     __metadata("design:returntype", void 0)
-], AppGateway.prototype, "handleMessage", null);
+], AppGateway.prototype, "handleLeaveRoom", null);
+__decorate([
+    websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.ANSWER_THE_QUESTION_CSS),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_j = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _j : Object, Object]),
+    __metadata("design:returntype", void 0)
+], AppGateway.prototype, "handleAnswerTheQuestion", null);
+__decorate([
+    websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_CSS),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_k = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _k : Object, Object]),
+    __metadata("design:returntype", void 0)
+], AppGateway.prototype, "handleTakeTheQuestion", null);
 AppGateway = __decorate([
-    websockets_1.WebSocketGateway()
+    websockets_1.WebSocketGateway({ cors: true }),
+    __metadata("design:paramtypes", [typeof (_l = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _l : Object, typeof (_m = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _m : Object, typeof (_o = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _o : Object, typeof (_p = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _p : Object, typeof (_q = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _q : Object])
 ], AppGateway);
 exports.AppGateway = AppGateway;
 
 
 /***/ }),
 /* 88 */
-/***/ ((module) => {
+/***/ ((__unused_webpack_module, exports) => {
 
-module.exports = require("@nestjs/websockets");
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SOCKET_EVENT = void 0;
+var SOCKET_EVENT;
+(function (SOCKET_EVENT) {
+    SOCKET_EVENT["CREATE_QUIZ_CSS"] = "CREATE_QUIZ_CSS";
+    SOCKET_EVENT["CREATE_QUIZ_SSC"] = "CREATE_QUIZ_SSC";
+    SOCKET_EVENT["JOIN_ROOM_CSS"] = "JOIN_ROOM_CSS";
+    SOCKET_EVENT["JOIN_ROOM_SSC"] = "JOIN_ROOM_SSC";
+    SOCKET_EVENT["LEAVE_ROOM_CSS"] = "LEAVE_ROOM_CSS";
+    SOCKET_EVENT["LEAVE_ROOM_SSC"] = "LEAVE_ROOM_SSC";
+    SOCKET_EVENT["STATISTICAL_ROOM_SSC"] = "STATISTICAL_ROOM_SSC";
+    SOCKET_EVENT["START_QUIZ_CSS"] = "START_QUIZ_CSS";
+    SOCKET_EVENT["START_QUIZ_SSC"] = "START_QUIZ_SSC";
+    SOCKET_EVENT["ANSWER_THE_QUESTION_CSS"] = "ANSWER_THE_QUESTION_CSS";
+    SOCKET_EVENT["ANSWER_THE_QUESTION_SSC"] = "ANSWER_THE_QUESTION_SSC";
+    SOCKET_EVENT["TAKE_THE_QUESTION_CSS"] = "TAKE_THE_QUESTION_CSS";
+    SOCKET_EVENT["TAKE_THE_QUESTION_SSC"] = "TAKE_THE_QUESTION_SSC";
+})(SOCKET_EVENT = exports.SOCKET_EVENT || (exports.SOCKET_EVENT = {}));
+
 
 /***/ }),
 /* 89 */
 /***/ ((module) => {
 
-module.exports = require("socket.io");
+module.exports = require("@nestjs/websockets");
 
 /***/ }),
 /* 90 */
+/***/ ((module) => {
+
+module.exports = require("socket.io");
+
+/***/ }),
+/* 91 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4127,7 +4307,7 @@ const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(19);
 const logger_service_1 = __webpack_require__(11);
 const shared_module_1 = __webpack_require__(5);
-const up_load_file_controller_1 = __webpack_require__(91);
+const up_load_file_controller_1 = __webpack_require__(92);
 const upLoadFile_entity_1 = __webpack_require__(51);
 const up_load_file_service_1 = __webpack_require__(49);
 let UpLoadFileModule = class UpLoadFileModule {
@@ -4149,7 +4329,7 @@ exports.UpLoadFileModule = UpLoadFileModule;
 
 
 /***/ }),
-/* 91 */
+/* 92 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4169,17 +4349,17 @@ var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpLoadFileController = void 0;
 const baseController_1 = __webpack_require__(29);
-const platform_express_1 = __webpack_require__(92);
+const platform_express_1 = __webpack_require__(93);
 const common_1 = __webpack_require__(3);
-const multer_1 = __webpack_require__(93);
-const path_1 = __webpack_require__(94);
-const fs = __webpack_require__(95);
-const FileType = __webpack_require__(96);
+const multer_1 = __webpack_require__(94);
+const path_1 = __webpack_require__(95);
+const fs = __webpack_require__(96);
+const FileType = __webpack_require__(97);
 const logger_service_1 = __webpack_require__(11);
 const up_load_file_service_1 = __webpack_require__(49);
 const errors_exception_1 = __webpack_require__(28);
 const jwt_auth_guard_1 = __webpack_require__(16);
-const blurHash_1 = __webpack_require__(97);
+const blurHash_1 = __webpack_require__(98);
 let UpLoadFileController = class UpLoadFileController {
     constructor(_upLoadFileService, loggerService) {
         this._upLoadFileService = _upLoadFileService;
@@ -4302,44 +4482,44 @@ exports.UpLoadFileController = UpLoadFileController;
 
 
 /***/ }),
-/* 92 */
+/* 93 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-express");
 
 /***/ }),
-/* 93 */
+/* 94 */
 /***/ ((module) => {
 
 module.exports = require("multer");
 
 /***/ }),
-/* 94 */
+/* 95 */
 /***/ ((module) => {
 
 module.exports = require("path");
 
 /***/ }),
-/* 95 */
+/* 96 */
 /***/ ((module) => {
 
 module.exports = require("fs");
 
 /***/ }),
-/* 96 */
+/* 97 */
 /***/ ((module) => {
 
 module.exports = require("file-type");
 
 /***/ }),
-/* 97 */
+/* 98 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.encodeImageToBlurhash = void 0;
-const sharp = __webpack_require__(98);
-const blurhash_1 = __webpack_require__(99);
+const sharp = __webpack_require__(99);
+const blurhash_1 = __webpack_require__(100);
 const encodeImageToBlurhash = (path) => {
     return new Promise((resolve, reject) => {
         sharp(path)
@@ -4357,19 +4537,19 @@ exports.encodeImageToBlurhash = encodeImageToBlurhash;
 
 
 /***/ }),
-/* 98 */
+/* 99 */
 /***/ ((module) => {
 
 module.exports = require("sharp");
 
 /***/ }),
-/* 99 */
+/* 100 */
 /***/ ((module) => {
 
 module.exports = require("blurhash");
 
 /***/ }),
-/* 100 */
+/* 101 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4432,31 +4612,31 @@ exports.HttpExceptionFilter = HttpExceptionFilter;
 
 
 /***/ }),
-/* 101 */
+/* 102 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
 
 /***/ }),
-/* 102 */
+/* 103 */
 /***/ ((module) => {
 
 module.exports = require("express-rate-limit");
 
 /***/ }),
-/* 103 */
+/* 104 */
 /***/ ((module) => {
 
 module.exports = require("helmet");
 
 /***/ }),
-/* 104 */
+/* 105 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupSwagger = void 0;
-const swagger_1 = __webpack_require__(105);
+const swagger_1 = __webpack_require__(106);
 function setupSwagger(app, config) {
     const options = new swagger_1.DocumentBuilder()
         .setTitle(config.title || 'DocumentApi')
@@ -4472,10 +4652,375 @@ exports.setupSwagger = setupSwagger;
 
 
 /***/ }),
-/* 105 */
+/* 106 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
+
+/***/ }),
+/* 107 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RedisIoAdapter = void 0;
+const platform_socket_io_1 = __webpack_require__(108);
+const redis_1 = __webpack_require__(109);
+const socket_io_redis_1 = __webpack_require__(110);
+const pubClient = new redis_1.RedisClient({ host: 'localhost', port: 6379 });
+const subClient = pubClient.duplicate();
+const redisAdapter = socket_io_redis_1.createAdapter({ pubClient, subClient });
+class RedisIoAdapter extends platform_socket_io_1.IoAdapter {
+    createIOServer(port, options) {
+        const server = super.createIOServer(port, options);
+        server.adapter(redisAdapter);
+        return server;
+    }
+}
+exports.RedisIoAdapter = RedisIoAdapter;
+
+
+/***/ }),
+/* 108 */
+/***/ ((module) => {
+
+module.exports = require("@nestjs/platform-socket.io");
+
+/***/ }),
+/* 109 */
+/***/ ((module) => {
+
+module.exports = require("redis");
+
+/***/ }),
+/* 110 */
+/***/ ((module) => {
+
+module.exports = require("socket.io-redis");
+
+/***/ }),
+/* 111 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserMemberSocketService = void 0;
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(19);
+const baseService_service_1 = __webpack_require__(23);
+const logger_service_1 = __webpack_require__(11);
+const typegoose_1 = __webpack_require__(22);
+const userSocket_entity_1 = __webpack_require__(112);
+let UserMemberSocketService = class UserMemberSocketService extends baseService_service_1.BaseService {
+    constructor(_userMemberSocket, _loggerService) {
+        super();
+        this._userMemberSocket = _userMemberSocket;
+        this._loggerService = _loggerService;
+        this._model = _userMemberSocket;
+    }
+    async createMemberSocket(payload) {
+        try {
+            const obj = Object.assign({}, payload);
+            const model = userSocket_entity_1.UserMemberSocket.createModel(obj);
+            const newUserHost = await this.create(model);
+            if (newUserHost) {
+                return this.cvtJSON(newUserHost);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'CREATE-UserHostSocketService');
+            return null;
+        }
+    }
+};
+UserMemberSocketService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(userSocket_entity_1.UserMemberSocket.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], UserMemberSocketService);
+exports.UserMemberSocketService = UserMemberSocketService;
+
+
+/***/ }),
+/* 112 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var UserMemberSocket_1;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserMemberSocket = void 0;
+const baseModel_entity_1 = __webpack_require__(26);
+const baseModel_entity_2 = __webpack_require__(26);
+const class_transformer_1 = __webpack_require__(27);
+const typegoose_1 = __webpack_require__(22);
+let UserMemberSocket = UserMemberSocket_1 = class UserMemberSocket extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new UserMemberSocket_1().getModelForClass(UserMemberSocket_1, {
+            schemaOptions: baseModel_entity_2.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+};
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserMemberSocket.prototype, "idRoom", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserMemberSocket.prototype, "userId", void 0);
+UserMemberSocket = UserMemberSocket_1 = __decorate([
+    typegoose_1.index({ idRoom: 1, userId: 1 }, { unique: true })
+], UserMemberSocket);
+exports.UserMemberSocket = UserMemberSocket;
+
+
+/***/ }),
+/* 113 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserScoreQuizSocket = void 0;
+const baseModel_entity_1 = __webpack_require__(26);
+const baseModel_entity_2 = __webpack_require__(26);
+const class_transformer_1 = __webpack_require__(27);
+const typegoose_1 = __webpack_require__(22);
+class UserScoreQuizSocket extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new UserScoreQuizSocket().getModelForClass(UserScoreQuizSocket, {
+            schemaOptions: baseModel_entity_2.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+}
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserScoreQuizSocket.prototype, "idRoom", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserScoreQuizSocket.prototype, "userId", void 0);
+__decorate([
+    typegoose_1.prop({ default: 0 }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], UserScoreQuizSocket.prototype, "score", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserScoreQuizSocket.prototype, "question", void 0);
+exports.UserScoreQuizSocket = UserScoreQuizSocket;
+
+
+/***/ }),
+/* 114 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserScoreQuizSocketService = void 0;
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(19);
+const baseService_service_1 = __webpack_require__(23);
+const logger_service_1 = __webpack_require__(11);
+const typegoose_1 = __webpack_require__(22);
+const userScoreQuizSocket_entity_1 = __webpack_require__(113);
+let UserScoreQuizSocketService = class UserScoreQuizSocketService extends baseService_service_1.BaseService {
+    constructor(_userScoreQuizSocket, _loggerService) {
+        super();
+        this._userScoreQuizSocket = _userScoreQuizSocket;
+        this._loggerService = _loggerService;
+        this._model = _userScoreQuizSocket;
+    }
+};
+UserScoreQuizSocketService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(userScoreQuizSocket_entity_1.UserScoreQuizSocket.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], UserScoreQuizSocketService);
+exports.UserScoreQuizSocketService = UserScoreQuizSocketService;
+
+
+/***/ }),
+/* 115 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserHostSocketService = void 0;
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(19);
+const baseService_service_1 = __webpack_require__(23);
+const logger_service_1 = __webpack_require__(11);
+const typegoose_1 = __webpack_require__(22);
+const userHostSocket_entity_1 = __webpack_require__(116);
+let UserHostSocketService = class UserHostSocketService extends baseService_service_1.BaseService {
+    constructor(_userHostSocket, _loggerService) {
+        super();
+        this._userHostSocket = _userHostSocket;
+        this._loggerService = _loggerService;
+        this._model = _userHostSocket;
+    }
+    async createUserHostSocket(payload) {
+        try {
+            const obj = Object.assign({}, payload);
+            const model = userHostSocket_entity_1.UserHostSocket.createModel(obj);
+            const newUserHost = await this.create(model);
+            if (newUserHost) {
+                return this.cvtJSON(newUserHost);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'CREATE-UserHostSocketService');
+            return null;
+        }
+    }
+};
+UserHostSocketService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(userHostSocket_entity_1.UserHostSocket.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], UserHostSocketService);
+exports.UserHostSocketService = UserHostSocketService;
+
+
+/***/ }),
+/* 116 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var UserHostSocket_1, _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserHostSocket = void 0;
+const baseModel_entity_1 = __webpack_require__(26);
+const baseModel_entity_2 = __webpack_require__(26);
+const class_transformer_1 = __webpack_require__(27);
+const typegoose_1 = __webpack_require__(22);
+let UserHostSocket = UserHostSocket_1 = class UserHostSocket extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new UserHostSocket_1().getModelForClass(UserHostSocket_1, {
+            schemaOptions: baseModel_entity_2.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+};
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserHostSocket.prototype, "idRoom", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserHostSocket.prototype, "host", void 0);
+__decorate([
+    typegoose_1.prop({ default: [] }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", typeof (_a = typeof Array !== "undefined" && Array) === "function" ? _a : Object)
+], UserHostSocket.prototype, "questions", void 0);
+__decorate([
+    typegoose_1.prop({ default: -1 }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], UserHostSocket.prototype, "currentQuestion", void 0);
+UserHostSocket = UserHostSocket_1 = __decorate([
+    typegoose_1.index({ idRoom: 1, host: 1 }, { unique: true })
+], UserHostSocket);
+exports.UserHostSocket = UserHostSocket;
+
 
 /***/ })
 /******/ 	]);
@@ -4512,16 +5057,17 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const client_module_1 = __webpack_require__(1);
-const http_exception_filter_1 = __webpack_require__(100);
+const http_exception_filter_1 = __webpack_require__(101);
 const config_service_1 = __webpack_require__(7);
 const logger_service_1 = __webpack_require__(11);
 const shared_module_1 = __webpack_require__(5);
-const core_1 = __webpack_require__(101);
-const platform_express_1 = __webpack_require__(92);
-const rateLimit = __webpack_require__(102);
-const helmet = __webpack_require__(103);
+const core_1 = __webpack_require__(102);
+const platform_express_1 = __webpack_require__(93);
+const rateLimit = __webpack_require__(103);
+const helmet = __webpack_require__(104);
 const common_1 = __webpack_require__(3);
-const setup_1 = __webpack_require__(104);
+const setup_1 = __webpack_require__(105);
+const RedisIoAdapter_1 = __webpack_require__(107);
 async function bootstrap() {
     try {
         const app = await core_1.NestFactory.create(client_module_1.ClientModule, new platform_express_1.ExpressAdapter(), {
@@ -4544,6 +5090,7 @@ async function bootstrap() {
                 target: false,
             },
         }));
+        app.useWebSocketAdapter(new RedisIoAdapter_1.RedisIoAdapter(app));
         const configService = app.select(shared_module_1.SharedModule).get(config_service_1.ConfigService);
         if (['development', 'staging'].includes(configService.nodeEnv)) {
             setup_1.setupSwagger(app, configService.swaggerConfig);

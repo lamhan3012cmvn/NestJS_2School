@@ -16,6 +16,7 @@ import * as helmet from 'helmet'; // security feature
 import * as morgan from 'morgan'; // HTTP request logger
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { setupSwagger } from 'apps/share/swagger/setup';
+import { RedisIoAdapter } from '../socket/adapter/RedisIoAdapter';
 async function bootstrap() {
   try {
     const app = await NestFactory.create<NestExpressApplication>(
@@ -59,6 +60,8 @@ async function bootstrap() {
         },
       }),
     );
+
+    app.useWebSocketAdapter(new RedisIoAdapter(app));
 
     const configService = app.select(SharedModule).get(ConfigService);
 
