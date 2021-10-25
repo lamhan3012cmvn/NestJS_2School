@@ -34,17 +34,17 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - '24:48:41:d3:9c:fc:14:0e:fb:47:84:9a:c1:5c:18:37'
-      - run: ssh -oStrictHostKeyChecking=no root@natha-lms.tk './files/NestJS_2School/deploy2.sh'
+      - run: ssh -oStrictHostKeyChecking=no root@natha-lms.tk './files/NestJS_2School/deploy.sh'
 
 workflows:
   sample:
-    jobs:
-      - build-and-push:
-        filters:
-            branches:
-              only:
-                - dev
-                - master
+    # jobs:
+    #   - build-and-push:
+    #     filters:
+    #         branches:
+    #           only:
+    #             - dev
+    #             - master
       - deploy:
         # requires:
         # - build-and-push

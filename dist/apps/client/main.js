@@ -28,7 +28,7 @@ const setup_1 = __webpack_require__(78);
 const user_module_1 = __webpack_require__(59);
 const set_of_questions_module_1 = __webpack_require__(79);
 const socket_module_1 = __webpack_require__(86);
-const up_load_file_module_1 = __webpack_require__(91);
+const up_load_file_module_1 = __webpack_require__(97);
 let ClientModule = class ClientModule {
 };
 ClientModule = __decorate([
@@ -4038,12 +4038,12 @@ const socket_gateway_1 = __webpack_require__(87);
 const mongoose_1 = __webpack_require__(19);
 const question_entity_1 = __webpack_require__(25);
 const question_service_1 = __webpack_require__(21);
-const userSocket_service_1 = __webpack_require__(111);
-const userSocket_entity_1 = __webpack_require__(112);
-const userScoreQuizSocket_entity_1 = __webpack_require__(113);
-const userScoreQuizSocket_service_1 = __webpack_require__(114);
-const userHostSocket_service_1 = __webpack_require__(115);
-const userHostSocket_entity_1 = __webpack_require__(116);
+const userSocket_service_1 = __webpack_require__(95);
+const userSocket_entity_1 = __webpack_require__(96);
+const userScoreQuizSocket_entity_1 = __webpack_require__(94);
+const userScoreQuizSocket_service_1 = __webpack_require__(93);
+const userHostSocket_service_1 = __webpack_require__(91);
+const userHostSocket_entity_1 = __webpack_require__(92);
 let SocketModule = class SocketModule {
 };
 SocketModule = __decorate([
@@ -4103,9 +4103,9 @@ const common_1 = __webpack_require__(3);
 const socket_io_1 = __webpack_require__(90);
 const setOfQuestions_service_1 = __webpack_require__(81);
 const question_service_1 = __webpack_require__(21);
-const userHostSocket_service_1 = __webpack_require__(115);
-const userScoreQuizSocket_service_1 = __webpack_require__(114);
-const userSocket_service_1 = __webpack_require__(111);
+const userHostSocket_service_1 = __webpack_require__(91);
+const userScoreQuizSocket_service_1 = __webpack_require__(93);
+const userSocket_service_1 = __webpack_require__(95);
 let AppGateway = class AppGateway {
     constructor(_questionService, _userHostSocketService, _userScoreQuizSocketService, _userMemberSocketService, _setOfQuestionsService) {
         this._questionService = _questionService;
@@ -4301,13 +4301,337 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserHostSocketService = void 0;
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(19);
+const baseService_service_1 = __webpack_require__(23);
+const logger_service_1 = __webpack_require__(11);
+const typegoose_1 = __webpack_require__(22);
+const userHostSocket_entity_1 = __webpack_require__(92);
+let UserHostSocketService = class UserHostSocketService extends baseService_service_1.BaseService {
+    constructor(_userHostSocket, _loggerService) {
+        super();
+        this._userHostSocket = _userHostSocket;
+        this._loggerService = _loggerService;
+        this._model = _userHostSocket;
+    }
+    async createUserHostSocket(payload) {
+        try {
+            const obj = Object.assign({}, payload);
+            const model = userHostSocket_entity_1.UserHostSocket.createModel(obj);
+            const newUserHost = await this.create(model);
+            if (newUserHost) {
+                return this.cvtJSON(newUserHost);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'CREATE-UserHostSocketService');
+            return null;
+        }
+    }
+};
+UserHostSocketService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(userHostSocket_entity_1.UserHostSocket.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], UserHostSocketService);
+exports.UserHostSocketService = UserHostSocketService;
+
+
+/***/ }),
+/* 92 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var UserHostSocket_1, _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserHostSocket = void 0;
+const baseModel_entity_1 = __webpack_require__(26);
+const baseModel_entity_2 = __webpack_require__(26);
+const class_transformer_1 = __webpack_require__(27);
+const typegoose_1 = __webpack_require__(22);
+let UserHostSocket = UserHostSocket_1 = class UserHostSocket extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new UserHostSocket_1().getModelForClass(UserHostSocket_1, {
+            schemaOptions: baseModel_entity_2.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+};
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserHostSocket.prototype, "idRoom", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserHostSocket.prototype, "host", void 0);
+__decorate([
+    typegoose_1.prop({ default: [] }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", typeof (_a = typeof Array !== "undefined" && Array) === "function" ? _a : Object)
+], UserHostSocket.prototype, "questions", void 0);
+__decorate([
+    typegoose_1.prop({ default: -1 }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], UserHostSocket.prototype, "currentQuestion", void 0);
+UserHostSocket = UserHostSocket_1 = __decorate([
+    typegoose_1.index({ idRoom: 1, host: 1 }, { unique: true })
+], UserHostSocket);
+exports.UserHostSocket = UserHostSocket;
+
+
+/***/ }),
+/* 93 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserScoreQuizSocketService = void 0;
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(19);
+const baseService_service_1 = __webpack_require__(23);
+const logger_service_1 = __webpack_require__(11);
+const typegoose_1 = __webpack_require__(22);
+const userScoreQuizSocket_entity_1 = __webpack_require__(94);
+let UserScoreQuizSocketService = class UserScoreQuizSocketService extends baseService_service_1.BaseService {
+    constructor(_userScoreQuizSocket, _loggerService) {
+        super();
+        this._userScoreQuizSocket = _userScoreQuizSocket;
+        this._loggerService = _loggerService;
+        this._model = _userScoreQuizSocket;
+    }
+};
+UserScoreQuizSocketService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(userScoreQuizSocket_entity_1.UserScoreQuizSocket.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], UserScoreQuizSocketService);
+exports.UserScoreQuizSocketService = UserScoreQuizSocketService;
+
+
+/***/ }),
+/* 94 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserScoreQuizSocket = void 0;
+const baseModel_entity_1 = __webpack_require__(26);
+const baseModel_entity_2 = __webpack_require__(26);
+const class_transformer_1 = __webpack_require__(27);
+const typegoose_1 = __webpack_require__(22);
+class UserScoreQuizSocket extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new UserScoreQuizSocket().getModelForClass(UserScoreQuizSocket, {
+            schemaOptions: baseModel_entity_2.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+}
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserScoreQuizSocket.prototype, "idRoom", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserScoreQuizSocket.prototype, "userId", void 0);
+__decorate([
+    typegoose_1.prop({ default: 0 }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], UserScoreQuizSocket.prototype, "score", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserScoreQuizSocket.prototype, "question", void 0);
+exports.UserScoreQuizSocket = UserScoreQuizSocket;
+
+
+/***/ }),
+/* 95 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserMemberSocketService = void 0;
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(19);
+const baseService_service_1 = __webpack_require__(23);
+const logger_service_1 = __webpack_require__(11);
+const typegoose_1 = __webpack_require__(22);
+const userSocket_entity_1 = __webpack_require__(96);
+let UserMemberSocketService = class UserMemberSocketService extends baseService_service_1.BaseService {
+    constructor(_userMemberSocket, _loggerService) {
+        super();
+        this._userMemberSocket = _userMemberSocket;
+        this._loggerService = _loggerService;
+        this._model = _userMemberSocket;
+    }
+    async createMemberSocket(payload) {
+        try {
+            const obj = Object.assign({}, payload);
+            const model = userSocket_entity_1.UserMemberSocket.createModel(obj);
+            const newUserHost = await this.create(model);
+            if (newUserHost) {
+                return this.cvtJSON(newUserHost);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'CREATE-UserHostSocketService');
+            return null;
+        }
+    }
+};
+UserMemberSocketService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(userSocket_entity_1.UserMemberSocket.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], UserMemberSocketService);
+exports.UserMemberSocketService = UserMemberSocketService;
+
+
+/***/ }),
+/* 96 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var UserMemberSocket_1;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserMemberSocket = void 0;
+const baseModel_entity_1 = __webpack_require__(26);
+const baseModel_entity_2 = __webpack_require__(26);
+const class_transformer_1 = __webpack_require__(27);
+const typegoose_1 = __webpack_require__(22);
+let UserMemberSocket = UserMemberSocket_1 = class UserMemberSocket extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new UserMemberSocket_1().getModelForClass(UserMemberSocket_1, {
+            schemaOptions: baseModel_entity_2.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+};
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserMemberSocket.prototype, "idRoom", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserMemberSocket.prototype, "userId", void 0);
+UserMemberSocket = UserMemberSocket_1 = __decorate([
+    typegoose_1.index({ idRoom: 1, userId: 1 }, { unique: true })
+], UserMemberSocket);
+exports.UserMemberSocket = UserMemberSocket;
+
+
+/***/ }),
+/* 97 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpLoadFileModule = void 0;
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(19);
 const logger_service_1 = __webpack_require__(11);
 const shared_module_1 = __webpack_require__(5);
-const up_load_file_controller_1 = __webpack_require__(92);
+const up_load_file_controller_1 = __webpack_require__(98);
 const upLoadFile_entity_1 = __webpack_require__(51);
 const up_load_file_service_1 = __webpack_require__(49);
 let UpLoadFileModule = class UpLoadFileModule {
@@ -4329,7 +4653,7 @@ exports.UpLoadFileModule = UpLoadFileModule;
 
 
 /***/ }),
-/* 92 */
+/* 98 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4349,17 +4673,17 @@ var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpLoadFileController = void 0;
 const baseController_1 = __webpack_require__(29);
-const platform_express_1 = __webpack_require__(93);
+const platform_express_1 = __webpack_require__(99);
 const common_1 = __webpack_require__(3);
-const multer_1 = __webpack_require__(94);
-const path_1 = __webpack_require__(95);
-const fs = __webpack_require__(96);
-const FileType = __webpack_require__(97);
+const multer_1 = __webpack_require__(100);
+const path_1 = __webpack_require__(101);
+const fs = __webpack_require__(102);
+const FileType = __webpack_require__(103);
 const logger_service_1 = __webpack_require__(11);
 const up_load_file_service_1 = __webpack_require__(49);
 const errors_exception_1 = __webpack_require__(28);
 const jwt_auth_guard_1 = __webpack_require__(16);
-const blurHash_1 = __webpack_require__(98);
+const blurHash_1 = __webpack_require__(104);
 let UpLoadFileController = class UpLoadFileController {
     constructor(_upLoadFileService, loggerService) {
         this._upLoadFileService = _upLoadFileService;
@@ -4482,44 +4806,44 @@ exports.UpLoadFileController = UpLoadFileController;
 
 
 /***/ }),
-/* 93 */
+/* 99 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-express");
 
 /***/ }),
-/* 94 */
+/* 100 */
 /***/ ((module) => {
 
 module.exports = require("multer");
 
 /***/ }),
-/* 95 */
+/* 101 */
 /***/ ((module) => {
 
 module.exports = require("path");
 
 /***/ }),
-/* 96 */
+/* 102 */
 /***/ ((module) => {
 
 module.exports = require("fs");
 
 /***/ }),
-/* 97 */
+/* 103 */
 /***/ ((module) => {
 
 module.exports = require("file-type");
 
 /***/ }),
-/* 98 */
+/* 104 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.encodeImageToBlurhash = void 0;
-const sharp = __webpack_require__(99);
-const blurhash_1 = __webpack_require__(100);
+const sharp = __webpack_require__(105);
+const blurhash_1 = __webpack_require__(106);
 const encodeImageToBlurhash = (path) => {
     return new Promise((resolve, reject) => {
         sharp(path)
@@ -4537,19 +4861,19 @@ exports.encodeImageToBlurhash = encodeImageToBlurhash;
 
 
 /***/ }),
-/* 99 */
+/* 105 */
 /***/ ((module) => {
 
 module.exports = require("sharp");
 
 /***/ }),
-/* 100 */
+/* 106 */
 /***/ ((module) => {
 
 module.exports = require("blurhash");
 
 /***/ }),
-/* 101 */
+/* 107 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4612,31 +4936,31 @@ exports.HttpExceptionFilter = HttpExceptionFilter;
 
 
 /***/ }),
-/* 102 */
+/* 108 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
 
 /***/ }),
-/* 103 */
+/* 109 */
 /***/ ((module) => {
 
 module.exports = require("express-rate-limit");
 
 /***/ }),
-/* 104 */
+/* 110 */
 /***/ ((module) => {
 
 module.exports = require("helmet");
 
 /***/ }),
-/* 105 */
+/* 111 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupSwagger = void 0;
-const swagger_1 = __webpack_require__(106);
+const swagger_1 = __webpack_require__(112);
 function setupSwagger(app, config) {
     const options = new swagger_1.DocumentBuilder()
         .setTitle(config.title || 'DocumentApi')
@@ -4652,21 +4976,21 @@ exports.setupSwagger = setupSwagger;
 
 
 /***/ }),
-/* 106 */
+/* 112 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
 
 /***/ }),
-/* 107 */
+/* 113 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RedisIoAdapter = void 0;
-const platform_socket_io_1 = __webpack_require__(108);
-const redis_1 = __webpack_require__(109);
-const socket_io_redis_1 = __webpack_require__(110);
+const platform_socket_io_1 = __webpack_require__(114);
+const redis_1 = __webpack_require__(115);
+const socket_io_redis_1 = __webpack_require__(116);
 const pubClient = new redis_1.RedisClient({ host: 'localhost', port: 6379 });
 const subClient = pubClient.duplicate();
 const redisAdapter = socket_io_redis_1.createAdapter({ pubClient, subClient });
@@ -4681,346 +5005,22 @@ exports.RedisIoAdapter = RedisIoAdapter;
 
 
 /***/ }),
-/* 108 */
+/* 114 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-socket.io");
 
 /***/ }),
-/* 109 */
+/* 115 */
 /***/ ((module) => {
 
 module.exports = require("redis");
 
 /***/ }),
-/* 110 */
+/* 116 */
 /***/ ((module) => {
 
 module.exports = require("socket.io-redis");
-
-/***/ }),
-/* 111 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserMemberSocketService = void 0;
-const common_1 = __webpack_require__(3);
-const mongoose_1 = __webpack_require__(19);
-const baseService_service_1 = __webpack_require__(23);
-const logger_service_1 = __webpack_require__(11);
-const typegoose_1 = __webpack_require__(22);
-const userSocket_entity_1 = __webpack_require__(112);
-let UserMemberSocketService = class UserMemberSocketService extends baseService_service_1.BaseService {
-    constructor(_userMemberSocket, _loggerService) {
-        super();
-        this._userMemberSocket = _userMemberSocket;
-        this._loggerService = _loggerService;
-        this._model = _userMemberSocket;
-    }
-    async createMemberSocket(payload) {
-        try {
-            const obj = Object.assign({}, payload);
-            const model = userSocket_entity_1.UserMemberSocket.createModel(obj);
-            const newUserHost = await this.create(model);
-            if (newUserHost) {
-                return this.cvtJSON(newUserHost);
-            }
-            return null;
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'CREATE-UserHostSocketService');
-            return null;
-        }
-    }
-};
-UserMemberSocketService = __decorate([
-    common_1.Injectable(),
-    __param(0, mongoose_1.InjectModel(userSocket_entity_1.UserMemberSocket.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
-], UserMemberSocketService);
-exports.UserMemberSocketService = UserMemberSocketService;
-
-
-/***/ }),
-/* 112 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var UserMemberSocket_1;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserMemberSocket = void 0;
-const baseModel_entity_1 = __webpack_require__(26);
-const baseModel_entity_2 = __webpack_require__(26);
-const class_transformer_1 = __webpack_require__(27);
-const typegoose_1 = __webpack_require__(22);
-let UserMemberSocket = UserMemberSocket_1 = class UserMemberSocket extends baseModel_entity_1.BaseModel {
-    static get model() {
-        return new UserMemberSocket_1().getModelForClass(UserMemberSocket_1, {
-            schemaOptions: baseModel_entity_2.schemaOptions,
-        });
-    }
-    static get modelName() {
-        return this.model.modelName;
-    }
-    static createModel(payload) {
-        return new this.model(payload);
-    }
-};
-__decorate([
-    typegoose_1.prop({ default: '' }),
-    class_transformer_1.Expose(),
-    __metadata("design:type", String)
-], UserMemberSocket.prototype, "idRoom", void 0);
-__decorate([
-    typegoose_1.prop({ default: '' }),
-    class_transformer_1.Expose(),
-    __metadata("design:type", String)
-], UserMemberSocket.prototype, "userId", void 0);
-UserMemberSocket = UserMemberSocket_1 = __decorate([
-    typegoose_1.index({ idRoom: 1, userId: 1 }, { unique: true })
-], UserMemberSocket);
-exports.UserMemberSocket = UserMemberSocket;
-
-
-/***/ }),
-/* 113 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserScoreQuizSocket = void 0;
-const baseModel_entity_1 = __webpack_require__(26);
-const baseModel_entity_2 = __webpack_require__(26);
-const class_transformer_1 = __webpack_require__(27);
-const typegoose_1 = __webpack_require__(22);
-class UserScoreQuizSocket extends baseModel_entity_1.BaseModel {
-    static get model() {
-        return new UserScoreQuizSocket().getModelForClass(UserScoreQuizSocket, {
-            schemaOptions: baseModel_entity_2.schemaOptions,
-        });
-    }
-    static get modelName() {
-        return this.model.modelName;
-    }
-    static createModel(payload) {
-        return new this.model(payload);
-    }
-}
-__decorate([
-    typegoose_1.prop({ default: '' }),
-    class_transformer_1.Expose(),
-    __metadata("design:type", String)
-], UserScoreQuizSocket.prototype, "idRoom", void 0);
-__decorate([
-    typegoose_1.prop({ default: '' }),
-    class_transformer_1.Expose(),
-    __metadata("design:type", String)
-], UserScoreQuizSocket.prototype, "userId", void 0);
-__decorate([
-    typegoose_1.prop({ default: 0 }),
-    class_transformer_1.Expose(),
-    __metadata("design:type", Number)
-], UserScoreQuizSocket.prototype, "score", void 0);
-__decorate([
-    typegoose_1.prop({ default: '' }),
-    class_transformer_1.Expose(),
-    __metadata("design:type", String)
-], UserScoreQuizSocket.prototype, "question", void 0);
-exports.UserScoreQuizSocket = UserScoreQuizSocket;
-
-
-/***/ }),
-/* 114 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserScoreQuizSocketService = void 0;
-const common_1 = __webpack_require__(3);
-const mongoose_1 = __webpack_require__(19);
-const baseService_service_1 = __webpack_require__(23);
-const logger_service_1 = __webpack_require__(11);
-const typegoose_1 = __webpack_require__(22);
-const userScoreQuizSocket_entity_1 = __webpack_require__(113);
-let UserScoreQuizSocketService = class UserScoreQuizSocketService extends baseService_service_1.BaseService {
-    constructor(_userScoreQuizSocket, _loggerService) {
-        super();
-        this._userScoreQuizSocket = _userScoreQuizSocket;
-        this._loggerService = _loggerService;
-        this._model = _userScoreQuizSocket;
-    }
-};
-UserScoreQuizSocketService = __decorate([
-    common_1.Injectable(),
-    __param(0, mongoose_1.InjectModel(userScoreQuizSocket_entity_1.UserScoreQuizSocket.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
-], UserScoreQuizSocketService);
-exports.UserScoreQuizSocketService = UserScoreQuizSocketService;
-
-
-/***/ }),
-/* 115 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserHostSocketService = void 0;
-const common_1 = __webpack_require__(3);
-const mongoose_1 = __webpack_require__(19);
-const baseService_service_1 = __webpack_require__(23);
-const logger_service_1 = __webpack_require__(11);
-const typegoose_1 = __webpack_require__(22);
-const userHostSocket_entity_1 = __webpack_require__(116);
-let UserHostSocketService = class UserHostSocketService extends baseService_service_1.BaseService {
-    constructor(_userHostSocket, _loggerService) {
-        super();
-        this._userHostSocket = _userHostSocket;
-        this._loggerService = _loggerService;
-        this._model = _userHostSocket;
-    }
-    async createUserHostSocket(payload) {
-        try {
-            const obj = Object.assign({}, payload);
-            const model = userHostSocket_entity_1.UserHostSocket.createModel(obj);
-            const newUserHost = await this.create(model);
-            if (newUserHost) {
-                return this.cvtJSON(newUserHost);
-            }
-            return null;
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'CREATE-UserHostSocketService');
-            return null;
-        }
-    }
-};
-UserHostSocketService = __decorate([
-    common_1.Injectable(),
-    __param(0, mongoose_1.InjectModel(userHostSocket_entity_1.UserHostSocket.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
-], UserHostSocketService);
-exports.UserHostSocketService = UserHostSocketService;
-
-
-/***/ }),
-/* 116 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var UserHostSocket_1, _a;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserHostSocket = void 0;
-const baseModel_entity_1 = __webpack_require__(26);
-const baseModel_entity_2 = __webpack_require__(26);
-const class_transformer_1 = __webpack_require__(27);
-const typegoose_1 = __webpack_require__(22);
-let UserHostSocket = UserHostSocket_1 = class UserHostSocket extends baseModel_entity_1.BaseModel {
-    static get model() {
-        return new UserHostSocket_1().getModelForClass(UserHostSocket_1, {
-            schemaOptions: baseModel_entity_2.schemaOptions,
-        });
-    }
-    static get modelName() {
-        return this.model.modelName;
-    }
-    static createModel(payload) {
-        return new this.model(payload);
-    }
-};
-__decorate([
-    typegoose_1.prop({ default: '' }),
-    class_transformer_1.Expose(),
-    __metadata("design:type", String)
-], UserHostSocket.prototype, "idRoom", void 0);
-__decorate([
-    typegoose_1.prop({ default: '' }),
-    class_transformer_1.Expose(),
-    __metadata("design:type", String)
-], UserHostSocket.prototype, "host", void 0);
-__decorate([
-    typegoose_1.prop({ default: [] }),
-    class_transformer_1.Expose(),
-    __metadata("design:type", typeof (_a = typeof Array !== "undefined" && Array) === "function" ? _a : Object)
-], UserHostSocket.prototype, "questions", void 0);
-__decorate([
-    typegoose_1.prop({ default: -1 }),
-    class_transformer_1.Expose(),
-    __metadata("design:type", Number)
-], UserHostSocket.prototype, "currentQuestion", void 0);
-UserHostSocket = UserHostSocket_1 = __decorate([
-    typegoose_1.index({ idRoom: 1, host: 1 }, { unique: true })
-], UserHostSocket);
-exports.UserHostSocket = UserHostSocket;
-
 
 /***/ })
 /******/ 	]);
@@ -5057,17 +5057,17 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const client_module_1 = __webpack_require__(1);
-const http_exception_filter_1 = __webpack_require__(101);
+const http_exception_filter_1 = __webpack_require__(107);
 const config_service_1 = __webpack_require__(7);
 const logger_service_1 = __webpack_require__(11);
 const shared_module_1 = __webpack_require__(5);
-const core_1 = __webpack_require__(102);
-const platform_express_1 = __webpack_require__(93);
-const rateLimit = __webpack_require__(103);
-const helmet = __webpack_require__(104);
+const core_1 = __webpack_require__(108);
+const platform_express_1 = __webpack_require__(99);
+const rateLimit = __webpack_require__(109);
+const helmet = __webpack_require__(110);
 const common_1 = __webpack_require__(3);
-const setup_1 = __webpack_require__(105);
-const RedisIoAdapter_1 = __webpack_require__(107);
+const setup_1 = __webpack_require__(111);
+const RedisIoAdapter_1 = __webpack_require__(113);
 async function bootstrap() {
     try {
         const app = await core_1.NestFactory.create(client_module_1.ClientModule, new platform_express_1.ExpressAdapter(), {
