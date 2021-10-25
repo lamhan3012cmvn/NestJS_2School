@@ -28,7 +28,7 @@ const setup_1 = __webpack_require__(78);
 const user_module_1 = __webpack_require__(59);
 const set_of_questions_module_1 = __webpack_require__(79);
 const socket_module_1 = __webpack_require__(86);
-const up_load_file_module_1 = __webpack_require__(97);
+const up_load_file_module_1 = __webpack_require__(99);
 let ClientModule = class ClientModule {
 };
 ClientModule = __decorate([
@@ -4031,6 +4031,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SocketModule = void 0;
+const auth_service_1 = __webpack_require__(65);
+const user_entity_1 = __webpack_require__(18);
 const setOfQuestions_entity_1 = __webpack_require__(82);
 const setOfQuestions_service_1 = __webpack_require__(81);
 const common_1 = __webpack_require__(3);
@@ -4044,6 +4046,16 @@ const userScoreQuizSocket_entity_1 = __webpack_require__(94);
 const userScoreQuizSocket_service_1 = __webpack_require__(93);
 const userHostSocket_service_1 = __webpack_require__(91);
 const userHostSocket_entity_1 = __webpack_require__(92);
+const user_service_1 = __webpack_require__(47);
+const user_entity_2 = __webpack_require__(18);
+const upLoadFile_entity_1 = __webpack_require__(51);
+const logger_service_1 = __webpack_require__(11);
+const up_load_file_service_1 = __webpack_require__(49);
+const socket_wsJwtGuard_1 = __webpack_require__(98);
+const auth_entity_1 = __webpack_require__(68);
+const configService_module_1 = __webpack_require__(72);
+const jwt_1 = __webpack_require__(67);
+const setupJwt_1 = __webpack_require__(73);
 let SocketModule = class SocketModule {
 };
 SocketModule = __decorate([
@@ -4064,7 +4076,12 @@ SocketModule = __decorate([
                     name: userHostSocket_entity_1.UserHostSocket.modelName,
                     schema: userHostSocket_entity_1.UserHostSocket.model.schema,
                 },
+                { name: auth_entity_1.Auth.name, schema: auth_entity_1.AuthSchema },
+                { name: user_entity_1.User.name, schema: user_entity_2.UserSchema },
+                { name: upLoadFile_entity_1.UpLoadFile.modelName, schema: upLoadFile_entity_1.UpLoadFile.model.schema },
             ]),
+            configService_module_1.ConfigModule,
+            jwt_1.JwtModule.registerAsync(setupJwt_1.setupJWT('JWT_SECRET')),
         ],
         controllers: [],
         providers: [
@@ -4074,6 +4091,11 @@ SocketModule = __decorate([
             userSocket_service_1.UserMemberSocketService,
             userScoreQuizSocket_service_1.UserScoreQuizSocketService,
             userHostSocket_service_1.UserHostSocketService,
+            user_service_1.UserService,
+            auth_service_1.AuthService,
+            up_load_file_service_1.UpLoadFileService,
+            logger_service_1.LoggerService,
+            socket_wsJwtGuard_1.WsJwtGuard,
         ],
     })
 ], SocketModule);
@@ -4094,7 +4116,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppGateway = void 0;
 const socket_events_1 = __webpack_require__(88);
@@ -4106,6 +4128,8 @@ const question_service_1 = __webpack_require__(21);
 const userHostSocket_service_1 = __webpack_require__(91);
 const userScoreQuizSocket_service_1 = __webpack_require__(93);
 const userSocket_service_1 = __webpack_require__(95);
+const random_1 = __webpack_require__(97);
+const socket_wsJwtGuard_1 = __webpack_require__(98);
 let AppGateway = class AppGateway {
     constructor(_questionService, _userHostSocketService, _userScoreQuizSocketService, _userMemberSocketService, _setOfQuestionsService) {
         this._questionService = _questionService;
@@ -4115,8 +4139,15 @@ let AppGateway = class AppGateway {
         this._setOfQuestionsService = _setOfQuestionsService;
         this.logger = new common_1.Logger('AppGateway');
     }
+    async handleCreate1Room(client, payload) {
+        console.log(client.id);
+        this.server.emit('abc', {
+            msg: 'Create Room Quiz Success',
+            idRoom: client.id,
+        });
+    }
     async handleCreateRoom(client, payload) {
-        const idRoom = '1234';
+        const idRoom = random_1.RandomFunc();
         client.join(idRoom);
         console.log(client.id);
         const questions = await this._questionService.findAll({
@@ -4211,44 +4242,51 @@ __decorate([
     __metadata("design:type", typeof (_a = typeof socket_io_1.Server !== "undefined" && socket_io_1.Server) === "function" ? _a : Object)
 ], AppGateway.prototype, "server", void 0);
 __decorate([
-    websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_CSS),
+    common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
+    websockets_1.SubscribeMessage('acb'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [typeof (_b = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _b : Object, Object]),
     __metadata("design:returntype", typeof (_c = typeof Promise !== "undefined" && Promise) === "function" ? _c : Object)
+], AppGateway.prototype, "handleCreate1Room", null);
+__decorate([
+    websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_CSS),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_d = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _d : Object, Object]),
+    __metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
 ], AppGateway.prototype, "handleCreateRoom", null);
 __decorate([
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.JOIN_ROOM_CSS),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_d = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _d : Object, Object]),
-    __metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
+    __metadata("design:paramtypes", [typeof (_f = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _f : Object, Object]),
+    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
 ], AppGateway.prototype, "handleJoinRoom", null);
 __decorate([
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.START_QUIZ_CSS),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_f = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _f : Object, Object]),
-    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
+    __metadata("design:paramtypes", [typeof (_h = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _h : Object, Object]),
+    __metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
 ], AppGateway.prototype, "handleStartQuiz", null);
 __decorate([
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_CSS),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_h = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _h : Object, Object]),
+    __metadata("design:paramtypes", [typeof (_k = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _k : Object, Object]),
     __metadata("design:returntype", void 0)
 ], AppGateway.prototype, "handleLeaveRoom", null);
 __decorate([
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.ANSWER_THE_QUESTION_CSS),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_j = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _j : Object, Object]),
+    __metadata("design:paramtypes", [typeof (_l = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _l : Object, Object]),
     __metadata("design:returntype", void 0)
 ], AppGateway.prototype, "handleAnswerTheQuestion", null);
 __decorate([
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_CSS),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_k = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _k : Object, Object]),
+    __metadata("design:paramtypes", [typeof (_m = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _m : Object, Object]),
     __metadata("design:returntype", void 0)
 ], AppGateway.prototype, "handleTakeTheQuestion", null);
 AppGateway = __decorate([
     websockets_1.WebSocketGateway({ cors: true }),
-    __metadata("design:paramtypes", [typeof (_l = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _l : Object, typeof (_m = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _m : Object, typeof (_o = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _o : Object, typeof (_p = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _p : Object, typeof (_q = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _q : Object])
+    __metadata("design:paramtypes", [typeof (_o = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _o : Object, typeof (_p = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _p : Object, typeof (_q = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _q : Object, typeof (_r = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _r : Object, typeof (_s = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _s : Object])
 ], AppGateway);
 exports.AppGateway = AppGateway;
 
@@ -4616,6 +4654,69 @@ exports.UserMemberSocket = UserMemberSocket;
 
 /***/ }),
 /* 97 */
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RandomFunc = void 0;
+const RandomFunc = () => (Math.random() + 1).toString(36).substring(4).toUpperCase();
+exports.RandomFunc = RandomFunc;
+
+
+/***/ }),
+/* 98 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WsJwtGuard = void 0;
+const common_1 = __webpack_require__(3);
+const jwt_1 = __webpack_require__(67);
+const websockets_1 = __webpack_require__(89);
+const auth_service_1 = __webpack_require__(65);
+let WsJwtGuard = class WsJwtGuard {
+    constructor(authService, jwt) {
+        this.authService = authService;
+        this.jwt = jwt;
+    }
+    async canActivate(context) {
+        var _a, _b;
+        try {
+            const client = context.switchToWs().getClient();
+            console.log(`LHA:  ===> file: socket.wsJwtGuard.ts ===> line 16 ===> client`, client);
+            const authToken = (_b = (_a = client.handshake) === null || _a === void 0 ? void 0 : _a.headers) === null || _b === void 0 ? void 0 : _b.token;
+            console.log(`LHA:  ===> file: socket.wsJwtGuard.ts ===> line 21 ===> authToken`, authToken);
+            const encodeJWT = await this.jwt.verifyAsync(authToken);
+            console.log(`LHA:  ===> file: socket.wsJwtGuard.ts ===> line 30 ===> abc`, encodeJWT);
+            const user = await this.authService.validateUser(encodeJWT.data);
+            console.log(user);
+            context.switchToHttp().getRequest().user = user;
+            return Boolean(user);
+        }
+        catch (err) {
+            throw new websockets_1.WsException(err.message);
+        }
+    }
+};
+WsJwtGuard = __decorate([
+    common_1.Injectable(),
+    __metadata("design:paramtypes", [typeof (_a = typeof auth_service_1.AuthService !== "undefined" && auth_service_1.AuthService) === "function" ? _a : Object, typeof (_b = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _b : Object])
+], WsJwtGuard);
+exports.WsJwtGuard = WsJwtGuard;
+
+
+/***/ }),
+/* 99 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4631,7 +4732,7 @@ const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(19);
 const logger_service_1 = __webpack_require__(11);
 const shared_module_1 = __webpack_require__(5);
-const up_load_file_controller_1 = __webpack_require__(98);
+const up_load_file_controller_1 = __webpack_require__(100);
 const upLoadFile_entity_1 = __webpack_require__(51);
 const up_load_file_service_1 = __webpack_require__(49);
 let UpLoadFileModule = class UpLoadFileModule {
@@ -4653,7 +4754,7 @@ exports.UpLoadFileModule = UpLoadFileModule;
 
 
 /***/ }),
-/* 98 */
+/* 100 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4673,17 +4774,17 @@ var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpLoadFileController = void 0;
 const baseController_1 = __webpack_require__(29);
-const platform_express_1 = __webpack_require__(99);
+const platform_express_1 = __webpack_require__(101);
 const common_1 = __webpack_require__(3);
-const multer_1 = __webpack_require__(100);
-const path_1 = __webpack_require__(101);
-const fs = __webpack_require__(102);
-const FileType = __webpack_require__(103);
+const multer_1 = __webpack_require__(102);
+const path_1 = __webpack_require__(103);
+const fs = __webpack_require__(104);
+const FileType = __webpack_require__(105);
 const logger_service_1 = __webpack_require__(11);
 const up_load_file_service_1 = __webpack_require__(49);
 const errors_exception_1 = __webpack_require__(28);
 const jwt_auth_guard_1 = __webpack_require__(16);
-const blurHash_1 = __webpack_require__(104);
+const blurHash_1 = __webpack_require__(106);
 let UpLoadFileController = class UpLoadFileController {
     constructor(_upLoadFileService, loggerService) {
         this._upLoadFileService = _upLoadFileService;
@@ -4806,44 +4907,44 @@ exports.UpLoadFileController = UpLoadFileController;
 
 
 /***/ }),
-/* 99 */
+/* 101 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-express");
 
 /***/ }),
-/* 100 */
+/* 102 */
 /***/ ((module) => {
 
 module.exports = require("multer");
 
 /***/ }),
-/* 101 */
+/* 103 */
 /***/ ((module) => {
 
 module.exports = require("path");
 
 /***/ }),
-/* 102 */
+/* 104 */
 /***/ ((module) => {
 
 module.exports = require("fs");
 
 /***/ }),
-/* 103 */
+/* 105 */
 /***/ ((module) => {
 
 module.exports = require("file-type");
 
 /***/ }),
-/* 104 */
+/* 106 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.encodeImageToBlurhash = void 0;
-const sharp = __webpack_require__(105);
-const blurhash_1 = __webpack_require__(106);
+const sharp = __webpack_require__(107);
+const blurhash_1 = __webpack_require__(108);
 const encodeImageToBlurhash = (path) => {
     return new Promise((resolve, reject) => {
         sharp(path)
@@ -4861,19 +4962,19 @@ exports.encodeImageToBlurhash = encodeImageToBlurhash;
 
 
 /***/ }),
-/* 105 */
+/* 107 */
 /***/ ((module) => {
 
 module.exports = require("sharp");
 
 /***/ }),
-/* 106 */
+/* 108 */
 /***/ ((module) => {
 
 module.exports = require("blurhash");
 
 /***/ }),
-/* 107 */
+/* 109 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4936,31 +5037,31 @@ exports.HttpExceptionFilter = HttpExceptionFilter;
 
 
 /***/ }),
-/* 108 */
+/* 110 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
 
 /***/ }),
-/* 109 */
+/* 111 */
 /***/ ((module) => {
 
 module.exports = require("express-rate-limit");
 
 /***/ }),
-/* 110 */
+/* 112 */
 /***/ ((module) => {
 
 module.exports = require("helmet");
 
 /***/ }),
-/* 111 */
+/* 113 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupSwagger = void 0;
-const swagger_1 = __webpack_require__(112);
+const swagger_1 = __webpack_require__(114);
 function setupSwagger(app, config) {
     const options = new swagger_1.DocumentBuilder()
         .setTitle(config.title || 'DocumentApi')
@@ -4976,21 +5077,21 @@ exports.setupSwagger = setupSwagger;
 
 
 /***/ }),
-/* 112 */
+/* 114 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
 
 /***/ }),
-/* 113 */
+/* 115 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RedisIoAdapter = void 0;
-const platform_socket_io_1 = __webpack_require__(114);
-const redis_1 = __webpack_require__(115);
-const socket_io_redis_1 = __webpack_require__(116);
+const platform_socket_io_1 = __webpack_require__(116);
+const redis_1 = __webpack_require__(117);
+const socket_io_redis_1 = __webpack_require__(118);
 const pubClient = new redis_1.RedisClient({ host: 'localhost', port: 6379 });
 const subClient = pubClient.duplicate();
 const redisAdapter = socket_io_redis_1.createAdapter({ pubClient, subClient });
@@ -5005,19 +5106,19 @@ exports.RedisIoAdapter = RedisIoAdapter;
 
 
 /***/ }),
-/* 114 */
+/* 116 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-socket.io");
 
 /***/ }),
-/* 115 */
+/* 117 */
 /***/ ((module) => {
 
 module.exports = require("redis");
 
 /***/ }),
-/* 116 */
+/* 118 */
 /***/ ((module) => {
 
 module.exports = require("socket.io-redis");
@@ -5057,17 +5158,17 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const client_module_1 = __webpack_require__(1);
-const http_exception_filter_1 = __webpack_require__(107);
+const http_exception_filter_1 = __webpack_require__(109);
 const config_service_1 = __webpack_require__(7);
 const logger_service_1 = __webpack_require__(11);
 const shared_module_1 = __webpack_require__(5);
-const core_1 = __webpack_require__(108);
-const platform_express_1 = __webpack_require__(99);
-const rateLimit = __webpack_require__(109);
-const helmet = __webpack_require__(110);
+const core_1 = __webpack_require__(110);
+const platform_express_1 = __webpack_require__(101);
+const rateLimit = __webpack_require__(111);
+const helmet = __webpack_require__(112);
 const common_1 = __webpack_require__(3);
-const setup_1 = __webpack_require__(111);
-const RedisIoAdapter_1 = __webpack_require__(113);
+const setup_1 = __webpack_require__(113);
+const RedisIoAdapter_1 = __webpack_require__(115);
 async function bootstrap() {
     try {
         const app = await core_1.NestFactory.create(client_module_1.ClientModule, new platform_express_1.ExpressAdapter(), {

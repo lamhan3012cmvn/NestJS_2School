@@ -1,3 +1,5 @@
+import { AuthService } from './../authentication/services/auth.service';
+import { User } from 'apps/client/user/entities/user.entity';
 import { SetOfQuestion } from './../set-of-questions/entities/setOfQuestions.entity';
 import { SetOfQuestionsService } from './../set-of-questions/services/setOfQuestions.service';
 import { Module } from '@nestjs/common';
@@ -11,6 +13,16 @@ import { UserScoreQuizSocket } from './entities/userScoreQuizSocket.entity';
 import { UserScoreQuizSocketService } from './services/userScoreQuizSocket.service';
 import { UserHostSocketService } from './services/userHostSocket.service';
 import { UserHostSocket } from './entities/userHostSocket.entity';
+import { UserService } from '../user/service/user.service';
+import { UserSchema } from '../user/entities/user.entity';
+import { UpLoadFile } from '../up-load-file/entities/upLoadFile.entity';
+import { LoggerService } from 'apps/share/services/logger.service';
+import { UpLoadFileService } from '../up-load-file/services/up-load-file.service';
+import { WsJwtGuard } from './socket.wsJwtGuard';
+import { Auth, AuthSchema } from '../authentication/entities/auth.entity';
+import { ConfigModule } from 'apps/share/configService.module';
+import { JwtModule } from '@nestjs/jwt';
+import { setupJWT } from 'apps/share/jwt/setupJwt';
 
 @Module({
   imports: [
@@ -29,7 +41,12 @@ import { UserHostSocket } from './entities/userHostSocket.entity';
         name: UserHostSocket.modelName,
         schema: UserHostSocket.model.schema,
       },
+      { name: Auth.name, schema: AuthSchema },
+      { name: User.name, schema: UserSchema },
+      { name: UpLoadFile.modelName, schema: UpLoadFile.model.schema },
     ]),
+    ConfigModule,
+    JwtModule.registerAsync(setupJWT('JWT_SECRET')),
   ],
   controllers: [],
   providers: [
@@ -39,6 +56,11 @@ import { UserHostSocket } from './entities/userHostSocket.entity';
     UserMemberSocketService,
     UserScoreQuizSocketService,
     UserHostSocketService,
+    UserService,
+    AuthService,
+    UpLoadFileService,
+    LoggerService,
+    WsJwtGuard,
   ],
 })
 export class SocketModule {}

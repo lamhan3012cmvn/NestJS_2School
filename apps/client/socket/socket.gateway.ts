@@ -7,7 +7,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { throws } from 'assert';
 import { SetOfQuestionsService } from '../set-of-questions/services/setOfQuestions.service';
@@ -16,6 +16,8 @@ import { QuestionService } from '../question/services/question.service';
 import { UserHostSocketService } from './services/userHostSocket.service';
 import { UserScoreQuizSocketService } from './services/userScoreQuizSocket.service';
 import { UserMemberSocketService } from './services/userSocket.service';
+import { RandomFunc } from 'apps/share/helpers/random';
+import { WsJwtGuard } from './socket.wsJwtGuard';
 
 @WebSocketGateway({ cors: true })
 export class AppGateway
@@ -45,12 +47,22 @@ export class AppGateway
   @WebSocketServer() private server: Server;
   private logger: Logger = new Logger('AppGateway');
 
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage('acb')
+  private async handleCreate1Room(client: Socket, payload): Promise<void> {
+    console.log(client.id);
+    this.server.emit('abc', {
+      msg: 'Create Room Quiz Success',
+      idRoom: client.id,
+    });
+  }
+
   @SubscribeMessage(SOCKET_EVENT.CREATE_QUIZ_CSS)
   private async handleCreateRoom(
     client: Socket,
     payload: { idSetOfQuestions: string },
   ): Promise<void> {
-    const idRoom = '1234';
+    const idRoom = RandomFunc();
     client.join(idRoom);
     console.log(client.id);
     const questions = await this._questionService.findAll({
