@@ -19,6 +19,10 @@ export class UserHostSocketService extends BaseService<UserHostSocket> {
   async createUserHostSocket(payload): Promise<UserHostSocket> {
     try {
       const obj: any = { ...payload };
+      console.log(
+        `LHA:  ===> file: userHostSocket.service.ts ===> line 22 ===> obj`,
+        obj,
+      );
       const model = UserHostSocket.createModel(obj);
 
       const newUserHost = await this.create(model);

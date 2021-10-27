@@ -36,4 +36,24 @@ export class UserMemberSocketService extends BaseService<UserMemberSocket> {
       return null;
     }
   }
+
+  async findOneAndRemove(payload): Promise<boolean> {
+    try {
+      const obj: any = { ...payload };
+
+      const rmMember = await this._userMemberSocket.findOneAndRemove(obj);
+      if (rmMember) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      console.log(e);
+      this._loggerService.error(
+        e.message,
+        null,
+        'CREATE-UserHostSocketService',
+      );
+      return false;
+    }
+  }
 }

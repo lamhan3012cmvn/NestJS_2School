@@ -22,19 +22,10 @@ export class WsJwtGuard implements CanActivate {
         client,
       );
       const authToken: any = client.handshake?.headers?.token;
-
-      console.log(
-        `LHA:  ===> file: socket.wsJwtGuard.ts ===> line 21 ===> authToken`,
-        authToken,
-      );
       const encodeJWT = await this.jwt.verifyAsync(authToken);
-      console.log(
-        `LHA:  ===> file: socket.wsJwtGuard.ts ===> line 30 ===> abc`,
-        encodeJWT,
-      );
-      const user: User = await this.authService.validateUser(encodeJWT.data);
-      // client.join(`house_${user}`);
-      console.log(user);
+      const user: User = await this.authService.validateUser({
+        id: encodeJWT.data,
+      });
       context.switchToHttp().getRequest().user = user;
 
       return Boolean(user);

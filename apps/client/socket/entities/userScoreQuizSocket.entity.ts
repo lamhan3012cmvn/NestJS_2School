@@ -12,9 +12,15 @@ export class UserScoreQuizSocket extends BaseModel<UserScoreQuizSocket> {
   @prop({ default: 0 })
   @Expose()
   score: number;
+  @prop({ default: null })
+  @Expose()
+  answer: string;
   @prop({ default: '' })
   @Expose()
   question: string;
+  @prop({ default: '' })
+  @Expose()
+  idQuestion: string;
 
   static get model(): ModelType<UserScoreQuizSocket> {
     return new UserScoreQuizSocket().getModelForClass(UserScoreQuizSocket, {

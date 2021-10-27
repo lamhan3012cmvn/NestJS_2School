@@ -11,12 +11,19 @@ export class UserHostSocket extends BaseModel<UserHostSocket> {
   @prop({ default: '' })
   @Expose()
   host: string;
+  @prop({ default: '' })
+  @Expose()
+  createBy: string;
   @prop({ default: [] })
   @Expose()
   questions: Array<string>;
   @prop({ default: -1 })
   @Expose()
   currentQuestion: number;
+  @prop({ default: false })
+  @Expose()
+  play: boolean;
+
   static get model(): ModelType<UserHostSocket> {
     return new UserHostSocket().getModelForClass(UserHostSocket, {
       schemaOptions,
