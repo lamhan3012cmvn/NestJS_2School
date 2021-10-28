@@ -4128,7 +4128,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppGateway = void 0;
 const socket_events_1 = __webpack_require__(88);
@@ -4183,7 +4183,6 @@ let AppGateway = class AppGateway {
         const host = await this._userHostSocketService.findOne({
             idRoom: payload.idRoom,
         });
-        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 97 ===> host`, host);
         if (host) {
             client.join(payload.idRoom);
             const newMember = await this._userMemberSocketService.createMemberSocket({
@@ -4257,6 +4256,10 @@ let AppGateway = class AppGateway {
             idRoom,
             idQuestion,
         });
+        const question = await this._questionService.findById(idQuestion);
+        const objResult = question.answers.reduce((t, v) => {
+            return Object.assign(Object.assign({}, t), { [v]: 0 });
+        }, { null: 0 });
         const result = listScoreStatist.reduce((t, v) => {
             if (t[v.answer]) {
                 t[v.answer] = t[v.answer] + 1;
@@ -4265,7 +4268,7 @@ let AppGateway = class AppGateway {
                 t[v.answer] = 1;
             }
             return t;
-        }, {});
+        }, objResult);
         this.server.emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
     }
     async handleAnswerTheQuestion(client, payload) {
@@ -4311,10 +4314,10 @@ let AppGateway = class AppGateway {
                 });
                 setTimeout(() => {
                     this.handleStatistQuiz(host.idRoom, host.questions[host.currentQuestion]);
-                }, currentQuestion.duration * 1000 + 500);
+                }, currentQuestion.duration * 1000);
                 setTimeout(() => {
                     this.handleTakeTheQuestion(nextGame);
-                }, currentQuestion.duration * 1000 + 5000);
+                }, currentQuestion.duration * 1000 + 20000);
                 return;
             }
             this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
@@ -4386,9 +4389,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppGateway.prototype, "handleDisconnect", null);
+__decorate([
+    common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_h = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _h : Object, Object]),
+    __metadata("design:returntype", void 0)
+], AppGateway.prototype, "handleConnection", null);
 AppGateway = __decorate([
     websockets_1.WebSocketGateway({ cors: true }),
-    __metadata("design:paramtypes", [typeof (_h = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _h : Object, typeof (_j = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _j : Object, typeof (_k = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _k : Object, typeof (_l = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _l : Object, typeof (_m = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _m : Object])
+    __metadata("design:paramtypes", [typeof (_j = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _j : Object, typeof (_k = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _k : Object, typeof (_l = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _l : Object, typeof (_m = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _m : Object, typeof (_o = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _o : Object])
 ], AppGateway);
 exports.AppGateway = AppGateway;
 
@@ -4412,8 +4421,6 @@ var SOCKET_EVENT;
     SOCKET_EVENT["START_QUIZ_CSS"] = "START_QUIZ_CSS";
     SOCKET_EVENT["START_QUIZ_SSC"] = "START_QUIZ_SSC";
     SOCKET_EVENT["ANSWER_THE_QUESTION_CSS"] = "ANSWER_THE_QUESTION_CSS";
-    SOCKET_EVENT["ANSWER_THE_QUESTION_SSC"] = "ANSWER_THE_QUESTION_SSC";
-    SOCKET_EVENT["TAKE_THE_QUESTION_CSS"] = "TAKE_THE_QUESTION_CSS";
     SOCKET_EVENT["TAKE_THE_QUESTION_SSC"] = "TAKE_THE_QUESTION_SSC";
 })(SOCKET_EVENT = exports.SOCKET_EVENT || (exports.SOCKET_EVENT = {}));
 

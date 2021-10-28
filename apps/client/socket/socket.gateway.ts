@@ -90,10 +90,6 @@ export class AppGateway
     const host = await this._userHostSocketService.findOne({
       idRoom: payload.idRoom,
     });
-    console.log(
-      `LHA:  ===> file: socket.gateway.ts ===> line 97 ===> host`,
-      host,
-    );
     if (host) {
       client.join(payload.idRoom);
       // createMemberSocket
@@ -188,6 +184,14 @@ export class AppGateway
       idRoom,
       idQuestion,
     });
+    const question = await this._questionService.findById(idQuestion);
+    const objResult = question.answers.reduce(
+      (t, v) => {
+        return { ...t, [v]: 0 };
+      },
+      { null: 0 },
+    );
+    // ['a', 'b', 'c'].reduce((a, v) => ({ ...a, [v]: v}), {})
     const result: Record<string, number> = listScoreStatist.reduce((t, v) => {
       if (t[v.answer]) {
         t[v.answer] = t[v.answer] + 1;
@@ -195,7 +199,7 @@ export class AppGateway
         t[v.answer] = 1;
       }
       return t;
-    }, {});
+    }, objResult);
     this.server.emit(SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
   }
 
@@ -276,11 +280,11 @@ export class AppGateway
             host.idRoom,
             host.questions[host.currentQuestion],
           );
-        }, currentQuestion.duration * 1000 + 500);
+        }, currentQuestion.duration * 1000);
 
         setTimeout(() => {
           this.handleTakeTheQuestion(nextGame);
-        }, currentQuestion.duration * 1000 + 5000);
+        }, currentQuestion.duration * 1000 + 20000);
         return;
       }
       this.server.in(host.idRoom).emit(SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
@@ -311,6 +315,7 @@ export class AppGateway
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
+  @UseGuards(WsJwtGuard)
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`Client connected: ${client.id}`);
   }
