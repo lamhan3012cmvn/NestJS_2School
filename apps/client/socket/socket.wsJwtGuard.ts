@@ -18,7 +18,11 @@ export class WsJwtGuard implements CanActivate {
     try {
       console.log('Midderware');
       const client: Socket = context.switchToWs().getClient<Socket>();
-      const authToken: any = client.handshake?.headers?.token;
+      const authToken: any = client.handshake?.headers?.Authorization;
+      console.log(
+        `LHA:  ===> file: socket.wsJwtGuard.ts ===> line 22 ===> authToken`,
+        authToken,
+      );
       const encodeJWT = await this.jwt.verifyAsync(authToken);
       console.log(
         `LHA:  ===> file: socket.wsJwtGuard.ts ===> line 22 ===> encodeJWT`,
