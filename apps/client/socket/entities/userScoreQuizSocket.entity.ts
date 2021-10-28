@@ -9,6 +9,9 @@ export class UserScoreQuizSocket extends BaseModel<UserScoreQuizSocket> {
   @prop({ default: '' })
   @Expose()
   userId: string;
+  @prop({ default: '' })
+  @Expose()
+  socketId: string;
   @prop({ default: 0 })
   @Expose()
   score: number;

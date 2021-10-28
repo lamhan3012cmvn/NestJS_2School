@@ -16,6 +16,9 @@ export class Question extends BaseModel<Question> {
   @prop({ required: true })
   @Expose()
   duration: number;
+  @prop({ required: true })
+  @Expose()
+  score: number;
   @prop({})
   @Expose()
   idSetOfQuestions: string;

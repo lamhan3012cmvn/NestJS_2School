@@ -5,6 +5,7 @@ import {
   IsArray,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsString,
   Max,
   Min,
@@ -13,20 +14,23 @@ import {
 export class CreateQuestionDto {
   @IsNotEmpty()
   @IsString()
-  private question: string;
+  question: string;
+  @IsNotEmpty()
+  @IsNumber()
+  score: string;
   @IsNotEmpty()
   @IsString()
-  private idSetOfQuestions: string;
+  idSetOfQuestions: string;
   @IsArray()
   @ArrayMinSize(4)
   @ArrayMaxSize(6)
-  private answers: Array<string>;
+  answers: Array<string>;
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(6)
-  private correct: Array<number>;
+  correct: Array<number>;
   @IsInt()
   @Min(10)
   @Max(120)
-  private duration: number;
+  duration: number;
 }

@@ -84,7 +84,7 @@ export class AppGateway
   @UseGuards(WsJwtGuard)
   @SubscribeMessage(SOCKET_EVENT.JOIN_ROOM_CSS)
   private async handleJoinRoom(
-    client: Socket,
+    client: typeSocket,
     payload: { idRoom: string },
   ): Promise<void> {
     const host = await this._userHostSocketService.findOne({
@@ -99,7 +99,7 @@ export class AppGateway
       // createMemberSocket
       const newMember = await this._userMemberSocketService.createMemberSocket({
         idRoom: payload.idRoom,
-        userId: client.id,
+        userId: client.user._id,
       });
       console.log(
         `LHA:  ===> file: socket.gateway.ts ===> line 104 ===> newMember`,
@@ -215,41 +215,43 @@ export class AppGateway
     if (question) {
       const user = await this._userMemberSocketService.findOne({
         idRoom: payload.idRoom,
-        userId: client.id,
+        userId: client.user._id,
       });
-      console.log(
-        `LHA:  ===> file: socket.gateway.ts ===> line 219 ===> user`,
-        user,
-      );
       if (!user) {
         return;
+      }
+
+      let score = 0;
+      if (payload.answer && question.answers.includes(payload.answer)) {
+        const iz = question.answers.findIndex((e) => e === payload.answer);
+        if (iz !== -1) {
+          const correct = question.correct.findIndex((e) => e === iz);
+          if (correct !== -1) {
+            score = question.score;
+          }
+        }
       }
       const newUserScore =
         await this._userScoreQuizSocketService.createUserHostSocket({
           ...payload,
+          score,
           question: question.question,
-          userId: client.id,
+          userId: client.user._id,
+          socketId: client.id,
         });
-      // this.server.emit(SOCKET_EVENT.ANSWER_THE_QUESTION_SSC, payload);
       console.log(
-        `LHA:  ===> file: socket.gateway.ts ===> line 232 ===> newUserScore`,
+        `LHA:  ===> file: socket.gateway.ts ===> line 235 ===> newUserScore`,
         newUserScore,
       );
+      // this.server.emit(SOCKET_EVENT.ANSWER_THE_QUESTION_SSC, payload);
     }
-    //khong tim thay cau hoi
   }
 
   //get cau hoi
   // @SubscribeMessage(SOCKET_EVENT.TAKE_THE_QUESTION_CSS)
   private async handleTakeTheQuestion(host: UserHostSocket): Promise<void> {
-    console.log('Host Take The Questions', host.currentQuestion);
-    console.log('Host Questions', host.questions);
     const currentQuestion = await this._questionService.findById(
       host.questions[host.currentQuestion],
-    );
-    console.log(
-      `LHA:  ===> file: socket.gateway.ts ===> line 195 ===> currentQuestion`,
-      currentQuestion,
     );
     if (currentQuestion) {
       const payload = {
@@ -262,10 +264,6 @@ export class AppGateway
       const nextGame = await this._userHostSocketService.findOneAndUpdate(
         { _id: host._id },
         { currentQuestion: host.currentQuestion + 1 },
-      );
-      console.log(
-        `LHA:  ===> file: socket.gateway.ts ===> line 210 ===> nextGame`,
-        nextGame,
       );
       if (nextGame) {
         this.server.in(host.idRoom).emit(SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
@@ -301,14 +299,15 @@ export class AppGateway
     this.logger.log('Init');
   }
 
-  handleDisconnect(client: Socket) {
-    // const results = await this._userMemberSocketService.findOneAndRemove({
-    //   userId: client.id,
-    // });
-    // console.log(
-    //   `LHA:  ===> file: socket.gateway.ts ===> line 207 ===> results`,
-    //   results,
-    // );
+  @UseGuards(WsJwtGuard)
+  async handleDisconnect(client: typeSocket) {
+    const results = await this._userMemberSocketService.findOneAndRemove({
+      userId: client.user._id,
+    });
+    console.log(
+      `LHA:  ===> file: socket.gateway.ts ===> line 207 ===> results2`,
+      results,
+    );
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 

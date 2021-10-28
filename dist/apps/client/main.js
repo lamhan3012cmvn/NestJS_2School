@@ -801,6 +801,11 @@ __decorate([
     __metadata("design:type", Number)
 ], Question.prototype, "duration", void 0);
 __decorate([
+    typegoose_1.prop({ required: true }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], Question.prototype, "score", void 0);
+__decorate([
     typegoose_1.prop({}),
     class_transformer_1.Expose(),
     __metadata("design:type", String)
@@ -974,6 +979,11 @@ __decorate([
     class_validator_1.IsString(),
     __metadata("design:type", String)
 ], CreateQuestionDto.prototype, "question", void 0);
+__decorate([
+    class_validator_1.IsNotEmpty(),
+    class_validator_1.IsNumber(),
+    __metadata("design:type", String)
+], CreateQuestionDto.prototype, "score", void 0);
 __decorate([
     class_validator_1.IsNotEmpty(),
     class_validator_1.IsString(),
@@ -4118,7 +4128,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppGateway = void 0;
 const socket_events_1 = __webpack_require__(88);
@@ -4178,7 +4188,7 @@ let AppGateway = class AppGateway {
             client.join(payload.idRoom);
             const newMember = await this._userMemberSocketService.createMemberSocket({
                 idRoom: payload.idRoom,
-                userId: client.id,
+                userId: client.user._id,
             });
             console.log(`LHA:  ===> file: socket.gateway.ts ===> line 104 ===> newMember`, newMember);
             if (newMember) {
@@ -4264,21 +4274,27 @@ let AppGateway = class AppGateway {
         if (question) {
             const user = await this._userMemberSocketService.findOne({
                 idRoom: payload.idRoom,
-                userId: client.id,
+                userId: client.user._id,
             });
-            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 219 ===> user`, user);
             if (!user) {
                 return;
             }
-            const newUserScore = await this._userScoreQuizSocketService.createUserHostSocket(Object.assign(Object.assign({}, payload), { question: question.question, userId: client.id }));
-            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 232 ===> newUserScore`, newUserScore);
+            let score = 0;
+            if (payload.answer && question.answers.includes(payload.answer)) {
+                const iz = question.answers.findIndex((e) => e === payload.answer);
+                if (iz !== -1) {
+                    const correct = question.correct.findIndex((e) => e === iz);
+                    if (correct !== -1) {
+                        score = question.score;
+                    }
+                }
+            }
+            const newUserScore = await this._userScoreQuizSocketService.createUserHostSocket(Object.assign(Object.assign({}, payload), { score, question: question.question, userId: client.user._id, socketId: client.id }));
+            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 235 ===> newUserScore`, newUserScore);
         }
     }
     async handleTakeTheQuestion(host) {
-        console.log('Host Take The Questions', host.currentQuestion);
-        console.log('Host Questions', host.questions);
         const currentQuestion = await this._questionService.findById(host.questions[host.currentQuestion]);
-        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 195 ===> currentQuestion`, currentQuestion);
         if (currentQuestion) {
             const payload = {
                 _id: currentQuestion._id,
@@ -4288,7 +4304,6 @@ let AppGateway = class AppGateway {
                 idRoom: host.idRoom,
             };
             const nextGame = await this._userHostSocketService.findOneAndUpdate({ _id: host._id }, { currentQuestion: host.currentQuestion + 1 });
-            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 210 ===> nextGame`, nextGame);
             if (nextGame) {
                 this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
                     msg: 'Take Question Success',
@@ -4317,7 +4332,11 @@ let AppGateway = class AppGateway {
     afterInit(server) {
         this.logger.log('Init');
     }
-    handleDisconnect(client) {
+    async handleDisconnect(client) {
+        const results = await this._userMemberSocketService.findOneAndRemove({
+            userId: client.user._id,
+        });
+        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 207 ===> results2`, results);
         this.logger.log(`Client disconnected: ${client.id}`);
     }
     handleConnection(client, ...args) {
@@ -4339,19 +4358,19 @@ __decorate([
     common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.JOIN_ROOM_CSS),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_c = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _c : Object, Object]),
-    __metadata("design:returntype", typeof (_d = typeof Promise !== "undefined" && Promise) === "function" ? _d : Object)
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", typeof (_c = typeof Promise !== "undefined" && Promise) === "function" ? _c : Object)
 ], AppGateway.prototype, "handleJoinRoom", null);
 __decorate([
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.START_QUIZ_CSS),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_e = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _e : Object, Object]),
-    __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
+    __metadata("design:paramtypes", [typeof (_d = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _d : Object, Object]),
+    __metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
 ], AppGateway.prototype, "handleStartQuiz", null);
 __decorate([
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_CSS),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_g = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _g : Object, Object]),
+    __metadata("design:paramtypes", [typeof (_f = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _f : Object, Object]),
     __metadata("design:returntype", void 0)
 ], AppGateway.prototype, "handleLeaveRoom", null);
 __decorate([
@@ -4359,11 +4378,17 @@ __decorate([
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.ANSWER_THE_QUESTION_CSS),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
+    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
 ], AppGateway.prototype, "handleAnswerTheQuestion", null);
+__decorate([
+    common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppGateway.prototype, "handleDisconnect", null);
 AppGateway = __decorate([
     websockets_1.WebSocketGateway({ cors: true }),
-    __metadata("design:paramtypes", [typeof (_j = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _j : Object, typeof (_k = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _k : Object, typeof (_l = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _l : Object, typeof (_m = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _m : Object, typeof (_o = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _o : Object])
+    __metadata("design:paramtypes", [typeof (_h = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _h : Object, typeof (_j = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _j : Object, typeof (_k = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _k : Object, typeof (_l = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _l : Object, typeof (_m = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _m : Object])
 ], AppGateway);
 exports.AppGateway = AppGateway;
 
@@ -4635,6 +4660,11 @@ __decorate([
     class_transformer_1.Expose(),
     __metadata("design:type", String)
 ], UserScoreQuizSocket.prototype, "userId", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UserScoreQuizSocket.prototype, "socketId", void 0);
 __decorate([
     typegoose_1.prop({ default: 0 }),
     class_transformer_1.Expose(),
