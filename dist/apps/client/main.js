@@ -4869,11 +4869,12 @@ let WsJwtGuard = class WsJwtGuard {
         this.jwt = jwt;
     }
     async canActivate(context) {
-        var _a, _b;
+        var _a, _b, _c;
         try {
             console.log('Midderware');
             const client = context.switchToWs().getClient();
-            const authToken = (_b = (_a = client.handshake) === null || _a === void 0 ? void 0 : _a.headers) === null || _b === void 0 ? void 0 : _b.Authorization;
+            console.log((_a = client.handshake) === null || _a === void 0 ? void 0 : _a.headers);
+            const authToken = (_c = (_b = client.handshake) === null || _b === void 0 ? void 0 : _b.headers) === null || _c === void 0 ? void 0 : _c.authorization;
             console.log(`LHA:  ===> file: socket.wsJwtGuard.ts ===> line 22 ===> authToken`, authToken);
             const encodeJWT = await this.jwt.verifyAsync(authToken);
             console.log(`LHA:  ===> file: socket.wsJwtGuard.ts ===> line 22 ===> encodeJWT`, encodeJWT);
