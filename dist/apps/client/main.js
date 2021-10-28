@@ -4172,7 +4172,7 @@ let AppGateway = class AppGateway {
         const userHostSocket = await this._userHostSocketService.createUserHostSocket({
             idRoom: idRoom,
             host: client.id,
-            createBy: client.user.id,
+            createBy: client.user.createdBy,
             questions: mapIdQuestions,
         });
         if (userHostSocket) {
@@ -4204,24 +4204,24 @@ let AppGateway = class AppGateway {
             });
             console.log(`LHA:  ===> file: socket.gateway.ts ===> line 104 ===> newMember`, newMember);
             if (newMember) {
-                const listMember = await this._userMemberSocketService.findAll({
-                    idRoom: payload.idRoom,
-                });
-                this.server.emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
+                this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
                     msg: 'Join Room Quiz Success',
-                    users: this._userMemberSocketService.cvtJSON(listMember),
+                    users: client.user,
+                    success: true,
                 });
                 return;
             }
-            this.server.emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
+            this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
                 msg: 'Join Room Quiz False',
-                user: null,
+                err: false,
+                success: false,
             });
             return;
         }
         this.server.emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
             msg: 'Join Room Quiz  (Dont find room)',
-            user: null,
+            err: false,
+            success: false,
         });
         return;
     }
@@ -4349,6 +4349,7 @@ let AppGateway = class AppGateway {
         this.logger.log('Init');
     }
     async handleDisconnect(client) {
+        console.log(client.user);
         const results = await this._userMemberSocketService.findOneAndRemove({
             userId: client.user._id,
         });

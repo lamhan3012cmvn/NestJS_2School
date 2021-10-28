@@ -70,7 +70,7 @@ export class AppGateway
       await this._userHostSocketService.createUserHostSocket({
         idRoom: idRoom,
         host: client.id,
-        createBy: client.user.id,
+        createBy: client.user.createdBy,
         questions: mapIdQuestions,
       });
     if (userHostSocket) {
@@ -104,7 +104,7 @@ export class AppGateway
       // createMemberSocket
       const newMember = await this._userMemberSocketService.createMemberSocket({
         idRoom: payload.idRoom,
-        userId: client.user._id,
+        userId: client.user.createdBy,
       });
       console.log(
         `LHA:  ===> file: socket.gateway.ts ===> line 104 ===> newMember`,
@@ -112,24 +112,27 @@ export class AppGateway
       );
 
       if (newMember) {
-        const listMember = await this._userMemberSocketService.findAll({
-          idRoom: payload.idRoom,
-        });
-        this.server.emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
+        // const listMember = await this._userMemberSocketService.findAll({
+        //   idRoom: payload.idRoom,
+        // });
+        this.server.in(host.idRoom).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
           msg: 'Join Room Quiz Success',
-          users: this._userMemberSocketService.cvtJSON(listMember),
+          users: client.user,
+          success: true,
         });
         return;
       }
-      this.server.emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
+      this.server.to(client.id).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
         msg: 'Join Room Quiz False',
-        user: null,
+        err: false,
+        success: false,
       });
       return;
     }
     this.server.emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
       msg: 'Join Room Quiz  (Dont find room)',
-      user: null,
+      err: false,
+      success: false,
     });
     return;
   }
@@ -314,6 +317,7 @@ export class AppGateway
 
   @UseGuards(WsJwtGuard)
   async handleDisconnect(client: typeSocket) {
+    console.log(client.user);
     const results = await this._userMemberSocketService.findOneAndRemove({
       userId: client.user._id,
     });
