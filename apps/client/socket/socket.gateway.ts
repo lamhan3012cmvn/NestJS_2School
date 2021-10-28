@@ -44,22 +44,22 @@ export class AppGateway
     client: typeSocket,
     payload: { idSetOfQuestions: string },
   ): Promise<void> {
-    const idRoom = RandomFunc();
-    client.join(idRoom);
     const questions = await this._questionService.findAll({
       idSetOfQuestions: payload.idSetOfQuestions,
-      // createBy: client.user,
+      createBy: client.user.createdBy,
     });
-    console.log(
-      `LHA:  ===> file: socket.gateway.ts ===> line 53 ===> questions`,
-      questions,
-    );
-
+    if (questions.length <= 0) {
+      this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
+        msg: 'Dont find questions or not the owner of the room',
+        idRoom: null,
+        success: false,
+      });
+      return;
+    }
     const mapIdQuestions = questions.map((e) => e._id);
-    console.log(
-      `LHA:  ===> file: socket.gateway.ts ===> line 59 ===> mapIdQuestions`,
-      mapIdQuestions,
-    );
+
+    const idRoom = RandomFunc();
+    client.join(idRoom);
 
     const userHostSocket =
       await this._userHostSocketService.createUserHostSocket({
@@ -69,15 +69,19 @@ export class AppGateway
         questions: mapIdQuestions,
       });
     if (userHostSocket) {
-      this.server.emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
+      this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
         msg: 'Create Room Quiz Success',
         idRoom: idRoom,
+        success: true,
       });
+      return;
     } else {
-      this.server.emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
+      this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
         msg: 'Create Room Quiz Fail',
         idRoom: null,
+        success: false,
       });
+      return;
     }
   }
 
