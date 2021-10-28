@@ -4872,9 +4872,9 @@ let WsJwtGuard = class WsJwtGuard {
         var _a, _b;
         try {
             const client = context.switchToWs().getClient();
-            console.log(`LHA:  ===> file: socket.wsJwtGuard.ts ===> line 16 ===> client`, client);
             const authToken = (_b = (_a = client.handshake) === null || _a === void 0 ? void 0 : _a.headers) === null || _b === void 0 ? void 0 : _b.token;
             const encodeJWT = await this.jwt.verifyAsync(authToken);
+            console.log(`LHA:  ===> file: socket.wsJwtGuard.ts ===> line 22 ===> encodeJWT`, encodeJWT);
             const user = await this.authService.validateUser({
                 id: encodeJWT.data,
             });

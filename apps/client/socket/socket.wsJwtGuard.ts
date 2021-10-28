@@ -17,12 +17,12 @@ export class WsJwtGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     try {
       const client: Socket = context.switchToWs().getClient<Socket>();
-      console.log(
-        `LHA:  ===> file: socket.wsJwtGuard.ts ===> line 16 ===> client`,
-        client,
-      );
       const authToken: any = client.handshake?.headers?.token;
       const encodeJWT = await this.jwt.verifyAsync(authToken);
+      console.log(
+        `LHA:  ===> file: socket.wsJwtGuard.ts ===> line 22 ===> encodeJWT`,
+        encodeJWT,
+      );
       const user: User = await this.authService.validateUser({
         id: encodeJWT.data,
       });
