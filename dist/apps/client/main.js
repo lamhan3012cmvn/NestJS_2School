@@ -4152,10 +4152,12 @@ let AppGateway = class AppGateway {
         this.logger = new common_1.Logger('AppGateway');
     }
     async handleCreateRoom(client, payload) {
+        console.log(client.id);
         const questions = await this._questionService.findAll({
             idSetOfQuestions: payload.idSetOfQuestions,
             createBy: client.user.createdBy,
         });
+        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 52 ===> questions`, questions);
         if (questions.length <= 0) {
             this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_SSC, {
                 msg: 'Dont find questions or not the owner of the room',

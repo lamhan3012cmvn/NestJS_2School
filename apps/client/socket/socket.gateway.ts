@@ -44,10 +44,15 @@ export class AppGateway
     client: typeSocket,
     payload: { idSetOfQuestions: string },
   ): Promise<void> {
+    console.log(client.id);
     const questions = await this._questionService.findAll({
       idSetOfQuestions: payload.idSetOfQuestions,
       createBy: client.user.createdBy,
     });
+    console.log(
+      `LHA:  ===> file: socket.gateway.ts ===> line 52 ===> questions`,
+      questions,
+    );
     if (questions.length <= 0) {
       this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
         msg: 'Dont find questions or not the owner of the room',
