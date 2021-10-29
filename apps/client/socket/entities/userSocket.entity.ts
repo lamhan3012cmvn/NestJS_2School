@@ -2,6 +2,7 @@ import { BaseModel } from 'apps/share/mongodb/baseModel.entity';
 import { schemaOptions } from '../../../share/mongodb/baseModel.entity';
 import { Expose } from 'class-transformer';
 import { ModelType, InstanceType, prop, index } from 'typegoose';
+import { User } from 'apps/client/user/entities/user.entity';
 
 @index({ idRoom: 1, userId: 1 }, { unique: true }) // compound index
 export class UserMemberSocket extends BaseModel<UserMemberSocket> {
@@ -11,6 +12,9 @@ export class UserMemberSocket extends BaseModel<UserMemberSocket> {
   @prop({ default: '' })
   @Expose()
   userId: string;
+  @prop({ default: null })
+  @Expose()
+  user: User;
 
   static get model(): ModelType<UserMemberSocket> {
     return new UserMemberSocket().getModelForClass(UserMemberSocket, {

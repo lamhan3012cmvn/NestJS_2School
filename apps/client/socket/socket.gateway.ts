@@ -100,11 +100,11 @@ export class AppGateway
       idRoom: payload.idRoom,
     });
     if (host) {
-      client.join(payload.idRoom);
       // createMemberSocket
       const newMember = await this._userMemberSocketService.createMemberSocket({
         idRoom: payload.idRoom,
         userId: client.user.createdBy,
+        user: client.user,
       });
       console.log(
         `LHA:  ===> file: socket.gateway.ts ===> line 104 ===> newMember`,
@@ -112,14 +112,23 @@ export class AppGateway
       );
 
       if (newMember) {
-        // const listMember = await this._userMemberSocketService.findAll({
-        //   idRoom: payload.idRoom,
-        // });
-        this.server.in(host.idRoom).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
-          msg: 'Join Room Quiz Success',
+        const listMember = await this._userMemberSocketService.findAll({
+          idRoom: payload.idRoom,
+        });
+
+        this.server.to(client.id).emit(SOCKET_EVENT.JOIN_ROOM_NEW_SSC, {
+          msg: 'Join Room Quiz Success User',
+          users: listMember.map((e) => e.user),
+          success: true,
+        });
+        // const abc=this.
+        this.server.to(host.idRoom).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
+          msg: 'Join Room Quiz Success Users',
           users: client.user,
           success: true,
         });
+        client.join(payload.idRoom);
+
         return;
       }
       this.server.to(client.id).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
@@ -183,8 +192,37 @@ export class AppGateway
   }
 
   @SubscribeMessage(SOCKET_EVENT.LEAVE_ROOM_CSS)
-  private handleLeaveRoom(client: Socket, payload: { idRoom: string }): void {
-    this.server.emit(SOCKET_EVENT.LEAVE_ROOM_SSC, payload);
+  private async handleLeaveRoom(client: typeSocket, {}): Promise<void> {
+    const member = await this._userMemberSocketService.findOne({
+      userId: client.user._id,
+    });
+    if (member) {
+      const removeUserMember =
+        await this._userMemberSocketService.findOneAndRemove({
+          userId: client.user._id,
+        });
+      if (removeUserMember) {
+        this.server.in(member.idRoom).emit(SOCKET_EVENT.LEAVE_ROOM_SSC, {
+          msg: 'Leave Room Success',
+          idUser: client.user._id,
+          success: true,
+        });
+        return;
+      }
+      this.server.to(client.id).emit(SOCKET_EVENT.LEAVE_ROOM_SSC, {
+        msg: 'Leave Room False (Dont find Room and remove)',
+        idUser: null,
+        success: false,
+      });
+      return;
+    } else {
+      this.server.to(client.id).emit(SOCKET_EVENT.LEAVE_ROOM_SSC, {
+        msg: 'Leave Room False (Dont find User)',
+        idUser: null,
+        success: false,
+      });
+      return;
+    }
   }
 
   //Thong ke sau khi tra loi cau hoi

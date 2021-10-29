@@ -4197,18 +4197,27 @@ let AppGateway = class AppGateway {
             idRoom: payload.idRoom,
         });
         if (host) {
-            client.join(payload.idRoom);
             const newMember = await this._userMemberSocketService.createMemberSocket({
                 idRoom: payload.idRoom,
-                userId: client.user._id,
+                userId: client.user.createdBy,
+                user: client.user,
             });
             console.log(`LHA:  ===> file: socket.gateway.ts ===> line 104 ===> newMember`, newMember);
             if (newMember) {
-                this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
-                    msg: 'Join Room Quiz Success',
+                const listMember = await this._userMemberSocketService.findAll({
+                    idRoom: payload.idRoom,
+                });
+                this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_NEW_SSC, {
+                    msg: 'Join Room Quiz Success User',
+                    users: listMember.map((e) => e.user),
+                    success: true,
+                });
+                this.server.to(host.idRoom).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
+                    msg: 'Join Room Quiz Success Users',
                     users: client.user,
                     success: true,
                 });
+                client.join(payload.idRoom);
                 return;
             }
             this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
@@ -4261,8 +4270,37 @@ let AppGateway = class AppGateway {
             data: null,
         });
     }
-    handleLeaveRoom(client, payload) {
-        this.server.emit(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_SSC, payload);
+    async handleLeaveRoom(client, {}) {
+        const member = await this._userMemberSocketService.findOne({
+            userId: client.user._id,
+        });
+        if (member) {
+            const removeUserMember = await this._userMemberSocketService.findOneAndRemove({
+                userId: client.user._id,
+            });
+            if (removeUserMember) {
+                this.server.in(member.idRoom).emit(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_SSC, {
+                    msg: 'Leave Room Success',
+                    idUser: client.user._id,
+                    success: true,
+                });
+                return;
+            }
+            this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_SSC, {
+                msg: 'Leave Room False (Dont find Room and remove)',
+                idUser: null,
+                success: false,
+            });
+            return;
+        }
+        else {
+            this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_SSC, {
+                msg: 'Leave Room False (Dont find User)',
+                idUser: null,
+                success: false,
+            });
+            return;
+        }
     }
     async handleStatistQuiz(idRoom, idQuestion) {
         const listScoreStatist = await this._userScoreQuizSocketService.findAll({
@@ -4387,8 +4425,8 @@ __decorate([
 __decorate([
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_CSS),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_f = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _f : Object, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
 ], AppGateway.prototype, "handleLeaveRoom", null);
 __decorate([
     common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
@@ -4429,6 +4467,7 @@ var SOCKET_EVENT;
     SOCKET_EVENT["CREATE_QUIZ_SSC"] = "CREATE_QUIZ_SSC";
     SOCKET_EVENT["JOIN_ROOM_CSS"] = "JOIN_ROOM_CSS";
     SOCKET_EVENT["JOIN_ROOM_SSC"] = "JOIN_ROOM_SSC";
+    SOCKET_EVENT["JOIN_ROOM_NEW_SSC"] = "JOIN_ROOM_NEW_SSC";
     SOCKET_EVENT["LEAVE_ROOM_CSS"] = "LEAVE_ROOM_CSS";
     SOCKET_EVENT["LEAVE_ROOM_SSC"] = "LEAVE_ROOM_SSC";
     SOCKET_EVENT["STATISTICAL_ROOM_SSC"] = "STATISTICAL_ROOM_SSC";
@@ -4796,13 +4835,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var UserMemberSocket_1;
+var UserMemberSocket_1, _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserMemberSocket = void 0;
 const baseModel_entity_1 = __webpack_require__(26);
 const baseModel_entity_2 = __webpack_require__(26);
 const class_transformer_1 = __webpack_require__(27);
 const typegoose_1 = __webpack_require__(22);
+const user_entity_1 = __webpack_require__(18);
 let UserMemberSocket = UserMemberSocket_1 = class UserMemberSocket extends baseModel_entity_1.BaseModel {
     static get model() {
         return new UserMemberSocket_1().getModelForClass(UserMemberSocket_1, {
@@ -4826,6 +4866,11 @@ __decorate([
     class_transformer_1.Expose(),
     __metadata("design:type", String)
 ], UserMemberSocket.prototype, "userId", void 0);
+__decorate([
+    typegoose_1.prop({ default: null }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object)
+], UserMemberSocket.prototype, "user", void 0);
 UserMemberSocket = UserMemberSocket_1 = __decorate([
     typegoose_1.index({ idRoom: 1, userId: 1 }, { unique: true })
 ], UserMemberSocket);
