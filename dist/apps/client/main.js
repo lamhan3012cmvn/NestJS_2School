@@ -4368,7 +4368,7 @@ let AppGateway = class AppGateway {
                 }, currentQuestion.duration * 1000);
                 setTimeout(() => {
                     this.handleTakeTheQuestion(nextGame);
-                }, currentQuestion.duration * 1000 + 20000);
+                }, currentQuestion.duration * 1000 + 3500);
                 return;
             }
             this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {

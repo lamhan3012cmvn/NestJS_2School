@@ -334,7 +334,7 @@ export class AppGateway
 
         setTimeout(() => {
           this.handleTakeTheQuestion(nextGame);
-        }, currentQuestion.duration * 1000 + 20000);
+        }, currentQuestion.duration * 1000 + 3500);
         return;
       }
       this.server.in(host.idRoom).emit(SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
