@@ -266,11 +266,19 @@ export class AppGateway
   ): Promise<void> {
     console.log('ANSWER_THE_QUESTION_CSS', payload);
     const question = await this._questionService.findById(payload.idQuestion);
+    console.log(
+      `LHA:  ===> file: socket.gateway.ts ===> line 269 ===> question`,
+      question,
+    );
     if (question) {
       const user = await this._userMemberSocketService.findOne({
         idRoom: payload.idRoom,
         userId: client.user._id,
       });
+      console.log(
+        `LHA:  ===> file: socket.gateway.ts ===> line 278 ===> user`,
+        user,
+      );
       if (!user) {
         return;
       }
