@@ -4320,7 +4320,7 @@ let AppGateway = class AppGateway {
             }
             return t;
         }, objResult);
-        this.server.emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
+        this.server.to(idRoom).emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
     }
     async handleAnswerTheQuestion(client, payload) {
         console.log('ANSWER_THE_QUESTION_CSS', payload);
@@ -4365,12 +4365,21 @@ let AppGateway = class AppGateway {
                     msg: 'Take Question Success',
                     data: payload,
                 });
-                setTimeout(() => {
+                setTimeout(async () => {
+                    const userAnswer = await this._userScoreQuizSocketService.findAll({
+                        idRoom: host.idRoom,
+                        idQuestion: host.questions[host.currentQuestion - 1],
+                    });
+                    console.log(`LHA:  ===> file: socket.gateway.ts ===> line 341 ===> userAnswer`, userAnswer);
+                    const userDontAnser = await this._userMemberSocketService.findAll({
+                        userId: { $nin: userAnswer.map((e) => e.userId) },
+                    });
+                    console.log(`LHA:  ===> file: socket.gateway.ts ===> line 345 ===> userDontAnser`, userDontAnser);
                     this.handleStatistQuiz(host.idRoom, host.questions[host.currentQuestion]);
+                    setTimeout(() => {
+                        this.handleTakeTheQuestion(nextGame);
+                    }, 3500);
                 }, currentQuestion.duration * 1000);
-                setTimeout(() => {
-                    this.handleTakeTheQuestion(nextGame);
-                }, currentQuestion.duration * 1000 + 3500);
                 return;
             }
             this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
