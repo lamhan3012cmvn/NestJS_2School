@@ -4329,7 +4329,7 @@ let AppGateway = class AppGateway {
         if (question) {
             const user = await this._userMemberSocketService.findOne({
                 idRoom: payload.idRoom,
-                userId: client.user._id,
+                userId: client.user.createdBy,
             });
             console.log(`LHA:  ===> file: socket.gateway.ts ===> line 278 ===> user`, user);
             if (!user) {
