@@ -124,7 +124,7 @@ export class AppGateway
         // const abc=this.
         this.server.to(host.idRoom).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
           msg: 'Join Room Quiz Success Users',
-          users: client.user,
+          user: client.user,
           success: true,
         });
         client.join(payload.idRoom);

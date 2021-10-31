@@ -4214,7 +4214,7 @@ let AppGateway = class AppGateway {
                 });
                 this.server.to(host.idRoom).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
                     msg: 'Join Room Quiz Success Users',
-                    users: client.user,
+                    user: client.user,
                     success: true,
                 });
                 client.join(payload.idRoom);
