@@ -4302,6 +4302,12 @@ let AppGateway = class AppGateway {
             return;
         }
     }
+    async handleStatistQuizFinal(idRoom) {
+        const listScoreStatist = await this._userScoreQuizSocketService.findAll({
+            idRoom,
+        });
+        this.server.to(idRoom).emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_FINAL_SSC, null);
+    }
     async handleStatistQuiz(idRoom, idQuestion) {
         const listScoreStatist = await this._userScoreQuizSocketService.findAll({
             idRoom,
@@ -4357,6 +4363,7 @@ let AppGateway = class AppGateway {
                 idRoom: host.idRoom,
             };
             const nextGame = await this._userHostSocketService.findOneAndUpdate({ _id: host._id }, { currentQuestion: host.currentQuestion + 1 });
+            console.log('host.currentQuestion', host.currentQuestion);
             if (nextGame) {
                 this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
                     msg: 'Take Question Success',
@@ -4365,9 +4372,8 @@ let AppGateway = class AppGateway {
                 setTimeout(async () => {
                     const userAnswer = await this._userScoreQuizSocketService.findAll({
                         idRoom: host.idRoom,
-                        idQuestion: host.questions[host.currentQuestion - 1],
+                        idQuestion: currentQuestion._id,
                     });
-                    console.log(`LHA:  ===> file: socket.gateway.ts ===> line 341 ===> userAnswer`, userAnswer);
                     const userDontAnswer = await this._userMemberSocketService.findAll({
                         userId: { $nin: userAnswer.map((e) => e.userId) },
                         idRoom: host.idRoom,
@@ -4375,10 +4381,9 @@ let AppGateway = class AppGateway {
                     const payload = {
                         idRoom: host.idRoom,
                         answer: null,
-                        idQuestion: host.questions[host.currentQuestion - 1],
+                        idQuestion: currentQuestion._id,
                     };
                     for (const uda of userDontAnswer) {
-                        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 352 ===> uda`, uda);
                         await this._userScoreQuizSocketService.createUserHostSocket(Object.assign(Object.assign({}, payload), { score: 0, question: currentQuestion.question, userId: uda.userId, socketId: '' }));
                     }
                     this.handleStatistQuiz(host.idRoom, host.questions[host.currentQuestion]);
@@ -4388,10 +4393,7 @@ let AppGateway = class AppGateway {
                 }, currentQuestion.duration * 1000);
                 return;
             }
-            this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
-                msg: 'Next Question Fail Server',
-                data: null,
-            });
+            this.handleStatistQuizFinal(host.idRoom);
             return;
         }
         this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
@@ -4488,6 +4490,7 @@ var SOCKET_EVENT;
     SOCKET_EVENT["LEAVE_ROOM_CSS"] = "LEAVE_ROOM_CSS";
     SOCKET_EVENT["LEAVE_ROOM_SSC"] = "LEAVE_ROOM_SSC";
     SOCKET_EVENT["STATISTICAL_ROOM_SSC"] = "STATISTICAL_ROOM_SSC";
+    SOCKET_EVENT["STATISTICAL_ROOM_FINAL_SSC"] = "STATISTICAL_ROOM_FINAL_SSC";
     SOCKET_EVENT["START_QUIZ_CSS"] = "START_QUIZ_CSS";
     SOCKET_EVENT["START_QUIZ_SSC"] = "START_QUIZ_SSC";
     SOCKET_EVENT["ANSWER_THE_QUESTION_CSS"] = "ANSWER_THE_QUESTION_CSS";

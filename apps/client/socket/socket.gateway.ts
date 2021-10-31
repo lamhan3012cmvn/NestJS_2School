@@ -225,6 +225,13 @@ export class AppGateway
     }
   }
 
+  private async handleStatistQuizFinal(idRoom: string): Promise<void> {
+    const listScoreStatist = await this._userScoreQuizSocketService.findAll({
+      idRoom,
+    });
+    this.server.to(idRoom).emit(SOCKET_EVENT.STATISTICAL_ROOM_FINAL_SSC, null);
+  }
+
   //Thong ke sau khi tra loi cau hoi
   private async handleStatistQuiz(
     idRoom: string,
@@ -314,6 +321,7 @@ export class AppGateway
         { _id: host._id },
         { currentQuestion: host.currentQuestion + 1 },
       );
+      console.log('host.currentQuestion', host.currentQuestion);
       if (nextGame) {
         this.server.in(host.idRoom).emit(SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
           msg: 'Take Question Success',
@@ -323,12 +331,8 @@ export class AppGateway
         setTimeout(async () => {
           const userAnswer = await this._userScoreQuizSocketService.findAll({
             idRoom: host.idRoom,
-            idQuestion: host.questions[host.currentQuestion - 1],
+            idQuestion: currentQuestion._id,
           });
-          console.log(
-            `LHA:  ===> file: socket.gateway.ts ===> line 341 ===> userAnswer`,
-            userAnswer,
-          );
           const userDontAnswer = await this._userMemberSocketService.findAll({
             userId: { $nin: userAnswer.map((e) => e.userId) },
             idRoom: host.idRoom,
@@ -337,14 +341,10 @@ export class AppGateway
           const payload = {
             idRoom: host.idRoom,
             answer: null,
-            idQuestion: host.questions[host.currentQuestion - 1],
+            idQuestion: currentQuestion._id,
           };
 
           for (const uda of userDontAnswer) {
-            console.log(
-              `LHA:  ===> file: socket.gateway.ts ===> line 352 ===> uda`,
-              uda,
-            );
             await this._userScoreQuizSocketService.createUserHostSocket({
               ...payload,
               score: 0,
@@ -366,10 +366,7 @@ export class AppGateway
 
         return;
       }
-      this.server.in(host.idRoom).emit(SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
-        msg: 'Next Question Fail Server',
-        data: null,
-      });
+      this.handleStatistQuizFinal(host.idRoom);
       return;
     }
     this.server.in(host.idRoom).emit(SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
