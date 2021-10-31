@@ -265,19 +265,11 @@ export class AppGateway
   ): Promise<void> {
     console.log('ANSWER_THE_QUESTION_CSS', payload);
     const question = await this._questionService.findById(payload.idQuestion);
-    console.log(
-      `LHA:  ===> file: socket.gateway.ts ===> line 269 ===> question`,
-      question,
-    );
     if (question) {
       const user = await this._userMemberSocketService.findOne({
         idRoom: payload.idRoom,
         userId: client.user.createdBy,
       });
-      console.log(
-        `LHA:  ===> file: socket.gateway.ts ===> line 278 ===> user`,
-        user,
-      );
       if (!user) {
         return;
       }
@@ -300,10 +292,6 @@ export class AppGateway
           userId: client.user._id,
           socketId: client.id,
         });
-      console.log(
-        `LHA:  ===> file: socket.gateway.ts ===> line 235 ===> newUserScore`,
-        newUserScore,
-      );
       // this.server.emit(SOCKET_EVENT.ANSWER_THE_QUESTION_SSC, payload);
     }
   }
@@ -341,13 +329,30 @@ export class AppGateway
             `LHA:  ===> file: socket.gateway.ts ===> line 341 ===> userAnswer`,
             userAnswer,
           );
-          const userDontAnser = await this._userMemberSocketService.findAll({
+          const userDontAnswer = await this._userMemberSocketService.findAll({
             userId: { $nin: userAnswer.map((e) => e.userId) },
+            idRoom: host.idRoom,
           });
-          console.log(
-            `LHA:  ===> file: socket.gateway.ts ===> line 345 ===> userDontAnser`,
-            userDontAnser,
-          );
+
+          const payload = {
+            idRoom: host.idRoom,
+            answer: null,
+            idQuestion: host.questions[host.currentQuestion - 1],
+          };
+
+          for (const uda of userDontAnswer) {
+            console.log(
+              `LHA:  ===> file: socket.gateway.ts ===> line 352 ===> uda`,
+              uda,
+            );
+            await this._userScoreQuizSocketService.createUserHostSocket({
+              ...payload,
+              score: 0,
+              question: currentQuestion.question,
+              userId: uda.userId,
+              socketId: '',
+            });
+          }
 
           this.handleStatistQuiz(
             host.idRoom,

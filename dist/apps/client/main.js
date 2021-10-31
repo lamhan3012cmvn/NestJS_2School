@@ -4325,13 +4325,11 @@ let AppGateway = class AppGateway {
     async handleAnswerTheQuestion(client, payload) {
         console.log('ANSWER_THE_QUESTION_CSS', payload);
         const question = await this._questionService.findById(payload.idQuestion);
-        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 269 ===> question`, question);
         if (question) {
             const user = await this._userMemberSocketService.findOne({
                 idRoom: payload.idRoom,
                 userId: client.user.createdBy,
             });
-            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 278 ===> user`, user);
             if (!user) {
                 return;
             }
@@ -4346,7 +4344,6 @@ let AppGateway = class AppGateway {
                 }
             }
             const newUserScore = await this._userScoreQuizSocketService.createUserHostSocket(Object.assign(Object.assign({}, payload), { score, question: question.question, userId: client.user._id, socketId: client.id }));
-            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 235 ===> newUserScore`, newUserScore);
         }
     }
     async handleTakeTheQuestion(host) {
@@ -4371,10 +4368,19 @@ let AppGateway = class AppGateway {
                         idQuestion: host.questions[host.currentQuestion - 1],
                     });
                     console.log(`LHA:  ===> file: socket.gateway.ts ===> line 341 ===> userAnswer`, userAnswer);
-                    const userDontAnser = await this._userMemberSocketService.findAll({
+                    const userDontAnswer = await this._userMemberSocketService.findAll({
                         userId: { $nin: userAnswer.map((e) => e.userId) },
+                        idRoom: host.idRoom,
                     });
-                    console.log(`LHA:  ===> file: socket.gateway.ts ===> line 345 ===> userDontAnser`, userDontAnser);
+                    const payload = {
+                        idRoom: host.idRoom,
+                        answer: null,
+                        idQuestion: host.questions[host.currentQuestion - 1],
+                    };
+                    for (const uda of userDontAnswer) {
+                        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 352 ===> uda`, uda);
+                        await this._userScoreQuizSocketService.createUserHostSocket(Object.assign(Object.assign({}, payload), { score: 0, question: currentQuestion.question, userId: uda.userId, socketId: '' }));
+                    }
                     this.handleStatistQuiz(host.idRoom, host.questions[host.currentQuestion]);
                     setTimeout(() => {
                         this.handleTakeTheQuestion(nextGame);
