@@ -132,6 +132,21 @@ export class ClassController extends BaseController {
     }
   }
 
+  @Get('members')
+  @UseGuards(JwtAuthGuard)
+  async getMemberClass(@Query() query: { idClass: string }) {
+    try {
+      const result = await this.classService.findAllMemberClass(query.idClass);
+      if (result) {
+        return new Ok('Get Class success', result);
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'create-ClassController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
   @Get('changeStatus')
   @UseGuards(JwtAuthGuard)
   async changeStatusClass(@Usr() user: User, @Query() query) {

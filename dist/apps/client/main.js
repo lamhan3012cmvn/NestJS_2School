@@ -413,8 +413,9 @@ let QuestionController = class QuestionController {
                 createBy: user.createdBy,
                 idSetOfQuestions: query.idSetOfQuestions,
             });
-            if (result) {
-                return new baseController_1.Ok('Create Question success', this.questionService.cvtJSON(result));
+            const sortData = result.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+            if (sortData) {
+                return new baseController_1.Ok('Create Question success', this.questionService.cvtJSON(sortData));
             }
             throw new resource_exception_1.ResourceFoundException();
         }
@@ -1717,6 +1718,16 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
             return null;
         }
     }
+    async findAllMemberClass(idClass, status = 1) {
+        try {
+            const result = await this._memberClassService.getMemberByClass(idClass, status);
+            return result;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'findAllMemberClass-ClassesService');
+        }
+    }
     async findAllClasses(user, query = { skip: '0', limit: '15' }, host) {
         try {
             const classMember = await this._memberClassService.getClassByUserJoined(user.createdBy);
@@ -2478,6 +2489,19 @@ let ClassController = class ClassController extends baseController_1.BaseControl
             throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
+    async getMemberClass(query) {
+        try {
+            const result = await this.classService.findAllMemberClass(query.idClass);
+            if (result) {
+                return new baseController_1.Ok('Get Class success', result);
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'create-ClassController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
     async changeStatusClass(user, query) {
         try {
             const result = await this.classService.update(query.id, {
@@ -2577,6 +2601,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, typeof (_f = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _f : Object]),
     __metadata("design:returntype", Promise)
 ], ClassController.prototype, "findAll", null);
+__decorate([
+    common_1.Get('members'),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ClassController.prototype, "getMemberClass", null);
 __decorate([
     common_1.Get('changeStatus'),
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),

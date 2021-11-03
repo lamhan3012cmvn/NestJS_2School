@@ -86,10 +86,14 @@ export class QuestionController {
         createBy: user.createdBy,
         idSetOfQuestions: query.idSetOfQuestions,
       });
-      if (result) {
+      const sortData = result.sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      );
+      if (sortData) {
         return new Ok(
           'Create Question success',
-          this.questionService.cvtJSON(result),
+          this.questionService.cvtJSON(sortData),
         );
       }
       throw new ResourceFoundException();

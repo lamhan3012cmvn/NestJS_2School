@@ -10,28 +10,28 @@ import { DFStatus } from 'apps/share/enums/status.enum';
 export class Classes extends BaseModel<Classes> {
   @prop()
   @Expose()
-  name?: string;
+  private name?: string;
   @prop()
   @Expose()
-  intro?: string;
+  private intro?: string;
   @prop()
   @Expose()
-  topic?: string;
+  private topic?: string;
   @prop({ default: '' })
   @Expose()
-  image?: string;
+  private image?: string;
   @prop({ default: '' })
   @Expose()
-  blurHash?: string;
+  private blurHash?: string;
   // @prop({ default: [] })
   // @Expose()
   // member?: Array<string>;
   @prop({ default: DFStatus.Active })
   @Expose()
-  status?: number;
+  private status?: number;
   @prop()
   @Expose()
-  createdBy: string;
+  private createdBy: string;
 
   static get model(): ModelType<Classes> {
     return new Classes().getModelForClass(Classes, { schemaOptions });

@@ -56,6 +56,22 @@ export class ClassService extends BaseService<Classes> {
     }
   }
 
+  async findAllMemberClass(idClass: string, status = 1) {
+    try {
+      const result = await this._memberClassService.getMemberByClass(
+        idClass,
+        status,
+      );
+      return result;
+    } catch (e) {
+      console.log(e);
+      this._loggerService.error(
+        e.message,
+        null,
+        'findAllMemberClass-ClassesService',
+      );
+    }
+  }
   async findAllClasses(
     user: User,
     query: IQueryFind = { skip: '0', limit: '15' },
