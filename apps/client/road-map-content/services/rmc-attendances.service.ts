@@ -1,3 +1,4 @@
+import { CreateRMCAttendanceDto } from './../dto/createRMCAttendance/req.dto';
 import { LoggerService } from '../../../share/services/logger.service';
 import { BaseService } from 'apps/share/services/baseService.service';
 import { Injectable } from '@nestjs/common';
@@ -16,17 +17,11 @@ export class RMCAttendanceService extends BaseService<RMCAttendances> {
     this._model = _RMCAttendancesModel;
   }
   async createClassAttendance(
-    name: string,
-    description: string,
-    startTime: string,
-    endTime: string,
+    payload: CreateRMCAttendanceDto,
   ): Promise<RMCAttendances> {
     try {
       const obj: any = {
-        name,
-        description,
-        startTime,
-        endTime,
+        ...payload,
       };
       const newClassAttendance = RMCAttendances.createModel(obj);
 
@@ -41,6 +36,23 @@ export class RMCAttendanceService extends BaseService<RMCAttendances> {
         e.message,
         null,
         'createClassAttendance-RMCAttendancesService',
+      );
+      return null;
+    }
+  }
+  //delete class attendance
+  async deleteClassAttendance(id: string): Promise<RMCAttendances> {
+    try {
+      const result = await this.delete(id);
+      if (result) {
+        return this.cvtJSON(result) as RMCAttendances;
+      }
+      return null;
+    } catch (e) {
+      this._loggerService.error(
+        e.message,
+        null,
+        'deleteClassAttendance-RMCAttendancesService',
       );
       return null;
     }

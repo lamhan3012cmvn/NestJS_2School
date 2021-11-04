@@ -11,9 +11,9 @@ export class RoadMapContent extends BaseModel<RoadMapContent> {
   @prop({ default: DFStatus.Active })
   status: number;
   @prop({ default: 0 })
-  type: 0 | 1 | 2 | 3;
+  type: 0 | 1 | 2;
   @prop({ required: true })
-  data: string;
+  rmc: string;
   @prop({ required: true })
   idRoadMap: string;
 

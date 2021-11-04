@@ -13,6 +13,7 @@ import { UserModule } from '../user/user.module';
 import { SetOfQuestionsModule } from '../set-of-questions/set-of-questions.module';
 import { SocketModule } from '../socket/socket.module';
 import { UpLoadFileModule } from '../up-load-file/up-load-file.module';
+import { RoadMapContentModule } from '../road-map-content/roadMapContent.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UpLoadFileModule } from '../up-load-file/up-load-file.module';
     QuestionModule,
     SetOfQuestionsModule,
     RoadMapModule,
+    RoadMapContentModule,
     DeviceModule,
     ClassModule,
     AuthModule,

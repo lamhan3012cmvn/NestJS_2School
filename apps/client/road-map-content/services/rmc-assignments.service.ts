@@ -4,6 +4,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModelType } from 'typegoose';
 import { RMCAssignment } from '../entities/rmc-assignments';
+import {
+  CreateRMCAssignmentDto,
+  ICreateRMCAssignment,
+} from '../dto/createRMCAssignment/req.dto';
 
 @Injectable()
 export class RMCAssignmentService extends BaseService<RMCAssignment> {
@@ -16,15 +20,21 @@ export class RMCAssignmentService extends BaseService<RMCAssignment> {
     this._model = _RMCAssignmentModel;
   }
   async createClassAssignment(
-    name: string,
-    description: string,
+    payload: ICreateRMCAssignment,
   ): Promise<RMCAssignment> {
+    console.log(
+      `LHA:  ===> file: rmc-assignments.service.ts ===> line 22 ===> payload`,
+      payload,
+    );
     try {
       const obj: any = {
-        name,
-        description,
+        ...payload,
       };
       const newClassAssignment = RMCAssignment.createModel(obj);
+      console.log(
+        `LHA:  ===> file: rmc-assignments.service.ts ===> line 28 ===> newClassAssignment`,
+        newClassAssignment,
+      );
 
       const result = await this.create(newClassAssignment);
       if (result) {
@@ -37,6 +47,23 @@ export class RMCAssignmentService extends BaseService<RMCAssignment> {
         e.message,
         null,
         'createClassAssignment-RMCAssignmentsService',
+      );
+      return null;
+    }
+  }
+
+  async deleteClassAssignment(id: string): Promise<RMCAssignment> {
+    try {
+      const result = await this.delete(id);
+      if (result) {
+        return this.cvtJSON(result) as RMCAssignment;
+      }
+      return null;
+    } catch (e) {
+      this._loggerService.error(
+        e.message,
+        null,
+        'deleteClassAssignment-RMCAssignmentsService',
       );
       return null;
     }

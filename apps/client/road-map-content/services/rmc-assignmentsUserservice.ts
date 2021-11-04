@@ -15,7 +15,7 @@ export class RMCAssignmentUserService extends BaseService<RMCAssignmentUser> {
     super();
     this._model = _RMCAssignmentUserModel;
   }
-  async createClassAssignment(
+  async createRMCAssignmentUser(
     userId: string,
     assignmentId: string,
   ): Promise<RMCAssignmentUser> {

@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModelType } from 'typegoose';
 import { RMCFile } from '../entities/rmc-files';
+import { CreateRMCFileDto } from '../dto/createRMCFile/req.dto';
 
 @Injectable()
 export class RMCFilesService extends BaseService<RMCFile> {
@@ -15,11 +16,10 @@ export class RMCFilesService extends BaseService<RMCFile> {
     super();
     this._model = _rmcFileModel;
   }
-  async createClassFile(name: string, fileType: string): Promise<RMCFile> {
+  async createClassFile(payload: CreateRMCFileDto): Promise<RMCFile> {
     try {
       const obj: any = {
-        name,
-        fileType,
+        ...payload,
       };
       const newClassFile = RMCFile.createModel(obj);
 

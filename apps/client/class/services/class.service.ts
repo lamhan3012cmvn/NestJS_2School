@@ -1,5 +1,5 @@
 import { Classes } from './../entities/class.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateClassDto } from '../dto/createClass/create-class.dto';
@@ -229,6 +229,44 @@ export class ClassService extends BaseService<Classes> {
     } catch (e) {
       this._loggerService.error(e.message, null, 'Remove-ClassesService');
       return null;
+    }
+  }
+
+  async checkHostClass(idUser: string, idClass: string): Promise<Classes> {
+    console.log(
+      `LHA:  ===> file: class.service.ts ===> line 236 ===> idClass`,
+      idClass,
+    );
+    console.log(
+      `LHA:  ===> file: class.service.ts ===> line 236 ===> idUser`,
+      idUser,
+    );
+    try {
+      const classes = await this.findById(idClass);
+      console.log(
+        `LHA:  ===> file: class.service.ts ===> line 246 ===> classes`,
+        classes,
+      );
+      const newHostClass = await this.findOne({
+        createdBy: idUser,
+        _id: idClass,
+      });
+      console.log(
+        `LHA:  ===> file: class.service.ts ===> line 241 ===> newHostClass`,
+        newHostClass,
+      );
+      if (newHostClass) {
+        return newHostClass;
+      }
+      throw new NotFoundException('Not found class by User');
+    } catch (e) {
+      this._loggerService.error(
+        e.message,
+        null,
+        'checkHostClass-ClassesService',
+      );
+      // return null;
+      throw new Error2SchoolException(e.message);
     }
   }
 }

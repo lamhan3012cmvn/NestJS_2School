@@ -32,5 +32,6 @@ import { UpLoadFileService } from '../up-load-file/services/up-load-file.service
     UserService,
     UpLoadFileService,
   ],
+  exports: [ClassService],
 })
 export class ClassModule {}

@@ -7,6 +7,10 @@ export class RMCAssignment extends BaseModel<RMCAssignment> {
   name: string;
   @prop({ required: true })
   description: string;
+  @prop({ required: true })
+  startTime: string;
+  @prop({ required: true })
+  endTime: string;
 
   static get model(): ModelType<RMCAssignment> {
     return new RMCAssignment().getModelForClass(RMCAssignment, {

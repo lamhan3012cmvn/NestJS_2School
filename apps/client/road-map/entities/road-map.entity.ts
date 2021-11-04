@@ -10,8 +10,10 @@ export class RoadMap extends BaseModel<RoadMap> {
   description: string;
   @prop({ default: DFStatus.Active })
   status: number;
-  @prop({ default: '' })
+  @prop({ required: true })
   createBy: string;
+  @prop({ required: true })
+  classBy: string;
 
   static get model(): ModelType<RoadMap> {
     return new RoadMap().getModelForClass(RoadMap, {

@@ -3,11 +3,11 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class CreateSetOfQuestionDto {
   @IsNotEmpty()
   @IsString()
-  private name: string;
+  name: string;
   @IsNotEmpty()
   @IsString()
-  private description: string;
+  description: string;
   @IsNotEmpty()
   @IsString()
-  private classBy: string;
+  classBy: string;
 }

@@ -19,11 +19,13 @@ export class RoadMapService extends BaseService<RoadMap> {
 
   async createRoadMap(
     createdBy: string,
+    idClass: string,
     createDto: CreateRoadMapDto,
   ): Promise<RoadMap> {
     try {
       const obj: any = { ...createDto };
       obj.createBy = createdBy;
+      obj.classBy = idClass;
       const newRoadMap = RoadMap.createModel(obj);
 
       const roadMapS = await this.create(newRoadMap);

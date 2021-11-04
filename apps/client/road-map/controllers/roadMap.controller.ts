@@ -33,11 +33,13 @@ export class RoadMapController {
   @HttpCode(200)
   async createRoadMap(
     @Usr() user: User,
+    @Query() query: { idClass: string },
     @Body() createRoadMap: CreateRoadMapDto,
   ) {
     try {
       const result = await this.roadMapService.createRoadMap(
         user.createdBy,
+        query.idClass,
         createRoadMap,
       );
       if (result) {
