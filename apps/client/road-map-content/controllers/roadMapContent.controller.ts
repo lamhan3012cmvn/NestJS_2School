@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   Patch,
   Post,
@@ -36,11 +37,21 @@ import {
   IUpdateRMCAttendance,
   UpdateRMCAttendanceDto,
 } from '../dto/updateRMCAttendance/req.dto';
+import { RMCAssignmentService } from '../services/rmc-assignments.service';
+import { RMCAssignmentUserService } from '../services/rmc-assignmentsUserservice';
+import { RMCAttendanceService } from '../services/rmc-attendances.service';
+import { RMCAttendancesUserService } from '../services/rmc-attendancesUser.service';
+import { RMCFilesService } from '../services/rmc-files.service';
 
 @Controller('api/road-map-content')
 export class RoadMapContentController {
   constructor(
     private readonly roadMapContentService: RoadMapContentService,
+    private readonly _rmcAssignmentService: RMCAssignmentService,
+    private readonly _rmcAssignmentUserService: RMCAssignmentUserService,
+    private readonly _rmcAttendanceService: RMCAttendanceService,
+    private readonly _rmcAttendanceUserService: RMCAttendancesUserService,
+    private readonly _rmcFilesService: RMCFilesService,
     private readonly loggerService: LoggerService,
     private readonly classService: ClassService,
   ) {}
@@ -372,6 +383,50 @@ export class RoadMapContentController {
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'Delete-RoadMapController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async getRoadMapContent(
+    @Usr() user: User,
+    @Query() query: { idRoadMap: string },
+  ) {
+    try {
+      const result = await this.roadMapContentService.findAll({
+        idRoadMap: query.idRoadMap,
+      });
+      const sortResult = result.sort(
+        (a, b) =>
+          new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime(),
+      );
+      let resultRmc = null;
+      const newResult = [];
+      for (const rmc of sortResult) {
+        switch (rmc.type) {
+          case RCMTypes.ASSIGNMENT:
+            resultRmc = await this._rmcAssignmentService.findById(rmc.rmc);
+            break;
+          case RCMTypes.ATTENDANCE:
+            resultRmc = await this._rmcAttendanceService.findById(rmc.rmc);
+            break;
+          case RCMTypes.FILE:
+            resultRmc = await this._rmcFilesService.findById(rmc.rmc);
+            break;
+          default:
+            break;
+        }
+        if (resultRmc) {
+          const obj = this.classService.cvtJSON(rmc);
+          obj.rmc = resultRmc;
+          newResult.push(this.classService.cvtJSON(obj));
+        }
+      }
+      return new Ok('Get RoadMap Content success', newResult);
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'Get-RoadMapController');
       throw new Error2SchoolException(e.message);
     }
   }

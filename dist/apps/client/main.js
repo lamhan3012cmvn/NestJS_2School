@@ -1200,9 +1200,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RoadMapController = void 0;
+const status_enum_1 = __webpack_require__(35);
 const query_dto_1 = __webpack_require__(37);
 const user_decorator_1 = __webpack_require__(15);
 const roadMap_service_1 = __webpack_require__(33);
@@ -1259,6 +1260,20 @@ let RoadMapController = class RoadMapController {
             throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
+    async getRoadMapByClass(user, query) {
+        try {
+            const result = await this.roadMapService.findAll({
+                classBy: query.idClass,
+                status: status_enum_1.DFStatus.Active,
+            });
+            const sortResult = result.sort((a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime());
+            return new baseController_1.Ok('Get RoadMap success', this.roadMapService.cvtJSON(sortResult));
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'Get- Road Map False');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
 };
 __decorate([
     common_1.Post(),
@@ -1292,9 +1307,19 @@ __decorate([
     __metadata("design:paramtypes", [typeof (_e = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _e : Object, typeof (_f = typeof query_dto_1.QueryDeleteRoadMap !== "undefined" && query_dto_1.QueryDeleteRoadMap) === "function" ? _f : Object]),
     __metadata("design:returntype", Promise)
 ], RoadMapController.prototype, "changeRoadMap", null);
+__decorate([
+    common_1.Get(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.HttpCode(200),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_g = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _g : Object, Object]),
+    __metadata("design:returntype", Promise)
+], RoadMapController.prototype, "getRoadMapByClass", null);
 RoadMapController = __decorate([
     common_1.Controller('api/road-map'),
-    __metadata("design:paramtypes", [typeof (_g = typeof roadMap_service_1.RoadMapService !== "undefined" && roadMap_service_1.RoadMapService) === "function" ? _g : Object, typeof (_h = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _h : Object])
+    __metadata("design:paramtypes", [typeof (_h = typeof roadMap_service_1.RoadMapService !== "undefined" && roadMap_service_1.RoadMapService) === "function" ? _h : Object, typeof (_j = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _j : Object])
 ], RoadMapController);
 exports.RoadMapController = RoadMapController;
 
@@ -6200,7 +6225,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RoadMapContentController = void 0;
 const user_decorator_1 = __webpack_require__(15);
@@ -6219,9 +6244,19 @@ const enum_1 = __webpack_require__(126);
 const class_service_1 = __webpack_require__(45);
 const req_dto_4 = __webpack_require__(127);
 const req_dto_5 = __webpack_require__(128);
+const rmc_assignments_service_1 = __webpack_require__(113);
+const rmc_assignmentsUserservice_1 = __webpack_require__(116);
+const rmc_attendances_service_1 = __webpack_require__(120);
+const rmc_attendancesUser_service_1 = __webpack_require__(118);
+const rmc_files_service_1 = __webpack_require__(121);
 let RoadMapContentController = class RoadMapContentController {
-    constructor(roadMapContentService, loggerService, classService) {
+    constructor(roadMapContentService, _rmcAssignmentService, _rmcAssignmentUserService, _rmcAttendanceService, _rmcAttendanceUserService, _rmcFilesService, loggerService, classService) {
         this.roadMapContentService = roadMapContentService;
+        this._rmcAssignmentService = _rmcAssignmentService;
+        this._rmcAssignmentUserService = _rmcAssignmentUserService;
+        this._rmcAttendanceService = _rmcAttendanceService;
+        this._rmcAttendanceUserService = _rmcAttendanceUserService;
+        this._rmcFilesService = _rmcFilesService;
         this.loggerService = loggerService;
         this.classService = classService;
     }
@@ -6376,6 +6411,41 @@ let RoadMapContentController = class RoadMapContentController {
             throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
+    async getRoadMapContent(user, query) {
+        try {
+            const result = await this.roadMapContentService.findAll({
+                idRoadMap: query.idRoadMap,
+            });
+            const sortResult = result.sort((a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime());
+            let resultRmc = null;
+            const newResult = [];
+            for (const rmc of sortResult) {
+                switch (rmc.type) {
+                    case enum_1.RCMTypes.ASSIGNMENT:
+                        resultRmc = await this._rmcAssignmentService.findById(rmc.rmc);
+                        break;
+                    case enum_1.RCMTypes.ATTENDANCE:
+                        resultRmc = await this._rmcAttendanceService.findById(rmc.rmc);
+                        break;
+                    case enum_1.RCMTypes.FILE:
+                        resultRmc = await this._rmcFilesService.findById(rmc.rmc);
+                        break;
+                    default:
+                        break;
+                }
+                if (resultRmc) {
+                    const obj = this.classService.cvtJSON(rmc);
+                    obj.rmc = resultRmc;
+                    newResult.push(this.classService.cvtJSON(obj));
+                }
+            }
+            return new baseController_1.Ok('Get RoadMap Content success', newResult);
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'Get-RoadMapController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
 };
 __decorate([
     common_1.Post('assignment'),
@@ -6473,9 +6543,19 @@ __decorate([
     __metadata("design:paramtypes", [typeof (_p = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _p : Object, Object]),
     __metadata("design:returntype", Promise)
 ], RoadMapContentController.prototype, "changeRoadMap", null);
+__decorate([
+    common_1.Get(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.HttpCode(200),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_q = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _q : Object, Object]),
+    __metadata("design:returntype", Promise)
+], RoadMapContentController.prototype, "getRoadMapContent", null);
 RoadMapContentController = __decorate([
     common_1.Controller('api/road-map-content'),
-    __metadata("design:paramtypes", [typeof (_q = typeof roadMapContent_service_1.RoadMapContentService !== "undefined" && roadMapContent_service_1.RoadMapContentService) === "function" ? _q : Object, typeof (_r = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _r : Object, typeof (_s = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _s : Object])
+    __metadata("design:paramtypes", [typeof (_r = typeof roadMapContent_service_1.RoadMapContentService !== "undefined" && roadMapContent_service_1.RoadMapContentService) === "function" ? _r : Object, typeof (_s = typeof rmc_assignments_service_1.RMCAssignmentService !== "undefined" && rmc_assignments_service_1.RMCAssignmentService) === "function" ? _s : Object, typeof (_t = typeof rmc_assignmentsUserservice_1.RMCAssignmentUserService !== "undefined" && rmc_assignmentsUserservice_1.RMCAssignmentUserService) === "function" ? _t : Object, typeof (_u = typeof rmc_attendances_service_1.RMCAttendanceService !== "undefined" && rmc_attendances_service_1.RMCAttendanceService) === "function" ? _u : Object, typeof (_v = typeof rmc_attendancesUser_service_1.RMCAttendancesUserService !== "undefined" && rmc_attendancesUser_service_1.RMCAttendancesUserService) === "function" ? _v : Object, typeof (_w = typeof rmc_files_service_1.RMCFilesService !== "undefined" && rmc_files_service_1.RMCFilesService) === "function" ? _w : Object, typeof (_x = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _x : Object, typeof (_y = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _y : Object])
 ], RoadMapContentController);
 exports.RoadMapContentController = RoadMapContentController;
 

@@ -1,3 +1,4 @@
+import { DFStatus } from 'apps/share/enums/status.enum';
 import { QueryDeleteRoadMap } from './../dto/DeleteRoadMap/query.dto';
 import { Usr } from 'apps/client/authentication/decorator/user.decorator';
 import { RoadMapService } from './../services/roadMap.service';
@@ -21,6 +22,7 @@ import { ApiBaseResponse, Ok } from 'apps/share/controller/baseController';
 import { LoggerService } from 'apps/share/services/logger.service';
 import { UpdateRoadMap } from '../dto/UpdateRoadMap/res.dto';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
+import { DailyRotateFile } from 'winston/lib/winston/transports';
 
 @Controller('api/road-map')
 export class RoadMapController {
@@ -99,6 +101,32 @@ export class RoadMapController {
       throw new ResourceFoundException();
     } catch (e) {
       this.loggerService.error(e.message, null, 'Delete-RoadMapController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async getRoadMapByClass(
+    @Usr() user: User,
+    @Query() query: { idClass: string },
+  ) {
+    try {
+      const result = await this.roadMapService.findAll({
+        classBy: query.idClass,
+        status: DFStatus.Active,
+      });
+      const sortResult = result.sort(
+        (a, b) =>
+          new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime(),
+      );
+      return new Ok(
+        'Get RoadMap success',
+        this.roadMapService.cvtJSON(sortResult),
+      );
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'Get- Road Map False');
       throw new Error2SchoolException(e.message);
     }
   }
