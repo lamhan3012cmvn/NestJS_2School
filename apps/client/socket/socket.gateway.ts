@@ -271,6 +271,11 @@ export class AppGateway
     },
   ): Promise<void> {
     console.log('ANSWER_THE_QUESTION_CSS', payload);
+    const host = await this._userHostSocketService.findOne({
+      idRoom: payload.idRoom,
+      host: client.id,
+    });
+    if (!host) return;
     const question = await this._questionService.findById(payload.idQuestion);
     if (question) {
       const user = await this._userMemberSocketService.findOne({

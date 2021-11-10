@@ -81,7 +81,9 @@ export class RoadMapContentService extends BaseService<RoadMapContent> {
           },
         );
         if (result) {
-          return result;
+          const cloneRMCAssignment = this.cvtJSON(result);
+          cloneRMCAssignment.rmc = this.cvtJSON(resultRMC);
+          return cloneRMCAssignment;
         }
         throw new NotFoundException('Create RMC False');
       }
@@ -110,7 +112,9 @@ export class RoadMapContentService extends BaseService<RoadMapContent> {
           { rmc: resultRMC._id },
         );
         if (result) {
-          return result;
+          const cloneRMCAssignment = this.cvtJSON(result);
+          cloneRMCAssignment.rmc = this.cvtJSON(resultRMC);
+          return cloneRMCAssignment;
         }
         throw new NotFoundException('Create RMC False');
       }

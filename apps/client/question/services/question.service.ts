@@ -32,4 +32,21 @@ export class QuestionService extends BaseService<Question> {
       return null;
     }
   }
+
+  async deleteQuestion(id: string, userId: string): Promise<Question> {
+    try {
+      const deletedQuestion = await this._model.findOneAndRemove({
+        _id: id,
+        createBy: userId,
+      });
+      if (deletedQuestion) {
+        return this.cvtJSON(deletedQuestion) as Question;
+      }
+      return null;
+    } catch (e) {
+      console.log(e);
+      this._loggerService.error(e.message, null, 'DELETE-ClassesService');
+      return null;
+    }
+  }
 }

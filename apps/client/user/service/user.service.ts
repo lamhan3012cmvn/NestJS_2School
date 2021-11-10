@@ -90,7 +90,14 @@ export class UserService extends ResponseService {
       const user = await this.userModel
         .findOneAndUpdate({ createdBy: id }, obj, { new: true })
         .lean();
-      if (user) return this.ResponseServiceSuccess(user);
+      if (user) {
+        const cloneUser = JSON.parse(JSON.stringify(user));
+        if (cloneUser.image) {
+          const image = await this.uploadService.findById(cloneUser.image);
+          cloneUser.image = image.path || '';
+        }
+        return this.ResponseServiceSuccess(cloneUser);
+      }
       return null;
     } catch (e) {
       console.log(e);
@@ -106,7 +113,14 @@ export class UserService extends ResponseService {
         .lean();
 
       // uploadService
-      if (user) return this.ResponseServiceSuccess(user);
+      if (user) {
+        const cloneUser = JSON.parse(JSON.stringify(user));
+        if (cloneUser.image) {
+          const image = await this.uploadService.findById(cloneUser.image);
+          cloneUser.image = image.path || '';
+        }
+        return this.ResponseServiceSuccess(cloneUser);
+      }
       return null;
     } catch (e) {
       console.log(e);

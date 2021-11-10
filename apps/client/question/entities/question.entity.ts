@@ -13,6 +13,9 @@ export class Question extends BaseModel<Question> {
   @prop({ default: [] })
   @Expose()
   correct: Array<number>;
+  @prop({ default: DFStatus.Active })
+  @Expose()
+  status: number;
   @prop({ required: true })
   @Expose()
   duration: number;

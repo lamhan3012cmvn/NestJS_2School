@@ -17,7 +17,6 @@ import { Ok } from 'apps/share/controller/baseController';
 import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 import { User } from 'apps/client/user/entities/user.entity';
-import { UpdateRoadMap } from 'apps/client/road-map/dto/UpdateRoadMap/res.dto';
 import { CreateSetOfQuestionDto } from '../dto/CreateSetOfQuestion/req.dto';
 import { UpdateSetOfQuestionDto } from '../dto/UpdateSetOfQuestion/req.dto';
 import { QueryGetSetOfQuestion } from '../dto/GetSetOfQuestion/query.dto';
@@ -97,10 +96,6 @@ export class SetOfQuestionsController {
       const result = await this._setOfQuestionsService.findOneAndUpdate(
         { createBy: user.createdBy, _id: query.id },
         { status: ~~query.status },
-      );
-      console.log(
-        `LHA:  ===> file: setOfQuestions.controller.ts ===> line 101 ===> result`,
-        result,
       );
       if (result) {
         return new Ok(

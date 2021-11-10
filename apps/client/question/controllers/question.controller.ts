@@ -102,4 +102,50 @@ export class QuestionController {
       throw new Error2SchoolException(e.message);
     }
   }
+
+  @Delete()
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
+  @Header('Content-Type', 'application/json')
+  async deleteQuestion(@Usr() user: User, @Query() query) {
+    try {
+      const result = await this.questionService.deleteQuestion(
+        query.id,
+        user.createdBy,
+      );
+      if (result) {
+        return new Ok('Delete Question success', result);
+      }
+      throw new ResourceFoundException('Dont Find question change status');
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'Delete-QuestionController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  @Delete('hidden')
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
+  @Header('Content-Type', 'application/json')
+  async changeStatusQuestion(@Usr() user: User, @Query() query) {
+    try {
+      const result = await this.questionService.findOneAndUpdate(
+        {
+          createBy: user.createdBy,
+          _id: query.id,
+        },
+        { status: query.status },
+      );
+      if (result) {
+        return new Ok(
+          'Delete Question success',
+          this.questionService.cvtJSON(result),
+        );
+      }
+      throw new ResourceFoundException('Dont Find question change status');
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'Delete-QuestionController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
 }

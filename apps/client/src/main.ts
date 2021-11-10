@@ -1,4 +1,3 @@
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ClientModule } from './client.module';
 
 import { HttpExceptionFilter } from 'apps/share/filters/http-exception.filter';
@@ -12,11 +11,13 @@ import {
 } from '@nestjs/platform-express';
 
 import * as rateLimit from 'express-rate-limit';
-import * as helmet from 'helmet'; // security feature
-import * as morgan from 'morgan'; // HTTP request logger
+import * as helmet from 'helmet';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { setupSwagger } from 'apps/share/swagger/setup';
 import { RedisIoAdapter } from '../socket/adapter/RedisIoAdapter';
+import * as fire from 'firebase-admin';
+import * as fs from 'fs';
+
 async function bootstrap() {
   try {
     const app = await NestFactory.create<NestExpressApplication>(
@@ -29,15 +30,6 @@ async function bootstrap() {
 
     const loggerService = app.select(SharedModule).get(LoggerService);
     app.useLogger(loggerService);
-    // app.use(
-    //   morgan('combined', {
-    //     stream: {
-    //       write: (message) => {
-    //         loggerService.log(message);
-    //       },
-    //     },
-    //   }),
-    // );
 
     app.use(helmet());
     app.use(
@@ -64,6 +56,10 @@ async function bootstrap() {
     app.useWebSocketAdapter(new RedisIoAdapter(app));
 
     const configService = app.select(SharedModule).get(ConfigService);
+    const adminConfig = fs.readFileSync('./serviceAccountKey.json', 'utf8');
+    fire.initializeApp({
+      credential: fire.credential.cert(JSON.parse(adminConfig)),
+    });
 
     if (['development', 'staging'].includes(configService.nodeEnv)) {
       setupSwagger(app, configService.swaggerConfig);

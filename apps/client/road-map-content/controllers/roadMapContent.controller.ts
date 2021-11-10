@@ -28,7 +28,6 @@ import {
 import { CreateRMCFileDto, ICreateRMCFile } from '../dto/createRMCFile/req.dto';
 import { RCMTypes } from '../enum';
 import { ClassService } from 'apps/client/class/services/class.service';
-import { query } from 'winston';
 import {
   IUpdateRMCAssignment,
   UpdateRMCAssignmentDto,

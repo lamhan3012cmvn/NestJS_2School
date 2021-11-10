@@ -32,12 +32,14 @@ import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 import { JoinClassQuery } from '../dto/joinClass/query.dto';
 import { UpdateImageDto } from '../dto/updateImage/req,dto';
 import { HostName } from 'apps/share/decorator/host.decorator';
+import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
 
 @Controller('api/classes')
 export class ClassController extends BaseController {
   constructor(
     private readonly loggerService: LoggerService,
     private readonly classService: ClassService,
+    private readonly uploadService: UpLoadFileService,
   ) {
     super();
   }
@@ -72,12 +74,14 @@ export class ClassController extends BaseController {
         updateClassDto,
       );
       if (result) {
-        return new Ok(
-          'Update Class success',
-          this.classService.cvtJSON(result),
-        );
+        const cloneClass = this.classService.cvtJSON(result);
+        if (cloneClass.image) {
+          const image = await this.uploadService.findById(cloneClass.image);
+          cloneClass.image = image.path || '';
+        }
+        return new Ok('Update Class success', cloneClass);
       }
-      throw new ResourceFoundException();
+      throw new ResourceFoundException('Dont find Class Update');
     } catch (e) {
       this.loggerService.error(e.message, null, 'Update-ClassController');
       throw new Error2SchoolException(e.message);
@@ -97,12 +101,14 @@ export class ClassController extends BaseController {
         updateClassDto,
       );
       if (result) {
-        return new Ok(
-          'Update Class success',
-          this.classService.cvtJSON(result),
-        );
+        const cloneClass = this.classService.cvtJSON(result);
+        if (cloneClass.image) {
+          const image = await this.uploadService.findById(cloneClass.image);
+          cloneClass.image = image.path || '';
+        }
+        return new Ok('Update Class Image success', cloneClass);
       }
-      throw new ResourceFoundException();
+      throw new ResourceFoundException('Dont Find Class Update Image');
     } catch (e) {
       this.loggerService.error(e.message, null, 'Update-ClassController');
       throw new Error2SchoolException(e.message);
