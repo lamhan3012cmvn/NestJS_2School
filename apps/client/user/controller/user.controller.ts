@@ -56,7 +56,7 @@ export class UserController extends BaseController {
   @HttpCode(200)
   async getUser(@Usr() user) {
     try {
-      return new Ok('Get User Success', JSON.parse(JSON.stringify(user)));
+      return new Ok('Get User Success', user);
     } catch (e) {
       this.loggerService.error(e.message, null, 'findById-UserController');
       throw new Error2SchoolException(e.message);

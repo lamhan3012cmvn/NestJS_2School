@@ -26,19 +26,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     payload: any,
     done: (error: Error, user: any | false) => any,
   ) {
-    const headers: any = req.headers;
     const user = await this.authService.validateUser({ id: payload.data });
     if (user) {
       if (!(user.image === '')) {
         const image = await this.uploadFileService.findById(user.image);
         if (image) {
-          const host = headers.host;
-          const api = 'api/up-load-file';
-          const link = `${host}/${api}?id=${image.path}`;
+          const link = image.path || '';
           user.image = link;
         }
       }
-
       done(null, user);
     }
     return done(new UnauthorizedException(), false);
