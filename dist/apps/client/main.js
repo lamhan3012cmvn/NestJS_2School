@@ -3025,7 +3025,7 @@ let UserController = class UserController extends baseController_1.BaseControlle
     }
     async getUser(user) {
         try {
-            return new baseController_1.Ok('Get User Success', JSON.parse(JSON.stringify(user)));
+            return new baseController_1.Ok('Get User Success', user);
         }
         catch (e) {
             this.loggerService.error(e.message, null, 'findById-UserController');
@@ -3578,16 +3578,14 @@ let JwtStrategy = class JwtStrategy extends passport_1.PassportStrategy(passport
         this.uploadFileService = uploadFileService;
     }
     async validate(req, payload, done) {
-        const headers = req.headers;
         const user = await this.authService.validateUser({ id: payload.data });
         if (user) {
             if (!(user.image === '')) {
                 const image = await this.uploadFileService.findById(user.image);
                 if (image) {
-                    const host = headers.host;
-                    const api = 'api/up-load-file';
-                    const link = `${host}/${api}?id=${image.path}`;
+                    const link = image.path || '';
                     user.image = link;
+                    console.log(user);
                 }
             }
             done(null, user);
