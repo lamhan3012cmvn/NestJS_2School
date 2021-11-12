@@ -1,13 +1,4 @@
-import { HttpExceptionFilter } from 'apps/share/filters/http-exception.filter';
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { DeviceService } from '../services/device.service';
 
 @Controller('api/device')

@@ -23,6 +23,8 @@ import { Auth, AuthSchema } from '../authentication/entities/auth.entity';
 import { ConfigModule } from 'apps/share/configService.module';
 import { JwtModule } from '@nestjs/jwt';
 import { setupJWT } from 'apps/share/jwt/setupJwt';
+import { DeviceService } from '../device/services/device.service';
+import { Device } from '../device/entities/device.entity';
 
 @Module({
   imports: [
@@ -44,6 +46,7 @@ import { setupJWT } from 'apps/share/jwt/setupJwt';
       { name: Auth.name, schema: AuthSchema },
       { name: User.name, schema: UserSchema },
       { name: UpLoadFile.modelName, schema: UpLoadFile.model.schema },
+      { name: Device.modelName, schema: Device.model.schema },
     ]),
     ConfigModule,
     JwtModule.registerAsync(setupJWT('JWT_SECRET')),
@@ -61,6 +64,7 @@ import { setupJWT } from 'apps/share/jwt/setupJwt';
     UpLoadFileService,
     LoggerService,
     WsJwtGuard,
+    DeviceService,
   ],
 })
 export class SocketModule {}

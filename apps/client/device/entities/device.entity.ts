@@ -7,22 +7,22 @@ import { Expose } from 'class-transformer';
 export class Device extends BaseModel<Device> {
   @Prop({ default: '' })
   @Expose()
-  private appVersion?: string;
+  appVersion?: string;
   @Prop({ default: '' })
   @Expose()
-  private deviceModel?: string;
+  deviceModel?: string;
   @Prop({ default: '' })
   @Expose()
-  private deviceUUid?: string;
+  deviceUUid?: string;
   @Prop({ required: true })
   @Expose()
-  private fcmToken: string;
+  fcmToken: string;
   @Prop({ default: 0 })
   @Expose()
-  private status: number;
+  status: number;
   @Prop({ RegExp: /^[A-Fa-f0-9]{24}$/ })
   @Expose()
-  private createdBy: string;
+  createdBy: string;
 
   static get model(): ModelType<Device> {
     return new Device().getModelForClass(Device, { schemaOptions });

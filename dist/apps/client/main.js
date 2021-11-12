@@ -1551,6 +1551,7 @@ DeviceModule = __decorate([
         ],
         controllers: [device_controller_1.DeviceController],
         providers: [device_service_1.DeviceService],
+        exports: [device_service_1.DeviceService],
     })
 ], DeviceModule);
 exports.DeviceModule = DeviceModule;
@@ -1646,6 +1647,7 @@ const baseService_service_1 = __webpack_require__(24);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(23);
 const device_entity_1 = __webpack_require__(42);
+const fire = __webpack_require__(5);
 let DeviceService = class DeviceService extends baseService_service_1.BaseService {
     constructor(_deviceModel, _loggerService) {
         super();
@@ -1680,6 +1682,21 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'findAllDevice-DeviceService');
+        }
+    }
+    async pushDevice(id, payload) {
+        try {
+            const device = await this.findOne({
+                createBy: id,
+            });
+            if (!device) {
+                this._loggerService.error('Dont find device', null, 'pushDevice-DeviceService');
+                return;
+            }
+            fire.messaging().sendToDevice(device.fcmToken, payload);
+        }
+        catch (e) {
+            this._loggerService.error(e.message, null, 'pushDevice-DeviceService');
         }
     }
 };
@@ -4273,6 +4290,8 @@ const auth_entity_1 = __webpack_require__(69);
 const configService_module_1 = __webpack_require__(73);
 const jwt_1 = __webpack_require__(68);
 const setupJwt_1 = __webpack_require__(74);
+const device_service_1 = __webpack_require__(43);
+const device_entity_1 = __webpack_require__(42);
 let SocketModule = class SocketModule {
 };
 SocketModule = __decorate([
@@ -4296,6 +4315,7 @@ SocketModule = __decorate([
                 { name: auth_entity_1.Auth.name, schema: auth_entity_1.AuthSchema },
                 { name: user_entity_1.User.name, schema: user_entity_2.UserSchema },
                 { name: upLoadFile_entity_1.UpLoadFile.modelName, schema: upLoadFile_entity_1.UpLoadFile.model.schema },
+                { name: device_entity_1.Device.modelName, schema: device_entity_1.Device.model.schema },
             ]),
             configService_module_1.ConfigModule,
             jwt_1.JwtModule.registerAsync(setupJwt_1.setupJWT('JWT_SECRET')),
@@ -4313,6 +4333,7 @@ SocketModule = __decorate([
             up_load_file_service_1.UpLoadFileService,
             logger_service_1.LoggerService,
             socket_wsJwtGuard_1.WsJwtGuard,
+            device_service_1.DeviceService,
         ],
     })
 ], SocketModule);
@@ -4333,7 +4354,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppGateway = void 0;
 const socket_events_1 = __webpack_require__(89);
@@ -4347,13 +4368,15 @@ const userScoreQuizSocket_service_1 = __webpack_require__(94);
 const userSocket_service_1 = __webpack_require__(96);
 const random_1 = __webpack_require__(98);
 const socket_wsJwtGuard_1 = __webpack_require__(99);
+const device_service_1 = __webpack_require__(43);
 let AppGateway = class AppGateway {
-    constructor(_questionService, _userHostSocketService, _userScoreQuizSocketService, _userMemberSocketService, _setOfQuestionsService) {
+    constructor(_questionService, _userHostSocketService, _userScoreQuizSocketService, _userMemberSocketService, _setOfQuestionsService, _deviceService) {
         this._questionService = _questionService;
         this._userHostSocketService = _userHostSocketService;
         this._userScoreQuizSocketService = _userScoreQuizSocketService;
         this._userMemberSocketService = _userMemberSocketService;
         this._setOfQuestionsService = _setOfQuestionsService;
+        this._deviceService = _deviceService;
         this.logger = new common_1.Logger('AppGateway');
     }
     async handleCreateRoom(client, payload) {
@@ -4533,6 +4556,10 @@ let AppGateway = class AppGateway {
         }, objResult);
         this.server.to(idRoom).emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
     }
+    async handleSaveDevice(client, payload) {
+        console.log('ANSWER_THE_QUESTION_CSS', payload);
+        await this._deviceService.createDevice(Object.assign(Object.assign({}, payload), { createdBy: client.user.createdBy }));
+    }
     async handleAnswerTheQuestion(client, payload) {
         console.log('ANSWER_THE_QUESTION_CSS', payload);
         const host = await this._userHostSocketService.findOne({
@@ -4660,10 +4687,17 @@ __decorate([
 ], AppGateway.prototype, "handleLeaveRoom", null);
 __decorate([
     common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
-    websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.ANSWER_THE_QUESTION_CSS),
+    websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.SEND_FCM_TOKEN_CSS),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
+], AppGateway.prototype, "handleSaveDevice", null);
+__decorate([
+    common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
+    websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.ANSWER_THE_QUESTION_CSS),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
 ], AppGateway.prototype, "handleAnswerTheQuestion", null);
 __decorate([
     common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
@@ -4674,12 +4708,12 @@ __decorate([
 __decorate([
     common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_h = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _h : Object, Object]),
+    __metadata("design:paramtypes", [typeof (_j = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _j : Object, Object]),
     __metadata("design:returntype", void 0)
 ], AppGateway.prototype, "handleConnection", null);
 AppGateway = __decorate([
     websockets_1.WebSocketGateway({ cors: true }),
-    __metadata("design:paramtypes", [typeof (_j = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _j : Object, typeof (_k = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _k : Object, typeof (_l = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _l : Object, typeof (_m = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _m : Object, typeof (_o = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _o : Object])
+    __metadata("design:paramtypes", [typeof (_k = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _k : Object, typeof (_l = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _l : Object, typeof (_m = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _m : Object, typeof (_o = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _o : Object, typeof (_p = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _p : Object, typeof (_q = typeof device_service_1.DeviceService !== "undefined" && device_service_1.DeviceService) === "function" ? _q : Object])
 ], AppGateway);
 exports.AppGateway = AppGateway;
 
@@ -4706,6 +4740,7 @@ var SOCKET_EVENT;
     SOCKET_EVENT["START_QUIZ_SSC"] = "START_QUIZ_SSC";
     SOCKET_EVENT["ANSWER_THE_QUESTION_CSS"] = "ANSWER_THE_QUESTION_CSS";
     SOCKET_EVENT["TAKE_THE_QUESTION_SSC"] = "TAKE_THE_QUESTION_SSC";
+    SOCKET_EVENT["SEND_FCM_TOKEN_CSS"] = "SEND_FCM_TOKEN_CSS";
 })(SOCKET_EVENT = exports.SOCKET_EVENT || (exports.SOCKET_EVENT = {}));
 
 

@@ -19,6 +19,7 @@ import { RandomFunc } from 'apps/share/helpers/random';
 import { WsJwtGuard } from './socket.wsJwtGuard';
 import { User } from '../user/entities/user.entity';
 import { UserHostSocket } from './entities/userHostSocket.entity';
+import { DeviceService } from '../device/services/device.service';
 
 type typeSocket = Socket & { user: any };
 @WebSocketGateway({ cors: true })
@@ -31,6 +32,7 @@ export class AppGateway
     private readonly _userScoreQuizSocketService: UserScoreQuizSocketService,
     private readonly _userMemberSocketService: UserMemberSocketService,
     private readonly _setOfQuestionsService: SetOfQuestionsService,
+    private readonly _deviceService: DeviceService,
   ) {
     // this._redisSocket = {};
   }
@@ -257,6 +259,25 @@ export class AppGateway
       return t;
     }, objResult);
     this.server.to(idRoom).emit(SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
+  }
+  // SEND_FCM_TOKEN_CSS
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage(SOCKET_EVENT.SEND_FCM_TOKEN_CSS)
+  private async handleSaveDevice(
+    client: typeSocket,
+    payload: {
+      appVersion: string;
+      deviceModel: string;
+      deviceUUid: string;
+      fcmToken: string;
+    },
+  ): Promise<void> {
+    console.log('ANSWER_THE_QUESTION_CSS', payload);
+
+    await this._deviceService.createDevice({
+      ...payload,
+      createdBy: client.user.createdBy,
+    });
   }
 
   //Dap An cau hoi

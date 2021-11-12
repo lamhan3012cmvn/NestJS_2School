@@ -4,6 +4,8 @@ import { BaseService } from 'apps/share/services/baseService.service';
 import { LoggerService } from 'apps/share/services/logger.service';
 import { ModelType } from 'typegoose';
 import { Device } from '../entities/device.entity';
+import * as fire from 'firebase-admin';
+import { MessagingPayload } from 'firebase-admin/lib/messaging/messaging-api';
 
 @Injectable()
 export class DeviceService extends BaseService<Device> {
@@ -15,7 +17,7 @@ export class DeviceService extends BaseService<Device> {
     super();
     this._model = _deviceModel;
   }
-  async createDevice(payload: Device) {
+  async createDevice(payload: any) {
     try {
       const newDevice = Device.createModel(payload);
       const result = await this.create(newDevice);
@@ -39,6 +41,24 @@ export class DeviceService extends BaseService<Device> {
       return JSON.parse(JSON.stringify(result)) as Device;
     } catch (e) {
       this._loggerService.error(e.message, null, 'findAllDevice-DeviceService');
+    }
+  }
+  async pushDevice(id: string, payload: MessagingPayload) {
+    try {
+      const device = await this.findOne({
+        createBy: id,
+      });
+      if (!device) {
+        this._loggerService.error(
+          'Dont find device',
+          null,
+          'pushDevice-DeviceService',
+        );
+        return;
+      }
+      fire.messaging().sendToDevice(device.fcmToken, payload);
+    } catch (e) {
+      this._loggerService.error(e.message, null, 'pushDevice-DeviceService');
     }
   }
 }

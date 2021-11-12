@@ -12,5 +12,6 @@ import { MongooseModule } from '@nestjs/mongoose';
   ],
   controllers: [DeviceController],
   providers: [DeviceService],
+  exports: [DeviceService],
 })
 export class DeviceModule {}
