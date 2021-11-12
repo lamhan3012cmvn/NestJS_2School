@@ -277,7 +277,7 @@ export class AppGateway
       payload,
     );
 
-    const obj = Object.assign(payload, {
+    const obj = Object.assign({}, payload, {
       createdBy: client.user.createdBy,
     });
     console.log(

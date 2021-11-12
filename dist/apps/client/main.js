@@ -4562,7 +4562,7 @@ let AppGateway = class AppGateway {
     }
     async handleSaveDevice(client, payload) {
         console.log(`LHA:  ===> file: socket.gateway.ts ===> line 275 ===> payload`, payload);
-        const obj = Object.assign(payload, {
+        const obj = Object.assign({}, payload, {
             createdBy: client.user.createdBy,
         });
         console.log(`LHA:  ===> file: socket.gateway.ts ===> line 283 ===> obj`, obj);
