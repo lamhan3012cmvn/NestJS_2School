@@ -31,6 +31,7 @@ const socket_module_1 = __webpack_require__(87);
 const up_load_file_module_1 = __webpack_require__(102);
 const roadMapContent_module_1 = __webpack_require__(112);
 const memberClass_module_1 = __webpack_require__(132);
+const notification_module_1 = __webpack_require__(144);
 let ClientModule = class ClientModule {
 };
 ClientModule = __decorate([
@@ -51,6 +52,7 @@ ClientModule = __decorate([
             healcheck_module_1.HealcheckModule,
             up_load_file_module_1.UpLoadFileModule,
             memberClass_module_1.MemberClassModule,
+            notification_module_1.NotificationModule,
         ],
     })
 ], ClientModule);
@@ -7423,6 +7425,133 @@ module.exports = require("redis");
 /***/ ((module) => {
 
 module.exports = require("socket.io-redis");
+
+/***/ }),
+/* 144 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NotificationModule = void 0;
+const device_module_1 = __webpack_require__(41);
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(20);
+const logger_service_1 = __webpack_require__(12);
+const device_service_1 = __webpack_require__(43);
+const notification_controller_1 = __webpack_require__(145);
+const notification_entity_1 = __webpack_require__(101);
+const notification_service_1 = __webpack_require__(100);
+const device_entity_1 = __webpack_require__(42);
+let NotificationModule = class NotificationModule {
+};
+NotificationModule = __decorate([
+    common_1.Module({
+        imports: [
+            device_module_1.DeviceModule,
+            mongoose_1.MongooseModule.forFeature([
+                { name: notification_entity_1.Notification.name, schema: notification_entity_1.Notification.model.modelName },
+                { name: device_entity_1.Device.modelName, schema: device_entity_1.Device.model.schema },
+            ]),
+        ],
+        controllers: [notification_controller_1.NotificationController],
+        providers: [logger_service_1.LoggerService, notification_service_1.NotificationService, device_service_1.DeviceService],
+        exports: [notification_service_1.NotificationService],
+    })
+], NotificationModule);
+exports.NotificationModule = NotificationModule;
+
+
+/***/ }),
+/* 145 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b, _c, _d;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NotificationController = void 0;
+const user_decorator_1 = __webpack_require__(16);
+const jwt_auth_guard_1 = __webpack_require__(17);
+const common_1 = __webpack_require__(3);
+const user_entity_1 = __webpack_require__(19);
+const logger_service_1 = __webpack_require__(12);
+const errors_exception_1 = __webpack_require__(30);
+const notification_service_1 = __webpack_require__(100);
+const baseController_1 = __webpack_require__(31);
+let NotificationController = class NotificationController {
+    constructor(loggerService, _notificationService) {
+        this.loggerService = loggerService;
+        this._notificationService = _notificationService;
+    }
+    async getNotification(user) {
+        try {
+            const result = await this._notificationService.getNotification(user.createdBy);
+            return new baseController_1.Ok('Get list notification', result);
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'get-NotificationController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+    async seenNotification(user, query) {
+        try {
+            const result = await this._notificationService.findOneAndUpdate({
+                idUser: user.createdBy,
+                _id: query.id,
+            }, {
+                isSeen: true,
+            });
+            if (result) {
+                return new baseController_1.Ok('Change seen notification', this._notificationService.cvtJSON(result));
+            }
+            throw new common_1.NotFoundException('Notification not found');
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'change-NotificationController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+};
+__decorate([
+    common_1.Get(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, user_decorator_1.Usr()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object]),
+    __metadata("design:returntype", Promise)
+], NotificationController.prototype, "getNotification", null);
+__decorate([
+    common_1.Post(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_b = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _b : Object, Object]),
+    __metadata("design:returntype", Promise)
+], NotificationController.prototype, "seenNotification", null);
+NotificationController = __decorate([
+    common_1.Controller('api/notification'),
+    __metadata("design:paramtypes", [typeof (_c = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _c : Object, typeof (_d = typeof notification_service_1.NotificationService !== "undefined" && notification_service_1.NotificationService) === "function" ? _d : Object])
+], NotificationController);
+exports.NotificationController = NotificationController;
+
 
 /***/ })
 /******/ 	]);
