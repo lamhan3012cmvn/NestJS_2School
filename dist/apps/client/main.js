@@ -4367,7 +4367,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppGateway = void 0;
-const status_enum_1 = __webpack_require__(29);
 const socket_events_1 = __webpack_require__(89);
 const websockets_1 = __webpack_require__(90);
 const common_1 = __webpack_require__(3);
@@ -4420,12 +4419,12 @@ let AppGateway = class AppGateway {
             questions: mapIdQuestions,
         });
         if (userHostSocket) {
+            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 85 ===> payload.idClass`, payload.idClass);
             const listMember = await this._userMemberSocketService.findAll({
                 idClass: payload.idClass,
-                role: 0,
-                status: status_enum_1.DFStatus.Active,
             });
             for (const member of listMember) {
+                console.log(`LHA:  ===> file: socket.gateway.ts ===> line 90 ===> listMember`, listMember);
                 const noti = {
                     idUser: member.userId,
                     title: 'Kiem Tra Quizz',
@@ -5286,9 +5285,9 @@ let NotificationService = class NotificationService extends baseService_service_
     async createNotification(notification) {
         const model = notification_entity_1.Notification.createModel(notification);
         const newNotification = await this.create(model);
+        console.log(`LHA:  ===> file: notification.service.ts ===> line 35 ===> newNotification`, newNotification);
         if (newNotification) {
             this._loggerService.info(`Create new notification success`);
-            this._deviceService.pushDevice(notification.idUser, {});
         }
         else {
             this._loggerService.error(`Create new notification failed`);

@@ -27,15 +27,19 @@ export class NotificationService extends BaseService<Notification> {
     return this.cvtJSON(notifications);
   }
 
-  async createNotification(notification: Notification): Promise<void> {
+  async createNotification(notification: any): Promise<void> {
     // push notify
     // const obj: any = { ...notification };
     const model = Notification.createModel(notification);
     const newNotification = await this.create(model);
+    console.log(
+      `LHA:  ===> file: notification.service.ts ===> line 35 ===> newNotification`,
+      newNotification,
+    );
     if (newNotification) {
       this._loggerService.info(`Create new notification success`);
       //Notify
-      this._deviceService.pushDevice(notification.idUser, {});
+      // this._deviceService.pushDevice(notification.idUser, {});
     } else {
       this._loggerService.error(`Create new notification failed`);
     }

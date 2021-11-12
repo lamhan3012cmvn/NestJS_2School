@@ -80,13 +80,21 @@ export class AppGateway
         questions: mapIdQuestions,
       });
     if (userHostSocket) {
+      console.log(
+        `LHA:  ===> file: socket.gateway.ts ===> line 85 ===> payload.idClass`,
+        payload.idClass,
+      );
       const listMember = await this._userMemberSocketService.findAll({
         idClass: payload.idClass,
-        role: 0,
-        status: DFStatus.Active,
+        // role: 0,
+        // status: DFStatus.Active,
       });
 
       for (const member of listMember) {
+        console.log(
+          `LHA:  ===> file: socket.gateway.ts ===> line 90 ===> listMember`,
+          listMember,
+        );
         const noti: any = {
           idUser: member.userId,
           title: 'Kiem Tra Quizz',
