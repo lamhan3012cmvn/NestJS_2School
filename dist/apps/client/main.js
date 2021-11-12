@@ -4686,6 +4686,7 @@ __decorate([
     __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
 ], AppGateway.prototype, "handleLeaveRoom", null);
 __decorate([
+    common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.SEND_FCM_TOKEN_CSS),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),

@@ -261,7 +261,7 @@ export class AppGateway
     this.server.to(idRoom).emit(SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
   }
   // SEND_FCM_TOKEN_CSS
-  // @UseGuards(WsJwtGuard)
+  @UseGuards(WsJwtGuard)
   @SubscribeMessage(SOCKET_EVENT.SEND_FCM_TOKEN_CSS)
   private async handleSaveDevice(
     client: typeSocket,
