@@ -274,7 +274,7 @@ export class AppGateway
   ): Promise<void> {
     this._deviceService.createDevice({
       ...payload,
-      createdBy: 'client.user.createdBy',
+      createdBy: client.user.createdBy,
     });
   }
 
