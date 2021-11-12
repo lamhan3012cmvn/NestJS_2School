@@ -19,7 +19,7 @@ export class DeviceService extends BaseService<Device> {
   }
   async createDevice(payload: any) {
     try {
-      const newDevice = Device.createModel({ ...payload });
+      const newDevice = Device.createModel(payload);
       const result = await this.create(newDevice);
       return JSON.parse(JSON.stringify(result)) as Device;
     } catch (e) {

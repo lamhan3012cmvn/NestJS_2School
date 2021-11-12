@@ -1658,7 +1658,7 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
     }
     async createDevice(payload) {
         try {
-            const newDevice = device_entity_1.Device.createModel(Object.assign({}, payload));
+            const newDevice = device_entity_1.Device.createModel(payload);
             const result = await this.create(newDevice);
             return JSON.parse(JSON.stringify(result));
         }
