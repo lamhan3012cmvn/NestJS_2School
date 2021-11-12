@@ -95,6 +95,10 @@ export class MemberClassService extends BaseService<MemberClasses> {
         idClass: idClass,
         status: status,
       };
+      console.log(
+        `LHA:  ===> file: memberClass.service.ts ===> line 98 ===> obj`,
+        obj,
+      );
 
       const memberClass = await this._model.find(obj).lean();
       console.log(
@@ -118,6 +122,34 @@ export class MemberClassService extends BaseService<MemberClasses> {
         return this.cvtJSON(results);
       }
       return [];
+    } catch (e) {
+      this._loggerService.error(
+        e.message,
+        null,
+        'leaveClass-MemberClassService',
+      );
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  async getMemberNotifyByClass(idClass: string, status = 1) {
+    try {
+      const obj: any = {
+        idClass: idClass,
+        status: status,
+      };
+      console.log(
+        `LHA:  ===> file: memberClass.service.ts ===> line 98 ===> obj`,
+        obj,
+      );
+
+      const memberClass = await this._model.find(obj).lean();
+      console.log(
+        `LHA:  ===> file: memberClass.service.ts ===> line 100 ===> memberClass`,
+        memberClass,
+      );
+
+      return this.cvtJSON(memberClass);
     } catch (e) {
       this._loggerService.error(
         e.message,

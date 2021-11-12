@@ -91,6 +91,15 @@ export class AppGateway
         `LHA:  ===> file: socket.gateway.ts ===> line 90 ===> listMember`,
         listMember,
       );
+
+      const listMember2 = await this._memberClassService.getMemberNotifyByClass(
+        payload.idClass,
+      );
+      console.log(
+        `LHA:  ===> file: socket.gateway.ts ===> line 96 ===> listMember2`,
+        listMember2,
+      );
+      // getMemberNotifyByClass
       for (const member of listMember) {
         const noti: any = {
           idUser: member.idUser,

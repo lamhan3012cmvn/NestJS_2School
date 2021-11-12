@@ -2487,6 +2487,7 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
                 idClass: idClass,
                 status: status,
             };
+            console.log(`LHA:  ===> file: memberClass.service.ts ===> line 98 ===> obj`, obj);
             const memberClass = await this._model.find(obj).lean();
             console.log(`LHA:  ===> file: memberClass.service.ts ===> line 100 ===> memberClass`, memberClass);
             if (memberClass.length > 0) {
@@ -2504,6 +2505,22 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
                 return this.cvtJSON(results);
             }
             return [];
+        }
+        catch (e) {
+            this._loggerService.error(e.message, null, 'leaveClass-MemberClassService');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+    async getMemberNotifyByClass(idClass, status = 1) {
+        try {
+            const obj = {
+                idClass: idClass,
+                status: status,
+            };
+            console.log(`LHA:  ===> file: memberClass.service.ts ===> line 98 ===> obj`, obj);
+            const memberClass = await this._model.find(obj).lean();
+            console.log(`LHA:  ===> file: memberClass.service.ts ===> line 100 ===> memberClass`, memberClass);
+            return this.cvtJSON(memberClass);
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'leaveClass-MemberClassService');
@@ -4423,6 +4440,8 @@ let AppGateway = class AppGateway {
             console.log(`LHA:  ===> file: socket.gateway.ts ===> line 85 ===> payload.idClass`, payload.idClass);
             const listMember = await this._memberClassService.getMemberByClass(payload.idClass);
             console.log(`LHA:  ===> file: socket.gateway.ts ===> line 90 ===> listMember`, listMember);
+            const listMember2 = await this._memberClassService.getMemberNotifyByClass(payload.idClass);
+            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 96 ===> listMember2`, listMember2);
             for (const member of listMember) {
                 const noti = {
                     idUser: member.idUser,

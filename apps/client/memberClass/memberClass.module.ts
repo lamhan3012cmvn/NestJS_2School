@@ -11,7 +11,7 @@ import { MemberClassService } from './services/memberClass.service';
     ]),
   ],
   controllers: [],
-  providers: [LoggerService],
+  providers: [LoggerService, MemberClassService],
   exports: [MemberClassService],
 })
 export class MemberClassModule {}
