@@ -277,11 +277,14 @@ export class AppGateway
       payload,
     );
 
-    await this._deviceService.createDevice(
-      Object.assign(payload, {
-        createdBy: client.user.createdBy,
-      }),
+    const obj = Object.assign(payload, {
+      createdBy: client.user.createdBy,
+    });
+    console.log(
+      `LHA:  ===> file: socket.gateway.ts ===> line 283 ===> obj`,
+      obj,
     );
+    await this._deviceService.createDevice(obj);
   }
 
   //Dap An cau hoi

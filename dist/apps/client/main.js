@@ -4562,9 +4562,11 @@ let AppGateway = class AppGateway {
     }
     async handleSaveDevice(client, payload) {
         console.log(`LHA:  ===> file: socket.gateway.ts ===> line 275 ===> payload`, payload);
-        await this._deviceService.createDevice(Object.assign(payload, {
+        const obj = Object.assign(payload, {
             createdBy: client.user.createdBy,
-        }));
+        });
+        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 283 ===> obj`, obj);
+        await this._deviceService.createDevice(obj);
     }
     async handleAnswerTheQuestion(client, payload) {
         console.log('ANSWER_THE_QUESTION_CSS', payload);
