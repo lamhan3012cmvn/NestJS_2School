@@ -4558,7 +4558,7 @@ let AppGateway = class AppGateway {
         this.server.to(idRoom).emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
     }
     async handleSaveDevice(client, payload) {
-        this._deviceService.createDevice(Object.assign(Object.assign({}, payload), { createdBy: client.user.createdBy }));
+        await this._deviceService.createDevice(Object.assign(Object.assign({}, payload), { createdBy: client.user.createdBy }));
     }
     async handleAnswerTheQuestion(client, payload) {
         console.log('ANSWER_THE_QUESTION_CSS', payload);

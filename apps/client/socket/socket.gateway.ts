@@ -272,7 +272,7 @@ export class AppGateway
       fcmToken: string;
     },
   ): Promise<void> {
-    this._deviceService.createDevice({
+    await this._deviceService.createDevice({
       ...payload,
       createdBy: client.user.createdBy,
     });
