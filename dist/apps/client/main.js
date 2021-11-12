@@ -1574,8 +1574,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Device = void 0;
 const baseModel_entity_1 = __webpack_require__(27);
-const mongoose_1 = __webpack_require__(20);
 const baseModel_entity_2 = __webpack_require__(27);
+const typegoose_1 = __webpack_require__(23);
 const class_transformer_1 = __webpack_require__(28);
 class Device extends baseModel_entity_2.BaseModel {
     static get model() {
@@ -1585,36 +1585,37 @@ class Device extends baseModel_entity_2.BaseModel {
         return this.model.modelName;
     }
     static createModel(payload) {
+        console.log(`LHA:  ===> file: device.entity.ts ===> line 36 ===> payload`, payload);
         return new this.model(payload);
     }
 }
 __decorate([
-    mongoose_1.Prop({ default: '' }),
+    typegoose_1.prop({ default: '' }),
     class_transformer_1.Expose(),
     __metadata("design:type", String)
 ], Device.prototype, "appVersion", void 0);
 __decorate([
-    mongoose_1.Prop({ default: '' }),
+    typegoose_1.prop({ default: '' }),
     class_transformer_1.Expose(),
     __metadata("design:type", String)
 ], Device.prototype, "deviceModel", void 0);
 __decorate([
-    mongoose_1.Prop({ default: '' }),
+    typegoose_1.prop({ default: '' }),
     class_transformer_1.Expose(),
     __metadata("design:type", String)
 ], Device.prototype, "deviceUUid", void 0);
 __decorate([
-    mongoose_1.Prop({ required: true }),
+    typegoose_1.prop({ required: true }),
     class_transformer_1.Expose(),
     __metadata("design:type", String)
 ], Device.prototype, "fcmToken", void 0);
 __decorate([
-    mongoose_1.Prop({ default: 0 }),
+    typegoose_1.prop({ default: 0 }),
     class_transformer_1.Expose(),
     __metadata("design:type", Number)
 ], Device.prototype, "status", void 0);
 __decorate([
-    mongoose_1.Prop({ RegExp: /^[A-Fa-f0-9]{24}$/ }),
+    typegoose_1.prop({ default: '' }),
     class_transformer_1.Expose(),
     __metadata("design:type", String)
 ], Device.prototype, "createdBy", void 0);
@@ -1657,7 +1658,7 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
     }
     async createDevice(payload) {
         try {
-            const newDevice = device_entity_1.Device.createModel(payload);
+            const newDevice = device_entity_1.Device.createModel(Object.assign({}, payload));
             const result = await this.create(newDevice);
             return JSON.parse(JSON.stringify(result));
         }
@@ -4557,8 +4558,7 @@ let AppGateway = class AppGateway {
         this.server.to(idRoom).emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
     }
     async handleSaveDevice(client, payload) {
-        console.log('ANSWER_THE_QUESTION_CSS', payload);
-        await this._deviceService.createDevice(Object.assign(Object.assign({}, payload), { createdBy: client.user.createdBy }));
+        this._deviceService.createDevice(Object.assign(Object.assign({}, payload), { createdBy: 'client.user.createdBy' }));
     }
     async handleAnswerTheQuestion(client, payload) {
         console.log('ANSWER_THE_QUESTION_CSS', payload);
@@ -4686,7 +4686,6 @@ __decorate([
     __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
 ], AppGateway.prototype, "handleLeaveRoom", null);
 __decorate([
-    common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.SEND_FCM_TOKEN_CSS),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),

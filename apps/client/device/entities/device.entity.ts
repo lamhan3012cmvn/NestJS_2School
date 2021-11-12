@@ -1,26 +1,25 @@
 import { schemaOptions } from './../../../share/mongodb/baseModel.entity';
-import { Prop } from '@nestjs/mongoose';
 import { BaseModel } from 'apps/share/mongodb/baseModel.entity';
-import { InstanceType, ModelType } from 'typegoose';
+import { InstanceType, ModelType, prop } from 'typegoose';
 import { Expose } from 'class-transformer';
 
 export class Device extends BaseModel<Device> {
-  @Prop({ default: '' })
+  @prop({ default: '' })
   @Expose()
-  appVersion?: string;
-  @Prop({ default: '' })
+  appVersion: string;
+  @prop({ default: '' })
   @Expose()
-  deviceModel?: string;
-  @Prop({ default: '' })
+  deviceModel: string;
+  @prop({ default: '' })
   @Expose()
-  deviceUUid?: string;
-  @Prop({ required: true })
+  deviceUUid: string;
+  @prop({ required: true })
   @Expose()
   fcmToken: string;
-  @Prop({ default: 0 })
+  @prop({ default: 0 })
   @Expose()
   status: number;
-  @Prop({ RegExp: /^[A-Fa-f0-9]{24}$/ })
+  @prop({ default: '' })
   @Expose()
   createdBy: string;
 
@@ -33,6 +32,10 @@ export class Device extends BaseModel<Device> {
   }
 
   static createModel(payload: Device): InstanceType<Device> {
+    console.log(
+      `LHA:  ===> file: device.entity.ts ===> line 36 ===> payload`,
+      payload,
+    );
     return new this.model(payload);
   }
 }
