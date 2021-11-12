@@ -97,6 +97,10 @@ export class MemberClassService extends BaseService<MemberClasses> {
       };
 
       const memberClass = await this._model.find(obj).lean();
+      console.log(
+        `LHA:  ===> file: memberClass.service.ts ===> line 100 ===> memberClass`,
+        memberClass,
+      );
       if (memberClass.length > 0) {
         const results = await Promise.all(
           memberClass.map(async (e) => {

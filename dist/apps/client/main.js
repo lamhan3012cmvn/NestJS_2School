@@ -2488,6 +2488,7 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
                 status: status,
             };
             const memberClass = await this._model.find(obj).lean();
+            console.log(`LHA:  ===> file: memberClass.service.ts ===> line 100 ===> memberClass`, memberClass);
             if (memberClass.length > 0) {
                 const results = await Promise.all(memberClass.map(async (e) => {
                     try {
@@ -4420,9 +4421,7 @@ let AppGateway = class AppGateway {
         });
         if (userHostSocket) {
             console.log(`LHA:  ===> file: socket.gateway.ts ===> line 85 ===> payload.idClass`, payload.idClass);
-            const listMember = await this._memberClassService.findAll({
-                idClass: payload.idClass,
-            });
+            const listMember = await this._memberClassService.getMemberByClass(payload.idClass);
             console.log(`LHA:  ===> file: socket.gateway.ts ===> line 90 ===> listMember`, listMember);
             for (const member of listMember) {
                 const noti = {

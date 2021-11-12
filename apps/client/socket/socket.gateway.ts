@@ -84,11 +84,9 @@ export class AppGateway
         `LHA:  ===> file: socket.gateway.ts ===> line 85 ===> payload.idClass`,
         payload.idClass,
       );
-      const listMember = await this._memberClassService.findAll({
-        idClass: payload.idClass,
-        // role: 0,
-        // status: DFStatus.Active,
-      });
+      const listMember = await this._memberClassService.getMemberByClass(
+        payload.idClass,
+      );
       console.log(
         `LHA:  ===> file: socket.gateway.ts ===> line 90 ===> listMember`,
         listMember,
