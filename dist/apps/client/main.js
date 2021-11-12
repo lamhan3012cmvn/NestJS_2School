@@ -4562,7 +4562,9 @@ let AppGateway = class AppGateway {
     }
     async handleSaveDevice(client, payload) {
         console.log(`LHA:  ===> file: socket.gateway.ts ===> line 275 ===> payload`, payload);
-        await this._deviceService.createDevice(Object.assign(Object.assign({}, payload), { createdBy: 'client.user.createdBy' }));
+        await this._deviceService.createDevice(Object.assign(payload, {
+            createdBy: client.user.createdBy,
+        }));
     }
     async handleAnswerTheQuestion(client, payload) {
         console.log('ANSWER_THE_QUESTION_CSS', payload);
@@ -4690,6 +4692,7 @@ __decorate([
     __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
 ], AppGateway.prototype, "handleLeaveRoom", null);
 __decorate([
+    common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.SEND_FCM_TOKEN_CSS),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
