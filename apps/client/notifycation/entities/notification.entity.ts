@@ -9,7 +9,7 @@ export class Notification extends BaseModel<Notification> {
   @prop()
   @Expose()
   idUser?: string;
-  @prop()
+  @prop({ default: false })
   @Expose()
   isSeen?: boolean;
   @prop()

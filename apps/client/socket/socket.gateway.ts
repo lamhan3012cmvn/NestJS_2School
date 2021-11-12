@@ -1,3 +1,4 @@
+import { DFStatus } from 'apps/share/enums/status.enum';
 import { SOCKET_EVENT } from './socket.events';
 import {
   OnGatewayConnection,
@@ -20,6 +21,9 @@ import { WsJwtGuard } from './socket.wsJwtGuard';
 import { User } from '../user/entities/user.entity';
 import { UserHostSocket } from './entities/userHostSocket.entity';
 import { DeviceService } from '../device/services/device.service';
+import { MemberClassService } from '../memberClass/services/memberClass.service';
+import { Notification } from '../notifycation/entities/notification.entity';
+import { NotificationService } from '../notifycation/services/notification.service';
 
 type typeSocket = Socket & { user: any };
 @WebSocketGateway({ cors: true })
@@ -33,6 +37,8 @@ export class AppGateway
     private readonly _userMemberSocketService: UserMemberSocketService,
     private readonly _setOfQuestionsService: SetOfQuestionsService,
     private readonly _deviceService: DeviceService,
+    private readonly _memberClassService: MemberClassService,
+    private readonly _notificationService: NotificationService,
   ) {
     // this._redisSocket = {};
   }
@@ -44,17 +50,13 @@ export class AppGateway
   @SubscribeMessage(SOCKET_EVENT.CREATE_QUIZ_CSS)
   private async handleCreateRoom(
     client: typeSocket,
-    payload: { idSetOfQuestions: string },
+    payload: { idSetOfQuestions: string; idClass: string },
   ): Promise<void> {
     console.log(client.id);
     const questions = await this._questionService.findAll({
       idSetOfQuestions: payload.idSetOfQuestions,
       createBy: client.user.createdBy,
     });
-    console.log(
-      `LHA:  ===> file: socket.gateway.ts ===> line 52 ===> questions`,
-      questions,
-    );
     if (questions.length <= 0) {
       this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
         msg: 'Dont find questions or not the owner of the room',
@@ -63,7 +65,9 @@ export class AppGateway
       });
       return;
     }
-    const mapIdQuestions = questions.map((e) => e._id);
+    const mapIdQuestions = questions
+      .map((e) => e._id)
+      .sort(() => Math.random() - 0.5);
 
     const idRoom = RandomFunc();
     client.join(idRoom);
@@ -76,6 +80,23 @@ export class AppGateway
         questions: mapIdQuestions,
       });
     if (userHostSocket) {
+      const listMember = await this._userMemberSocketService.findAll({
+        idClass: payload.idClass,
+        role: 0,
+        status: DFStatus.Active,
+      });
+
+      for (const member of listMember) {
+        const noti: any = {
+          idUser: member.userId,
+          title: 'Kiem Tra Quizz',
+          description: 'Bạn đã được phân công làm bài kiểm tra',
+          typeNotify: 'quiz',
+          data: idRoom,
+        };
+        this._notificationService.createNotification(noti);
+      }
+
       this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
         msg: 'Create Room Quiz Success',
         idRoom: idRoom,
@@ -108,10 +129,6 @@ export class AppGateway
         userId: client.user.createdBy,
         user: client.user,
       });
-      console.log(
-        `LHA:  ===> file: socket.gateway.ts ===> line 104 ===> newMember`,
-        newMember,
-      );
 
       if (newMember) {
         const listMember = await this._userMemberSocketService.findAll({
@@ -272,18 +289,9 @@ export class AppGateway
       fcmToken: string;
     },
   ): Promise<void> {
-    console.log(
-      `LHA:  ===> file: socket.gateway.ts ===> line 275 ===> payload`,
-      payload,
-    );
-
     const obj = Object.assign({}, payload, {
       createdBy: client.user.createdBy,
     });
-    console.log(
-      `LHA:  ===> file: socket.gateway.ts ===> line 283 ===> obj`,
-      obj,
-    );
     await this._deviceService.createDevice(obj);
   }
 
@@ -418,10 +426,6 @@ export class AppGateway
     const results = await this._userMemberSocketService.findOneAndRemove({
       userId: client.user._id,
     });
-    console.log(
-      `LHA:  ===> file: socket.gateway.ts ===> line 207 ===> results2`,
-      results,
-    );
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 

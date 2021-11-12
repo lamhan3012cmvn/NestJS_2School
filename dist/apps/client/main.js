@@ -28,8 +28,8 @@ const setup_1 = __webpack_require__(79);
 const user_module_1 = __webpack_require__(60);
 const set_of_questions_module_1 = __webpack_require__(80);
 const socket_module_1 = __webpack_require__(87);
-const up_load_file_module_1 = __webpack_require__(100);
-const roadMapContent_module_1 = __webpack_require__(110);
+const up_load_file_module_1 = __webpack_require__(102);
+const roadMapContent_module_1 = __webpack_require__(112);
 let ClientModule = class ClientModule {
 };
 ClientModule = __decorate([
@@ -1660,9 +1660,7 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
         console.log(`LHA:  ===> file: device.service.ts ===> line 21 ===> payload`, payload);
         try {
             const newDevice = device_entity_1.Device.createModel(payload);
-            console.log(`LHA:  ===> file: device.service.ts ===> line 27 ===> newDevice`, newDevice);
             const result = await this.create(newDevice);
-            console.log(`LHA:  ===> file: device.service.ts ===> line 29 ===> result`, result);
             return JSON.parse(JSON.stringify(result));
         }
         catch (e) {
@@ -4296,6 +4294,10 @@ const jwt_1 = __webpack_require__(68);
 const setupJwt_1 = __webpack_require__(74);
 const device_service_1 = __webpack_require__(43);
 const device_entity_1 = __webpack_require__(42);
+const memberClass_service_1 = __webpack_require__(53);
+const notification_service_1 = __webpack_require__(100);
+const memberClass_entity_1 = __webpack_require__(54);
+const notification_entity_1 = __webpack_require__(101);
 let SocketModule = class SocketModule {
 };
 SocketModule = __decorate([
@@ -4320,6 +4322,8 @@ SocketModule = __decorate([
                 { name: user_entity_1.User.name, schema: user_entity_2.UserSchema },
                 { name: upLoadFile_entity_1.UpLoadFile.modelName, schema: upLoadFile_entity_1.UpLoadFile.model.schema },
                 { name: device_entity_1.Device.modelName, schema: device_entity_1.Device.model.schema },
+                { name: memberClass_entity_1.MemberClasses.name, schema: memberClass_entity_1.MemberClasses.model.modelName },
+                { name: notification_entity_1.Notification.name, schema: notification_entity_1.Notification.model.modelName },
             ]),
             configService_module_1.ConfigModule,
             jwt_1.JwtModule.registerAsync(setupJwt_1.setupJWT('JWT_SECRET')),
@@ -4338,6 +4342,8 @@ SocketModule = __decorate([
             logger_service_1.LoggerService,
             socket_wsJwtGuard_1.WsJwtGuard,
             device_service_1.DeviceService,
+            memberClass_service_1.MemberClassService,
+            notification_service_1.NotificationService,
         ],
     })
 ], SocketModule);
@@ -4358,9 +4364,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppGateway = void 0;
+const status_enum_1 = __webpack_require__(29);
 const socket_events_1 = __webpack_require__(89);
 const websockets_1 = __webpack_require__(90);
 const common_1 = __webpack_require__(3);
@@ -4373,14 +4380,18 @@ const userSocket_service_1 = __webpack_require__(96);
 const random_1 = __webpack_require__(98);
 const socket_wsJwtGuard_1 = __webpack_require__(99);
 const device_service_1 = __webpack_require__(43);
+const memberClass_service_1 = __webpack_require__(53);
+const notification_service_1 = __webpack_require__(100);
 let AppGateway = class AppGateway {
-    constructor(_questionService, _userHostSocketService, _userScoreQuizSocketService, _userMemberSocketService, _setOfQuestionsService, _deviceService) {
+    constructor(_questionService, _userHostSocketService, _userScoreQuizSocketService, _userMemberSocketService, _setOfQuestionsService, _deviceService, _memberClassService, _notificationService) {
         this._questionService = _questionService;
         this._userHostSocketService = _userHostSocketService;
         this._userScoreQuizSocketService = _userScoreQuizSocketService;
         this._userMemberSocketService = _userMemberSocketService;
         this._setOfQuestionsService = _setOfQuestionsService;
         this._deviceService = _deviceService;
+        this._memberClassService = _memberClassService;
+        this._notificationService = _notificationService;
         this.logger = new common_1.Logger('AppGateway');
     }
     async handleCreateRoom(client, payload) {
@@ -4389,7 +4400,6 @@ let AppGateway = class AppGateway {
             idSetOfQuestions: payload.idSetOfQuestions,
             createBy: client.user.createdBy,
         });
-        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 52 ===> questions`, questions);
         if (questions.length <= 0) {
             this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_SSC, {
                 msg: 'Dont find questions or not the owner of the room',
@@ -4398,7 +4408,9 @@ let AppGateway = class AppGateway {
             });
             return;
         }
-        const mapIdQuestions = questions.map((e) => e._id);
+        const mapIdQuestions = questions
+            .map((e) => e._id)
+            .sort(() => Math.random() - 0.5);
         const idRoom = random_1.RandomFunc();
         client.join(idRoom);
         const userHostSocket = await this._userHostSocketService.createUserHostSocket({
@@ -4408,6 +4420,21 @@ let AppGateway = class AppGateway {
             questions: mapIdQuestions,
         });
         if (userHostSocket) {
+            const listMember = await this._userMemberSocketService.findAll({
+                idClass: payload.idClass,
+                role: 0,
+                status: status_enum_1.DFStatus.Active,
+            });
+            for (const member of listMember) {
+                const noti = {
+                    idUser: member.userId,
+                    title: 'Kiem Tra Quizz',
+                    description: 'Bạn đã được phân công làm bài kiểm tra',
+                    typeNotify: 'quiz',
+                    data: idRoom,
+                };
+                this._notificationService.createNotification(noti);
+            }
             this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_SSC, {
                 msg: 'Create Room Quiz Success',
                 idRoom: idRoom,
@@ -4434,7 +4461,6 @@ let AppGateway = class AppGateway {
                 userId: client.user.createdBy,
                 user: client.user,
             });
-            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 104 ===> newMember`, newMember);
             if (newMember) {
                 const listMember = await this._userMemberSocketService.findAll({
                     idRoom: payload.idRoom,
@@ -4561,11 +4587,9 @@ let AppGateway = class AppGateway {
         this.server.to(idRoom).emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
     }
     async handleSaveDevice(client, payload) {
-        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 275 ===> payload`, payload);
         const obj = Object.assign({}, payload, {
             createdBy: client.user.createdBy,
         });
-        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 283 ===> obj`, obj);
         await this._deviceService.createDevice(obj);
     }
     async handleAnswerTheQuestion(client, payload) {
@@ -4656,7 +4680,6 @@ let AppGateway = class AppGateway {
         const results = await this._userMemberSocketService.findOneAndRemove({
             userId: client.user._id,
         });
-        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 207 ===> results2`, results);
         this.logger.log(`Client disconnected: ${client.id}`);
     }
     handleConnection(client, ...args) {
@@ -4721,7 +4744,7 @@ __decorate([
 ], AppGateway.prototype, "handleConnection", null);
 AppGateway = __decorate([
     websockets_1.WebSocketGateway({ cors: true }),
-    __metadata("design:paramtypes", [typeof (_k = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _k : Object, typeof (_l = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _l : Object, typeof (_m = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _m : Object, typeof (_o = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _o : Object, typeof (_p = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _p : Object, typeof (_q = typeof device_service_1.DeviceService !== "undefined" && device_service_1.DeviceService) === "function" ? _q : Object])
+    __metadata("design:paramtypes", [typeof (_k = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _k : Object, typeof (_l = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _l : Object, typeof (_m = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _m : Object, typeof (_o = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _o : Object, typeof (_p = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _p : Object, typeof (_q = typeof device_service_1.DeviceService !== "undefined" && device_service_1.DeviceService) === "function" ? _q : Object, typeof (_r = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _r : Object, typeof (_s = typeof notification_service_1.NotificationService !== "undefined" && notification_service_1.NotificationService) === "function" ? _s : Object])
 ], AppGateway);
 exports.AppGateway = AppGateway;
 
@@ -5227,13 +5250,143 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b, _c;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NotificationService = void 0;
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(20);
+const device_service_1 = __webpack_require__(43);
+const baseService_service_1 = __webpack_require__(24);
+const logger_service_1 = __webpack_require__(12);
+const typegoose_1 = __webpack_require__(23);
+const notification_entity_1 = __webpack_require__(101);
+let NotificationService = class NotificationService extends baseService_service_1.BaseService {
+    constructor(_notificationModel, _loggerService, _deviceService) {
+        super();
+        this._notificationModel = _notificationModel;
+        this._loggerService = _loggerService;
+        this._deviceService = _deviceService;
+        this._model = _notificationModel;
+    }
+    async getNotification(id) {
+        const notifications = await this._model
+            .find({
+            userId: id,
+            isSeen: false,
+        })
+            .sort({ createdAt: -1 });
+        return this.cvtJSON(notifications);
+    }
+    async createNotification(notification) {
+        const model = notification_entity_1.Notification.createModel(notification);
+        const newNotification = await this.create(model);
+        if (newNotification) {
+            this._loggerService.info(`Create new notification success`);
+            this._deviceService.pushDevice(notification.idUser, {});
+        }
+        else {
+            this._loggerService.error(`Create new notification failed`);
+        }
+    }
+};
+NotificationService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(notification_entity_1.Notification.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof device_service_1.DeviceService !== "undefined" && device_service_1.DeviceService) === "function" ? _c : Object])
+], NotificationService);
+exports.NotificationService = NotificationService;
+
+
+/***/ }),
+/* 101 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Notification = void 0;
+const baseModel_entity_1 = __webpack_require__(27);
+const class_transformer_1 = __webpack_require__(28);
+const typegoose_1 = __webpack_require__(23);
+class Notification extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new Notification().getModelForClass(Notification, {
+            schemaOptions: baseModel_entity_1.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        const result = new this.model(payload);
+        return result;
+    }
+}
+__decorate([
+    typegoose_1.prop(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], Notification.prototype, "idUser", void 0);
+__decorate([
+    typegoose_1.prop({ default: false }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Boolean)
+], Notification.prototype, "isSeen", void 0);
+__decorate([
+    typegoose_1.prop(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], Notification.prototype, "title", void 0);
+__decorate([
+    typegoose_1.prop(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], Notification.prototype, "description", void 0);
+__decorate([
+    typegoose_1.prop(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], Notification.prototype, "typeNotify", void 0);
+__decorate([
+    typegoose_1.prop(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], Notification.prototype, "data", void 0);
+exports.Notification = Notification;
+
+
+/***/ }),
+/* 102 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpLoadFileModule = void 0;
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(20);
 const logger_service_1 = __webpack_require__(12);
 const shared_module_1 = __webpack_require__(6);
-const up_load_file_controller_1 = __webpack_require__(101);
+const up_load_file_controller_1 = __webpack_require__(103);
 const upLoadFile_entity_1 = __webpack_require__(52);
 const up_load_file_service_1 = __webpack_require__(50);
 let UpLoadFileModule = class UpLoadFileModule {
@@ -5255,7 +5408,7 @@ exports.UpLoadFileModule = UpLoadFileModule;
 
 
 /***/ }),
-/* 101 */
+/* 103 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5275,17 +5428,17 @@ var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpLoadFileController = void 0;
 const baseController_1 = __webpack_require__(31);
-const platform_express_1 = __webpack_require__(102);
+const platform_express_1 = __webpack_require__(104);
 const common_1 = __webpack_require__(3);
-const multer_1 = __webpack_require__(103);
-const path_1 = __webpack_require__(104);
-const fs = __webpack_require__(105);
-const FileType = __webpack_require__(106);
+const multer_1 = __webpack_require__(105);
+const path_1 = __webpack_require__(106);
+const fs = __webpack_require__(107);
+const FileType = __webpack_require__(108);
 const logger_service_1 = __webpack_require__(12);
 const up_load_file_service_1 = __webpack_require__(50);
 const errors_exception_1 = __webpack_require__(30);
 const jwt_auth_guard_1 = __webpack_require__(17);
-const blurHash_1 = __webpack_require__(107);
+const blurHash_1 = __webpack_require__(109);
 let UpLoadFileController = class UpLoadFileController {
     constructor(_upLoadFileService, loggerService) {
         this._upLoadFileService = _upLoadFileService;
@@ -5408,44 +5561,44 @@ exports.UpLoadFileController = UpLoadFileController;
 
 
 /***/ }),
-/* 102 */
+/* 104 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-express");
 
 /***/ }),
-/* 103 */
+/* 105 */
 /***/ ((module) => {
 
 module.exports = require("multer");
 
 /***/ }),
-/* 104 */
+/* 106 */
 /***/ ((module) => {
 
 module.exports = require("path");
 
 /***/ }),
-/* 105 */
+/* 107 */
 /***/ ((module) => {
 
 module.exports = require("fs");
 
 /***/ }),
-/* 106 */
+/* 108 */
 /***/ ((module) => {
 
 module.exports = require("file-type");
 
 /***/ }),
-/* 107 */
+/* 109 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.encodeImageToBlurhash = void 0;
-const sharp = __webpack_require__(108);
-const blurhash_1 = __webpack_require__(109);
+const sharp = __webpack_require__(110);
+const blurhash_1 = __webpack_require__(111);
 const encodeImageToBlurhash = (path) => {
     return new Promise((resolve, reject) => {
         sharp(path)
@@ -5463,19 +5616,19 @@ exports.encodeImageToBlurhash = encodeImageToBlurhash;
 
 
 /***/ }),
-/* 108 */
+/* 110 */
 /***/ ((module) => {
 
 module.exports = require("sharp");
 
 /***/ }),
-/* 109 */
+/* 111 */
 /***/ ((module) => {
 
 module.exports = require("blurhash");
 
 /***/ }),
-/* 110 */
+/* 112 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5487,22 +5640,22 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RoadMapContentModule = void 0;
-const rmc_files_1 = __webpack_require__(111);
-const rmc_attendances_1 = __webpack_require__(112);
+const rmc_files_1 = __webpack_require__(113);
+const rmc_attendances_1 = __webpack_require__(114);
 const logger_service_1 = __webpack_require__(12);
 const common_1 = __webpack_require__(3);
-const roadMapContent_service_1 = __webpack_require__(113);
-const roadMapContent_controller_1 = __webpack_require__(123);
+const roadMapContent_service_1 = __webpack_require__(115);
+const roadMapContent_controller_1 = __webpack_require__(125);
 const mongoose_1 = __webpack_require__(20);
-const roadMapContent_entity_1 = __webpack_require__(116);
-const rmc_assignments_service_1 = __webpack_require__(114);
-const rmc_assignmentsUserservice_1 = __webpack_require__(117);
-const rmc_attendances_service_1 = __webpack_require__(121);
-const rmc_attendancesUser_service_1 = __webpack_require__(119);
-const rmc_files_service_1 = __webpack_require__(122);
-const rmc_assignments_1 = __webpack_require__(115);
-const rmc_attendancesUser_1 = __webpack_require__(120);
-const rmc_assignmentsUser_1 = __webpack_require__(118);
+const roadMapContent_entity_1 = __webpack_require__(118);
+const rmc_assignments_service_1 = __webpack_require__(116);
+const rmc_assignmentsUserservice_1 = __webpack_require__(119);
+const rmc_attendances_service_1 = __webpack_require__(123);
+const rmc_attendancesUser_service_1 = __webpack_require__(121);
+const rmc_files_service_1 = __webpack_require__(124);
+const rmc_assignments_1 = __webpack_require__(117);
+const rmc_attendancesUser_1 = __webpack_require__(122);
+const rmc_assignmentsUser_1 = __webpack_require__(120);
 const class_entity_1 = __webpack_require__(47);
 const class_module_1 = __webpack_require__(45);
 let RoadMapContentModule = class RoadMapContentModule {
@@ -5546,7 +5699,7 @@ exports.RoadMapContentModule = RoadMapContentModule;
 
 
 /***/ }),
-/* 111 */
+/* 113 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5589,7 +5742,7 @@ exports.RMCFile = RMCFile;
 
 
 /***/ }),
-/* 112 */
+/* 114 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5640,7 +5793,7 @@ exports.RMCAttendances = RMCAttendances;
 
 
 /***/ }),
-/* 113 */
+/* 115 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5659,17 +5812,17 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 var _a, _b, _c, _d, _e, _f, _g;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RoadMapContentService = void 0;
-const rmc_assignments_service_1 = __webpack_require__(114);
+const rmc_assignments_service_1 = __webpack_require__(116);
 const logger_service_1 = __webpack_require__(12);
-const roadMapContent_entity_1 = __webpack_require__(116);
+const roadMapContent_entity_1 = __webpack_require__(118);
 const baseService_service_1 = __webpack_require__(24);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(20);
 const typegoose_1 = __webpack_require__(23);
-const rmc_assignmentsUserservice_1 = __webpack_require__(117);
-const rmc_attendancesUser_service_1 = __webpack_require__(119);
-const rmc_attendances_service_1 = __webpack_require__(121);
-const rmc_files_service_1 = __webpack_require__(122);
+const rmc_assignmentsUserservice_1 = __webpack_require__(119);
+const rmc_attendancesUser_service_1 = __webpack_require__(121);
+const rmc_attendances_service_1 = __webpack_require__(123);
+const rmc_files_service_1 = __webpack_require__(124);
 const errors_exception_1 = __webpack_require__(30);
 let RoadMapContentService = class RoadMapContentService extends baseService_service_1.BaseService {
     constructor(_setOfQuestionsModel, _loggerService, _rmcAssignmentService, _rmcAssignmentUserService, _rmcAttendanceService, _rmcAttendanceUserService, _rmcFilesService) {
@@ -5850,7 +6003,7 @@ exports.RoadMapContentService = RoadMapContentService;
 
 
 /***/ }),
-/* 114 */
+/* 116 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5874,7 +6027,7 @@ const baseService_service_1 = __webpack_require__(24);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(20);
 const typegoose_1 = __webpack_require__(23);
-const rmc_assignments_1 = __webpack_require__(115);
+const rmc_assignments_1 = __webpack_require__(117);
 let RMCAssignmentService = class RMCAssignmentService extends baseService_service_1.BaseService {
     constructor(_RMCAssignmentModel, _loggerService) {
         super();
@@ -5923,7 +6076,7 @@ exports.RMCAssignmentService = RMCAssignmentService;
 
 
 /***/ }),
-/* 115 */
+/* 117 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5974,7 +6127,7 @@ exports.RMCAssignment = RMCAssignment;
 
 
 /***/ }),
-/* 116 */
+/* 118 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6034,7 +6187,7 @@ exports.RoadMapContent = RoadMapContent;
 
 
 /***/ }),
-/* 117 */
+/* 119 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6058,7 +6211,7 @@ const baseService_service_1 = __webpack_require__(24);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(20);
 const typegoose_1 = __webpack_require__(23);
-const rmc_assignmentsUser_1 = __webpack_require__(118);
+const rmc_assignmentsUser_1 = __webpack_require__(120);
 let RMCAssignmentUserService = class RMCAssignmentUserService extends baseService_service_1.BaseService {
     constructor(_RMCAssignmentUserModel, _loggerService) {
         super();
@@ -6095,7 +6248,7 @@ exports.RMCAssignmentUserService = RMCAssignmentUserService;
 
 
 /***/ }),
-/* 118 */
+/* 120 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6147,7 +6300,7 @@ exports.RMCAssignmentUser = RMCAssignmentUser;
 
 
 /***/ }),
-/* 119 */
+/* 121 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6171,7 +6324,7 @@ const baseService_service_1 = __webpack_require__(24);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(20);
 const typegoose_1 = __webpack_require__(23);
-const rmc_attendancesUser_1 = __webpack_require__(120);
+const rmc_attendancesUser_1 = __webpack_require__(122);
 let RMCAttendancesUserService = class RMCAttendancesUserService extends baseService_service_1.BaseService {
     constructor(_RMCAttendancesUserModel, _loggerService) {
         super();
@@ -6208,7 +6361,7 @@ exports.RMCAttendancesUserService = RMCAttendancesUserService;
 
 
 /***/ }),
-/* 120 */
+/* 122 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6251,7 +6404,7 @@ exports.RMCAttendancesUser = RMCAttendancesUser;
 
 
 /***/ }),
-/* 121 */
+/* 123 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6275,7 +6428,7 @@ const baseService_service_1 = __webpack_require__(24);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(20);
 const typegoose_1 = __webpack_require__(23);
-const rmc_attendances_1 = __webpack_require__(112);
+const rmc_attendances_1 = __webpack_require__(114);
 let RMCAttendanceService = class RMCAttendanceService extends baseService_service_1.BaseService {
     constructor(_RMCAttendancesModel, _loggerService) {
         super();
@@ -6322,7 +6475,7 @@ exports.RMCAttendanceService = RMCAttendanceService;
 
 
 /***/ }),
-/* 122 */
+/* 124 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6346,7 +6499,7 @@ const baseService_service_1 = __webpack_require__(24);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(20);
 const typegoose_1 = __webpack_require__(23);
-const rmc_files_1 = __webpack_require__(111);
+const rmc_files_1 = __webpack_require__(113);
 let RMCFilesService = class RMCFilesService extends baseService_service_1.BaseService {
     constructor(_rmcFileModel, _loggerService) {
         super();
@@ -6380,7 +6533,7 @@ exports.RMCFilesService = RMCFilesService;
 
 
 /***/ }),
-/* 123 */
+/* 125 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6403,23 +6556,23 @@ const user_decorator_1 = __webpack_require__(16);
 const common_1 = __webpack_require__(3);
 const jwt_auth_guard_1 = __webpack_require__(17);
 const logger_service_1 = __webpack_require__(12);
-const roadMapContent_service_1 = __webpack_require__(113);
+const roadMapContent_service_1 = __webpack_require__(115);
 const user_entity_1 = __webpack_require__(19);
 const resource_exception_1 = __webpack_require__(21);
 const baseController_1 = __webpack_require__(31);
 const errors_exception_1 = __webpack_require__(30);
-const req_dto_1 = __webpack_require__(124);
-const req_dto_2 = __webpack_require__(125);
-const req_dto_3 = __webpack_require__(126);
-const enum_1 = __webpack_require__(127);
+const req_dto_1 = __webpack_require__(126);
+const req_dto_2 = __webpack_require__(127);
+const req_dto_3 = __webpack_require__(128);
+const enum_1 = __webpack_require__(129);
 const class_service_1 = __webpack_require__(46);
-const req_dto_4 = __webpack_require__(128);
-const req_dto_5 = __webpack_require__(129);
-const rmc_assignments_service_1 = __webpack_require__(114);
-const rmc_assignmentsUserservice_1 = __webpack_require__(117);
-const rmc_attendances_service_1 = __webpack_require__(121);
-const rmc_attendancesUser_service_1 = __webpack_require__(119);
-const rmc_files_service_1 = __webpack_require__(122);
+const req_dto_4 = __webpack_require__(130);
+const req_dto_5 = __webpack_require__(131);
+const rmc_assignments_service_1 = __webpack_require__(116);
+const rmc_assignmentsUserservice_1 = __webpack_require__(119);
+const rmc_attendances_service_1 = __webpack_require__(123);
+const rmc_attendancesUser_service_1 = __webpack_require__(121);
+const rmc_files_service_1 = __webpack_require__(124);
 let RoadMapContentController = class RoadMapContentController {
     constructor(roadMapContentService, _rmcAssignmentService, _rmcAssignmentUserService, _rmcAttendanceService, _rmcAttendanceUserService, _rmcFilesService, loggerService, classService) {
         this.roadMapContentService = roadMapContentService;
@@ -6732,7 +6885,7 @@ exports.RoadMapContentController = RoadMapContentController;
 
 
 /***/ }),
-/* 124 */
+/* 126 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6774,7 +6927,7 @@ exports.CreateRMCAssignmentDto = CreateRMCAssignmentDto;
 
 
 /***/ }),
-/* 125 */
+/* 127 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6816,7 +6969,7 @@ exports.CreateRMCAttendanceDto = CreateRMCAttendanceDto;
 
 
 /***/ }),
-/* 126 */
+/* 128 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6848,7 +7001,7 @@ exports.CreateRMCFileDto = CreateRMCFileDto;
 
 
 /***/ }),
-/* 127 */
+/* 129 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -6863,7 +7016,7 @@ var RCMTypes;
 
 
 /***/ }),
-/* 128 */
+/* 130 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6905,7 +7058,7 @@ exports.UpdateRMCAssignmentDto = UpdateRMCAssignmentDto;
 
 
 /***/ }),
-/* 129 */
+/* 131 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6947,7 +7100,7 @@ exports.UpdateRMCAttendanceDto = UpdateRMCAttendanceDto;
 
 
 /***/ }),
-/* 130 */
+/* 132 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7010,31 +7163,31 @@ exports.HttpExceptionFilter = HttpExceptionFilter;
 
 
 /***/ }),
-/* 131 */
+/* 133 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
 
 /***/ }),
-/* 132 */
+/* 134 */
 /***/ ((module) => {
 
 module.exports = require("express-rate-limit");
 
 /***/ }),
-/* 133 */
+/* 135 */
 /***/ ((module) => {
 
 module.exports = require("helmet");
 
 /***/ }),
-/* 134 */
+/* 136 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupSwagger = void 0;
-const swagger_1 = __webpack_require__(135);
+const swagger_1 = __webpack_require__(137);
 function setupSwagger(app, config) {
     const options = new swagger_1.DocumentBuilder()
         .setTitle(config.title || 'DocumentApi')
@@ -7050,21 +7203,21 @@ exports.setupSwagger = setupSwagger;
 
 
 /***/ }),
-/* 135 */
+/* 137 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
 
 /***/ }),
-/* 136 */
+/* 138 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RedisIoAdapter = void 0;
-const platform_socket_io_1 = __webpack_require__(137);
-const redis_1 = __webpack_require__(138);
-const socket_io_redis_1 = __webpack_require__(139);
+const platform_socket_io_1 = __webpack_require__(139);
+const redis_1 = __webpack_require__(140);
+const socket_io_redis_1 = __webpack_require__(141);
 const pubClient = new redis_1.RedisClient({ host: 'localhost', port: 6379 });
 const subClient = pubClient.duplicate();
 const redisAdapter = socket_io_redis_1.createAdapter({ pubClient, subClient });
@@ -7079,19 +7232,19 @@ exports.RedisIoAdapter = RedisIoAdapter;
 
 
 /***/ }),
-/* 137 */
+/* 139 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-socket.io");
 
 /***/ }),
-/* 138 */
+/* 140 */
 /***/ ((module) => {
 
 module.exports = require("redis");
 
 /***/ }),
-/* 139 */
+/* 141 */
 /***/ ((module) => {
 
 module.exports = require("socket.io-redis");
@@ -7131,19 +7284,19 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const client_module_1 = __webpack_require__(1);
-const http_exception_filter_1 = __webpack_require__(130);
+const http_exception_filter_1 = __webpack_require__(132);
 const config_service_1 = __webpack_require__(8);
 const logger_service_1 = __webpack_require__(12);
 const shared_module_1 = __webpack_require__(6);
-const core_1 = __webpack_require__(131);
-const platform_express_1 = __webpack_require__(102);
-const rateLimit = __webpack_require__(132);
-const helmet = __webpack_require__(133);
+const core_1 = __webpack_require__(133);
+const platform_express_1 = __webpack_require__(104);
+const rateLimit = __webpack_require__(134);
+const helmet = __webpack_require__(135);
 const common_1 = __webpack_require__(3);
-const setup_1 = __webpack_require__(134);
-const RedisIoAdapter_1 = __webpack_require__(136);
+const setup_1 = __webpack_require__(136);
+const RedisIoAdapter_1 = __webpack_require__(138);
 const fire = __webpack_require__(5);
-const fs = __webpack_require__(105);
+const fs = __webpack_require__(107);
 async function bootstrap() {
     try {
         const app = await core_1.NestFactory.create(client_module_1.ClientModule, new platform_express_1.ExpressAdapter(), {

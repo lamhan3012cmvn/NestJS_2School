@@ -25,6 +25,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { setupJWT } from 'apps/share/jwt/setupJwt';
 import { DeviceService } from '../device/services/device.service';
 import { Device } from '../device/entities/device.entity';
+import { MemberClassService } from '../memberClass/services/memberClass.service';
+import { NotificationService } from '../notifycation/services/notification.service';
+import { MemberClasses } from '../memberClass/entities/memberClass.entity';
+import { Notification } from '../notifycation/entities/notification.entity';
 
 @Module({
   imports: [
@@ -47,6 +51,8 @@ import { Device } from '../device/entities/device.entity';
       { name: User.name, schema: UserSchema },
       { name: UpLoadFile.modelName, schema: UpLoadFile.model.schema },
       { name: Device.modelName, schema: Device.model.schema },
+      { name: MemberClasses.name, schema: MemberClasses.model.modelName },
+      { name: Notification.name, schema: Notification.model.modelName },
     ]),
     ConfigModule,
     JwtModule.registerAsync(setupJWT('JWT_SECRET')),
@@ -65,6 +71,8 @@ import { Device } from '../device/entities/device.entity';
     LoggerService,
     WsJwtGuard,
     DeviceService,
+    MemberClassService,
+    NotificationService,
   ],
 })
 export class SocketModule {}
