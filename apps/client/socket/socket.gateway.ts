@@ -84,19 +84,18 @@ export class AppGateway
         `LHA:  ===> file: socket.gateway.ts ===> line 85 ===> payload.idClass`,
         payload.idClass,
       );
-      const listMember = await this._userMemberSocketService.findAll({
+      const listMember = await this._memberClassService.findAll({
         idClass: payload.idClass,
         // role: 0,
         // status: DFStatus.Active,
       });
-
+      console.log(
+        `LHA:  ===> file: socket.gateway.ts ===> line 90 ===> listMember`,
+        listMember,
+      );
       for (const member of listMember) {
-        console.log(
-          `LHA:  ===> file: socket.gateway.ts ===> line 90 ===> listMember`,
-          listMember,
-        );
         const noti: any = {
-          idUser: member.userId,
+          idUser: member.idUser,
           title: 'Kiem Tra Quizz',
           description: 'Bạn đã được phân công làm bài kiểm tra',
           typeNotify: 'quiz',
