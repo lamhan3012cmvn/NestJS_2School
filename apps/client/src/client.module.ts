@@ -14,6 +14,7 @@ import { SetOfQuestionsModule } from '../set-of-questions/set-of-questions.modul
 import { SocketModule } from '../socket/socket.module';
 import { UpLoadFileModule } from '../up-load-file/up-load-file.module';
 import { RoadMapContentModule } from '../road-map-content/roadMapContent.module';
+import { MemberClassModule } from '../memberClass/memberClass.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { RoadMapContentModule } from '../road-map-content/roadMapContent.module'
     SocketModule,
     HealcheckModule,
     UpLoadFileModule,
+    // MemberClassModule,
   ],
 })
 export class ClientModule {}

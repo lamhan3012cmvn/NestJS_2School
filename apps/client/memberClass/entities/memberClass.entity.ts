@@ -10,16 +10,16 @@ import { DFStatus } from 'apps/share/enums/status.enum';
 export class MemberClasses extends BaseModel<MemberClasses> {
   @prop()
   @Expose()
-  idUser?: string;
+  idUser: string;
   @prop()
   @Expose()
-  idClass?: string;
+  idClass: string;
   @prop({ default: 0 })
   @Expose()
-  role?: number;
+  role: number;
   @prop({ default: DFStatus.Active })
   @Expose()
-  status?: number;
+  status: number;
 
   static get model(): ModelType<MemberClasses> {
     return new MemberClasses().getModelForClass(MemberClasses, {

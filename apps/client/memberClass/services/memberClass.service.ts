@@ -138,16 +138,16 @@ export class MemberClassService extends BaseService<MemberClasses> {
         idClass: idClass,
         status: status,
       };
-      console.log(
-        `LHA:  ===> file: memberClass.service.ts ===> line 98 ===> obj`,
-        obj,
-      );
+      // console.log(
+      //   `LHA:  ===> file: memberClass.service.ts ===> line 98 ===> obj`,
+      //   obj,
+      // );
 
-      const memberClass = await this._model.find(obj).lean();
-      console.log(
-        `LHA:  ===> file: memberClass.service.ts ===> line 100 ===> memberClass`,
-        memberClass,
-      );
+      const memberClass = await this._model.find(obj).select('idUser').lean();
+      // console.log(
+      //   `LHA:  ===> file: memberClass.service.ts ===> line 100 ===> memberClass`,
+      //   memberClass,
+      // );
 
       return this.cvtJSON(memberClass);
     } catch (e) {

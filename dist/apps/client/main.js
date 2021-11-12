@@ -2517,9 +2517,7 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
                 idClass: idClass,
                 status: status,
             };
-            console.log(`LHA:  ===> file: memberClass.service.ts ===> line 98 ===> obj`, obj);
-            const memberClass = await this._model.find(obj).lean();
-            console.log(`LHA:  ===> file: memberClass.service.ts ===> line 100 ===> memberClass`, memberClass);
+            const memberClass = await this._model.find(obj).select('idUser').lean();
             return this.cvtJSON(memberClass);
         }
         catch (e) {
@@ -3007,6 +3005,7 @@ UserModule = __decorate([
         ],
         controllers: [user_controller_1.UserController],
         providers: [user_service_1.UserService, up_load_file_service_1.UpLoadFileService, logger_service_1.LoggerService],
+        exports: [user_service_1.UserService],
     })
 ], UserModule);
 exports.UserModule = UserModule;
@@ -4437,11 +4436,7 @@ let AppGateway = class AppGateway {
             questions: mapIdQuestions,
         });
         if (userHostSocket) {
-            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 85 ===> payload.idClass`, payload.idClass);
-            const listMember = await this._memberClassService.getMemberByClass(payload.idClass);
-            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 90 ===> listMember`, listMember);
-            const listMember2 = await this._memberClassService.getMemberNotifyByClass(payload.idClass);
-            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 96 ===> listMember2`, listMember2);
+            const listMember = await this._memberClassService.getMemberNotifyByClass(payload.idClass);
             for (const member of listMember) {
                 const noti = {
                     idUser: member.idUser,

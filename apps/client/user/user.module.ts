@@ -17,5 +17,6 @@ import { UpLoadFile } from '../up-load-file/entities/upLoadFile.entity';
   ],
   controllers: [UserController],
   providers: [UserService, UpLoadFileService, LoggerService],
+  exports: [UserService],
 })
 export class UserModule {}
