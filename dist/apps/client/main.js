@@ -30,6 +30,7 @@ const set_of_questions_module_1 = __webpack_require__(80);
 const socket_module_1 = __webpack_require__(87);
 const up_load_file_module_1 = __webpack_require__(102);
 const roadMapContent_module_1 = __webpack_require__(112);
+const memberClass_module_1 = __webpack_require__(132);
 let ClientModule = class ClientModule {
 };
 ClientModule = __decorate([
@@ -49,6 +50,7 @@ ClientModule = __decorate([
             socket_module_1.SocketModule,
             healcheck_module_1.HealcheckModule,
             up_load_file_module_1.UpLoadFileModule,
+            memberClass_module_1.MemberClassModule,
         ],
     })
 ], ClientModule);
@@ -4437,6 +4439,7 @@ let AppGateway = class AppGateway {
         });
         if (userHostSocket) {
             const listMember = await this._memberClassService.getMemberNotifyByClass(payload.idClass);
+            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 86 ===> listMember`, listMember);
             for (const member of listMember) {
                 const noti = {
                     idUser: member.idUser,
@@ -7122,6 +7125,166 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var MemberClassModule_1;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.MemberClassModule = void 0;
+const device_service_1 = __webpack_require__(43);
+const notification_service_1 = __webpack_require__(100);
+const notification_entity_1 = __webpack_require__(101);
+const up_load_file_service_1 = __webpack_require__(50);
+const user_entity_1 = __webpack_require__(19);
+const user_service_1 = __webpack_require__(48);
+const logger_service_1 = __webpack_require__(12);
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(20);
+const memberClass_entity_1 = __webpack_require__(54);
+const memberClass_service_1 = __webpack_require__(53);
+const memberClass_controller_1 = __webpack_require__(133);
+const user_module_1 = __webpack_require__(60);
+const user_entity_2 = __webpack_require__(19);
+const upLoadFile_entity_1 = __webpack_require__(52);
+const device_module_1 = __webpack_require__(41);
+const device_entity_1 = __webpack_require__(42);
+let MemberClassModule = MemberClassModule_1 = class MemberClassModule {
+};
+MemberClassModule = MemberClassModule_1 = __decorate([
+    common_1.Module({
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: memberClass_entity_1.MemberClasses.modelName, schema: memberClass_entity_1.MemberClasses.model.schema },
+                ,
+                { name: user_entity_2.User.name, schema: user_entity_1.UserSchema },
+                { name: upLoadFile_entity_1.UpLoadFile.modelName, schema: upLoadFile_entity_1.UpLoadFile.model.schema },
+                { name: notification_entity_1.Notification.name, schema: notification_entity_1.Notification.model.modelName },
+                { name: device_entity_1.Device.modelName, schema: device_entity_1.Device.model.schema },
+                ,
+            ]),
+            user_module_1.UserModule,
+            MemberClassModule_1,
+            device_module_1.DeviceModule,
+        ],
+        controllers: [memberClass_controller_1.MemberClassController],
+        providers: [
+            logger_service_1.LoggerService,
+            memberClass_service_1.MemberClassService,
+            up_load_file_service_1.UpLoadFileService,
+            user_service_1.UserService,
+            notification_service_1.NotificationService,
+            device_service_1.DeviceService,
+        ],
+        exports: [memberClass_service_1.MemberClassService],
+    })
+], MemberClassModule);
+exports.MemberClassModule = MemberClassModule;
+
+
+/***/ }),
+/* 133 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b, _c, _d;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.MemberClassController = void 0;
+const user_decorator_1 = __webpack_require__(16);
+const jwt_auth_guard_1 = __webpack_require__(17);
+const common_1 = __webpack_require__(3);
+const user_entity_1 = __webpack_require__(19);
+const logger_service_1 = __webpack_require__(12);
+const baseController_1 = __webpack_require__(31);
+const memberClass_service_1 = __webpack_require__(53);
+const resource_exception_1 = __webpack_require__(21);
+const errors_exception_1 = __webpack_require__(30);
+const notification_service_1 = __webpack_require__(100);
+let MemberClassController = class MemberClassController {
+    constructor(loggerService, _memberClassService, _notificationService) {
+        this.loggerService = loggerService;
+        this._memberClassService = _memberClassService;
+        this._notificationService = _notificationService;
+    }
+    async getMemberClass(user, query) {
+        try {
+            const result = await this._memberClassService.getMemberByClass(query.idClass);
+            if (result) {
+                return new baseController_1.Ok('Get List Member Success', result);
+            }
+            throw new resource_exception_1.ResourceFoundException('Get List Member Fail');
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'get-MemberClassController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+    async getMemberClass_asbd(query) {
+        try {
+            const result = await this._memberClassService.getMemberNotifyByClass(query.idClass);
+            for (const member of result) {
+                const noti = {
+                    idUser: member.idUser,
+                    title: 'Kiem Tra Quizz',
+                    description: 'Bạn đã được phân công làm bài kiểm tra',
+                    typeNotify: 'quiz',
+                    data: '123',
+                };
+                this._notificationService.createNotification(noti);
+            }
+            if (result) {
+                return new baseController_1.Ok('Get List Member Success', result);
+            }
+            throw new resource_exception_1.ResourceFoundException('Get List Member Fail');
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'get-MemberClassController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+};
+__decorate([
+    common_1.Get(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object, Object]),
+    __metadata("design:returntype", Promise)
+], MemberClassController.prototype, "getMemberClass", null);
+__decorate([
+    common_1.Get('/abc'),
+    __param(0, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MemberClassController.prototype, "getMemberClass_asbd", null);
+MemberClassController = __decorate([
+    common_1.Controller('api/memberClass'),
+    __metadata("design:paramtypes", [typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _c : Object, typeof (_d = typeof notification_service_1.NotificationService !== "undefined" && notification_service_1.NotificationService) === "function" ? _d : Object])
+], MemberClassController);
+exports.MemberClassController = MemberClassController;
+
+
+/***/ }),
+/* 134 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
@@ -7175,31 +7338,31 @@ exports.HttpExceptionFilter = HttpExceptionFilter;
 
 
 /***/ }),
-/* 133 */
+/* 135 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
 
 /***/ }),
-/* 134 */
+/* 136 */
 /***/ ((module) => {
 
 module.exports = require("express-rate-limit");
 
 /***/ }),
-/* 135 */
+/* 137 */
 /***/ ((module) => {
 
 module.exports = require("helmet");
 
 /***/ }),
-/* 136 */
+/* 138 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupSwagger = void 0;
-const swagger_1 = __webpack_require__(137);
+const swagger_1 = __webpack_require__(139);
 function setupSwagger(app, config) {
     const options = new swagger_1.DocumentBuilder()
         .setTitle(config.title || 'DocumentApi')
@@ -7215,21 +7378,21 @@ exports.setupSwagger = setupSwagger;
 
 
 /***/ }),
-/* 137 */
+/* 139 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
 
 /***/ }),
-/* 138 */
+/* 140 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RedisIoAdapter = void 0;
-const platform_socket_io_1 = __webpack_require__(139);
-const redis_1 = __webpack_require__(140);
-const socket_io_redis_1 = __webpack_require__(141);
+const platform_socket_io_1 = __webpack_require__(141);
+const redis_1 = __webpack_require__(142);
+const socket_io_redis_1 = __webpack_require__(143);
 const pubClient = new redis_1.RedisClient({ host: 'localhost', port: 6379 });
 const subClient = pubClient.duplicate();
 const redisAdapter = socket_io_redis_1.createAdapter({ pubClient, subClient });
@@ -7244,19 +7407,19 @@ exports.RedisIoAdapter = RedisIoAdapter;
 
 
 /***/ }),
-/* 139 */
+/* 141 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-socket.io");
 
 /***/ }),
-/* 140 */
+/* 142 */
 /***/ ((module) => {
 
 module.exports = require("redis");
 
 /***/ }),
-/* 141 */
+/* 143 */
 /***/ ((module) => {
 
 module.exports = require("socket.io-redis");
@@ -7296,17 +7459,17 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const client_module_1 = __webpack_require__(1);
-const http_exception_filter_1 = __webpack_require__(132);
+const http_exception_filter_1 = __webpack_require__(134);
 const config_service_1 = __webpack_require__(8);
 const logger_service_1 = __webpack_require__(12);
 const shared_module_1 = __webpack_require__(6);
-const core_1 = __webpack_require__(133);
+const core_1 = __webpack_require__(135);
 const platform_express_1 = __webpack_require__(104);
-const rateLimit = __webpack_require__(134);
-const helmet = __webpack_require__(135);
+const rateLimit = __webpack_require__(136);
+const helmet = __webpack_require__(137);
 const common_1 = __webpack_require__(3);
-const setup_1 = __webpack_require__(136);
-const RedisIoAdapter_1 = __webpack_require__(138);
+const setup_1 = __webpack_require__(138);
+const RedisIoAdapter_1 = __webpack_require__(140);
 const fire = __webpack_require__(5);
 const fs = __webpack_require__(107);
 async function bootstrap() {

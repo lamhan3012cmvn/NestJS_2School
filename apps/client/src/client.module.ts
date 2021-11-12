@@ -32,7 +32,7 @@ import { MemberClassModule } from '../memberClass/memberClass.module';
     SocketModule,
     HealcheckModule,
     UpLoadFileModule,
-    // MemberClassModule,
+    MemberClassModule,
   ],
 })
 export class ClientModule {}
