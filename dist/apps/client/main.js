@@ -1657,9 +1657,12 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
         this._model = _deviceModel;
     }
     async createDevice(payload) {
+        console.log(`LHA:  ===> file: device.service.ts ===> line 21 ===> payload`, payload);
         try {
             const newDevice = device_entity_1.Device.createModel(payload);
+            console.log(`LHA:  ===> file: device.service.ts ===> line 27 ===> newDevice`, newDevice);
             const result = await this.create(newDevice);
+            console.log(`LHA:  ===> file: device.service.ts ===> line 29 ===> result`, result);
             return JSON.parse(JSON.stringify(result));
         }
         catch (e) {
@@ -4558,7 +4561,8 @@ let AppGateway = class AppGateway {
         this.server.to(idRoom).emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
     }
     async handleSaveDevice(client, payload) {
-        await this._deviceService.createDevice(Object.assign(Object.assign({}, payload), { createdBy: client.user.createdBy }));
+        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 275 ===> payload`, payload);
+        await this._deviceService.createDevice(Object.assign(Object.assign({}, payload), { createdBy: 'client.user.createdBy' }));
     }
     async handleAnswerTheQuestion(client, payload) {
         console.log('ANSWER_THE_QUESTION_CSS', payload);
@@ -4686,7 +4690,6 @@ __decorate([
     __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
 ], AppGateway.prototype, "handleLeaveRoom", null);
 __decorate([
-    common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.SEND_FCM_TOKEN_CSS),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),

@@ -261,7 +261,7 @@ export class AppGateway
     this.server.to(idRoom).emit(SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
   }
   // SEND_FCM_TOKEN_CSS
-  @UseGuards(WsJwtGuard)
+  // @UseGuards(WsJwtGuard)
   @SubscribeMessage(SOCKET_EVENT.SEND_FCM_TOKEN_CSS)
   private async handleSaveDevice(
     client: typeSocket,
@@ -272,9 +272,13 @@ export class AppGateway
       fcmToken: string;
     },
   ): Promise<void> {
+    console.log(
+      `LHA:  ===> file: socket.gateway.ts ===> line 275 ===> payload`,
+      payload,
+    );
     await this._deviceService.createDevice({
       ...payload,
-      createdBy: client.user.createdBy,
+      createdBy: 'client.user.createdBy',
     });
   }
 
