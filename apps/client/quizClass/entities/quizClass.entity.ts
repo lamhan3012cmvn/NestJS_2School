@@ -10,12 +10,12 @@ export class QuizClass extends BaseModel<QuizClass> {
   setOfQuestionId: string;
   @prop({ required: true })
   score: number;
-  @prop({ default: '' })
+  @prop({ required: true })
   title: string;
   @prop({ required: true })
   createBy: string;
   @prop({ default: false })
-  isShow: string;
+  isShow: boolean;
   @prop({ default: DFStatus.Active })
   status: number;
 

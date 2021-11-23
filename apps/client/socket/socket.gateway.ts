@@ -98,11 +98,6 @@ export class AppGateway
       const listMember = await this._memberClassService.getMemberNotifyByClass(
         payload.idClass,
       );
-      console.log(
-        `LHA:  ===> file: socket.gateway.ts ===> line 101 ===> listMember`,
-        listMember,
-      );
-      // getMemberNotifyByClass
       for (const member of listMember) {
         const noti: any = {
           idUser: member.idUser,
@@ -111,10 +106,6 @@ export class AppGateway
           typeNotify: 'quiz',
           data: idRoom,
         };
-        console.log(
-          `LHA:  ===> file: socket.gateway.ts ===> line 105 ===> noti`,
-          noti,
-        );
         this._notificationService.createNotification(noti);
       }
 
@@ -268,13 +259,13 @@ export class AppGateway
 
   private async handleNotifyEndQuiz(host: UserHostSocket): Promise<void> {
     console.log('Run end Notify End Quiz');
-    this.server.in(host.idRoom).emit(SOCKET_EVENT.END_QUIZ_SSC, {
-      msg: 'End Quiz',
-      success: true,
-    });
+    // this.server.in(host.idRoom).emit(SOCKET_EVENT.END_QUIZ_SSC, {
+    //   msg: 'End Quiz',
+    //   success: true,
+    // });
     const classScore = await this._quizClassService.createQuizClass({
       classId: host.idClass,
-      setOfQuestion: host.idSetOfQuestions,
+      setOfQuestionId: host.idSetOfQuestions,
       title: host.title,
       createBy: host.createBy,
       score: host.score,
@@ -283,13 +274,28 @@ export class AppGateway
       const listMember = await this._userScoreQuizSocketService.findScore(
         host.idRoom,
       );
+      const listQuizClassScore = [];
       for (const user of listMember) {
-        this._quizClassScoreService.createQuizClassScore({
-          memberId: user._id.idUser,
-          score: user.score,
-          quizClassId: classScore._id,
-        });
+        const resultSaveQuizClass =
+          await this._quizClassScoreService.createQuizClassScore({
+            memberId: user._id.idUser,
+            score: user.score,
+            quizClassId: classScore._id,
+          });
+        if (resultSaveQuizClass) {
+          listQuizClassScore.push(resultSaveQuizClass);
+        }
       }
+      this.server
+        .in(host.idRoom)
+        .emit(SOCKET_EVENT.STATISTICAL_ROOM_FINAL_SSC, {
+          msg: 'STATISTICAL_ROOM_FINAL_SSC',
+          success: true,
+          data: {
+            member: listQuizClassScore,
+            class: classScore,
+          },
+        });
       for (const user of listMember) {
         this._userScoreQuizSocketService.removeUserHostSocket(
           user._id.idUser,
@@ -417,6 +423,7 @@ export class AppGateway
         answers: currentQuestion.answers,
         duration: currentQuestion.duration,
         idRoom: host.idRoom,
+        indexQuestion: `${host.currentQuestion + 1}/${host.questions.length}`,
       };
       const nextGame = await this._userHostSocketService.findOneAndUpdate(
         { _id: host._id },
@@ -439,15 +446,17 @@ export class AppGateway
             idRoom: host.idRoom,
           });
 
-          const payload = {
-            idRoom: host.idRoom,
-            answer: null,
-            idQuestion: currentQuestion._id,
-          };
+          // const payload = {
+          //   idRoom: host.idRoom,
+          //   answer: null,
+          //   idQuestion: currentQuestion._id,
+          // };
 
           for (const uda of userDontAnswer) {
             await this._userScoreQuizSocketService.createUserHostSocket({
-              ...payload,
+              idRoom: host.idRoom,
+              answer: null,
+              idQuestion: currentQuestion._id,
               score: 0,
               question: currentQuestion.question,
               userId: uda.userId,

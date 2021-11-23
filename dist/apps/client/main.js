@@ -4640,7 +4640,6 @@ let AppGateway = class AppGateway {
         });
         if (userHostSocket) {
             const listMember = await this._memberClassService.getMemberNotifyByClass(payload.idClass);
-            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 101 ===> listMember`, listMember);
             for (const member of listMember) {
                 const noti = {
                     idUser: member.idUser,
@@ -4649,7 +4648,6 @@ let AppGateway = class AppGateway {
                     typeNotify: 'quiz',
                     data: idRoom,
                 };
-                console.log(`LHA:  ===> file: socket.gateway.ts ===> line 105 ===> noti`, noti);
                 this._notificationService.createNotification(noti);
             }
             this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_SSC, {
@@ -4780,26 +4778,36 @@ let AppGateway = class AppGateway {
     }
     async handleNotifyEndQuiz(host) {
         console.log('Run end Notify End Quiz');
-        this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.END_QUIZ_SSC, {
-            msg: 'End Quiz',
-            success: true,
-        });
         const classScore = await this._quizClassService.createQuizClass({
             classId: host.idClass,
-            setOfQuestion: host.idSetOfQuestions,
+            setOfQuestionId: host.idSetOfQuestions,
             title: host.title,
             createBy: host.createBy,
             score: host.score,
         });
         if (classScore) {
             const listMember = await this._userScoreQuizSocketService.findScore(host.idRoom);
+            const listQuizClassScore = [];
             for (const user of listMember) {
-                this._quizClassScoreService.createQuizClassScore({
+                const resultSaveQuizClass = await this._quizClassScoreService.createQuizClassScore({
                     memberId: user._id.idUser,
                     score: user.score,
                     quizClassId: classScore._id,
                 });
+                if (resultSaveQuizClass) {
+                    listQuizClassScore.push(resultSaveQuizClass);
+                }
             }
+            this.server
+                .in(host.idRoom)
+                .emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_FINAL_SSC, {
+                msg: 'STATISTICAL_ROOM_FINAL_SSC',
+                success: true,
+                data: {
+                    member: listQuizClassScore,
+                    class: classScore,
+                },
+            });
             for (const user of listMember) {
                 this._userScoreQuizSocketService.removeUserHostSocket(user._id.idUser, host.idRoom);
             }
@@ -4878,6 +4886,7 @@ let AppGateway = class AppGateway {
                 answers: currentQuestion.answers,
                 duration: currentQuestion.duration,
                 idRoom: host.idRoom,
+                indexQuestion: `${host.currentQuestion + 1}/${host.questions.length}`,
             };
             const nextGame = await this._userHostSocketService.findOneAndUpdate({ _id: host._id }, { currentQuestion: host.currentQuestion + 1 });
             console.log('host.currentQuestion', host.currentQuestion);
@@ -4895,13 +4904,16 @@ let AppGateway = class AppGateway {
                         userId: { $nin: userAnswer.map((e) => e.userId) },
                         idRoom: host.idRoom,
                     });
-                    const payload = {
-                        idRoom: host.idRoom,
-                        answer: null,
-                        idQuestion: currentQuestion._id,
-                    };
                     for (const uda of userDontAnswer) {
-                        await this._userScoreQuizSocketService.createUserHostSocket(Object.assign(Object.assign({}, payload), { score: 0, question: currentQuestion.question, userId: uda.userId, socketId: '' }));
+                        await this._userScoreQuizSocketService.createUserHostSocket({
+                            idRoom: host.idRoom,
+                            answer: null,
+                            idQuestion: currentQuestion._id,
+                            score: 0,
+                            question: currentQuestion.question,
+                            userId: uda.userId,
+                            socketId: '',
+                        });
                     }
                     this.handleStatistQuiz(host.idRoom, host.questions[host.currentQuestion]);
                     setTimeout(() => {
@@ -5643,7 +5655,7 @@ __decorate([
     __metadata("design:type", Number)
 ], QuizClass.prototype, "score", void 0);
 __decorate([
-    typegoose_1.prop({ default: '' }),
+    typegoose_1.prop({ required: true }),
     __metadata("design:type", String)
 ], QuizClass.prototype, "title", void 0);
 __decorate([
@@ -5652,7 +5664,7 @@ __decorate([
 ], QuizClass.prototype, "createBy", void 0);
 __decorate([
     typegoose_1.prop({ default: false }),
-    __metadata("design:type", String)
+    __metadata("design:type", Boolean)
 ], QuizClass.prototype, "isShow", void 0);
 __decorate([
     typegoose_1.prop({ default: status_enum_1.DFStatus.Active }),
@@ -5678,31 +5690,33 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b;
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.QuizClassScoreService = void 0;
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
+const user_service_1 = __webpack_require__(50);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
 const quizClassScore_entity_1 = __webpack_require__(105);
 let QuizClassScoreService = class QuizClassScoreService extends baseService_service_1.BaseService {
-    constructor(_quizClassScoreModel, _loggerService) {
+    constructor(_quizClassScoreModel, _userService, _loggerService) {
         super();
         this._quizClassScoreModel = _quizClassScoreModel;
+        this._userService = _userService;
         this._loggerService = _loggerService;
         this._model = _quizClassScoreModel;
     }
     async createQuizClassScore(payload) {
         try {
             const obj = Object.assign({}, payload);
-            console.log(`LHA:  ===> file: quizClassScore.service.ts ===> line 26 ===> obj`, obj);
             const model = quizClassScore_entity_1.QuizClassScore.createModel(obj);
-            console.log(`LHA:  ===> file: quizClassScore.service.ts ===> line 31 ===> model`, model);
             const quizClassScore = await this.create(model);
             if (quizClassScore) {
-                return this.cvtJSON(quizClassScore);
+                return Object.assign(Object.assign({}, this.cvtJSON(quizClassScore)), { user: await this._userService.findOne({
+                        createdBy: quizClassScore.memberId,
+                    }) });
             }
             return null;
         }
@@ -5716,7 +5730,7 @@ let QuizClassScoreService = class QuizClassScoreService extends baseService_serv
 QuizClassScoreService = __decorate([
     common_1.Injectable(),
     __param(0, mongoose_1.InjectModel(quizClassScore_entity_1.QuizClassScore.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof user_service_1.UserService !== "undefined" && user_service_1.UserService) === "function" ? _b : Object, typeof (_c = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _c : Object])
 ], QuizClassScoreService);
 exports.QuizClassScoreService = QuizClassScoreService;
 

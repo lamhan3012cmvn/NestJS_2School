@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { UserService } from 'apps/client/user/service/user.service';
 import { BaseService } from 'apps/share/services/baseService.service';
 import { LoggerService } from 'apps/share/services/logger.service';
 import { ModelType } from 'typegoose';
@@ -10,6 +11,7 @@ export class QuizClassScoreService extends BaseService<QuizClassScore> {
   constructor(
     @InjectModel(QuizClassScore.modelName)
     private readonly _quizClassScoreModel: ModelType<QuizClassScore>,
+    private readonly _userService: UserService,
     private readonly _loggerService: LoggerService,
   ) {
     super();
@@ -23,18 +25,15 @@ export class QuizClassScoreService extends BaseService<QuizClassScore> {
   }): Promise<QuizClassScore> {
     try {
       const obj: any = { ...payload };
-      console.log(
-        `LHA:  ===> file: quizClassScore.service.ts ===> line 26 ===> obj`,
-        obj,
-      );
       const model = QuizClassScore.createModel(obj);
-      console.log(
-        `LHA:  ===> file: quizClassScore.service.ts ===> line 31 ===> model`,
-        model,
-      );
       const quizClassScore = await this.create(model);
       if (quizClassScore) {
-        return this.cvtJSON(quizClassScore) as QuizClassScore;
+        return {
+          ...this.cvtJSON(quizClassScore),
+          user: await this._userService.findOne({
+            createdBy: quizClassScore.memberId,
+          }),
+        };
       }
       return null;
     } catch (e) {
