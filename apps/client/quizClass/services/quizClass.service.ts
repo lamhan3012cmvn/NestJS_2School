@@ -15,4 +15,20 @@ export class QuizClassService extends BaseService<QuizClass> {
     super();
     this._model = _quizClassModel;
   }
+
+  async createQuizClass(payload): Promise<QuizClass> {
+    try {
+      const obj: any = { ...payload };
+      const model = QuizClass.createModel(obj);
+      const quizClass = await this.create(model);
+      if (quizClass) {
+        return this.cvtJSON(quizClass) as QuizClass;
+      }
+      return null;
+    } catch (e) {
+      console.log(e);
+      this._loggerService.error(e.message, null, 'CREATE_quizClass');
+      return null;
+    }
+  }
 }

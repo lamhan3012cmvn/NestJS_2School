@@ -32,10 +32,6 @@ export class NotificationService extends BaseService<Notification> {
     // const obj: any = { ...notification };
     const model = Notification.createModel(notification);
     const newNotification = await this.create(model);
-    console.log(
-      `LHA:  ===> file: notification.service.ts ===> line 35 ===> newNotification`,
-      newNotification,
-    );
     if (newNotification) {
       this._loggerService.info(`Create new notification success`);
       //Notify

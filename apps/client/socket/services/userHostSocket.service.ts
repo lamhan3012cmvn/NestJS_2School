@@ -40,4 +40,24 @@ export class UserHostSocketService extends BaseService<UserHostSocket> {
       return null;
     }
   }
+
+  async removeUserHostSocket(
+    idUser: string,
+    idRoom: string,
+  ): Promise<UserHostSocket> {
+    try {
+      await this._model.deleteOne({
+        createBy: idUser,
+        play: true,
+        idRoom: idRoom,
+      });
+    } catch (e) {
+      this._loggerService.error(
+        e.message,
+        null,
+        'REMOVE-UserHostSocketService',
+      );
+      return null;
+    }
+  }
 }

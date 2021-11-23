@@ -29,6 +29,10 @@ import { MemberClassService } from '../memberClass/services/memberClass.service'
 import { NotificationService } from '../notifycation/services/notification.service';
 import { MemberClasses } from '../memberClass/entities/memberClass.entity';
 import { Notification } from '../notifycation/entities/notification.entity';
+import { QuizClass } from '../quizClass/entities/quizClass.entity';
+import { QuizClassScore } from '../quizClassScore/entities/quizClassScore.entity';
+import { QuizClassScoreService } from '../quizClassScore/services/quizClassScore.service';
+import { QuizClassService } from '../quizClass/services/quizClass.service';
 
 @Module({
   imports: [
@@ -53,6 +57,14 @@ import { Notification } from '../notifycation/entities/notification.entity';
       { name: Device.modelName, schema: Device.model.schema },
       { name: MemberClasses.modelName, schema: MemberClasses.model.schema },
       { name: Notification.modelName, schema: Notification.model.schema },
+      {
+        name: QuizClass.modelName,
+        schema: QuizClass.model.schema,
+      },
+      {
+        name: QuizClassScore.modelName,
+        schema: QuizClassScore.model.schema,
+      },
     ]),
     ConfigModule,
     JwtModule.registerAsync(setupJWT('JWT_SECRET')),
@@ -73,6 +85,8 @@ import { Notification } from '../notifycation/entities/notification.entity';
     DeviceService,
     MemberClassService,
     NotificationService,
+    QuizClassService,
+    QuizClassScoreService,
   ],
 })
 export class SocketModule {}

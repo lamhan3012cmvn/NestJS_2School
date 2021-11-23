@@ -36,4 +36,48 @@ export class UserScoreQuizSocketService extends BaseService<UserScoreQuizSocket>
       return null;
     }
   }
+
+  async findScore(idRoom: string): Promise<any[]> {
+    try {
+      const score = await this._model.aggregate([
+        { $match: { idRoom: idRoom } },
+        {
+          $group: {
+            _id: { idUser: '$userId' },
+            score: { $sum: '$score' },
+          },
+        },
+      ]);
+      console.log(
+        `LHA:  ===> file: userScoreQuizSocket.service.ts ===> line 51 ===> score`,
+        score,
+      );
+      return this.cvtJSON(score) as any[];
+    } catch (e) {
+      this._loggerService.error(e.message, null, 'FIND-UserHostSocketService');
+      return null;
+    }
+  }
+  async removeUserHostSocket(id: string, idRoom: string): Promise<any> {
+    try {
+      const reuslt = await this._model.deleteMany({
+        userId: id,
+        idRoom: idRoom,
+      });
+      console.log(
+        `LHA:  ===> file: userScoreQuizSocket.service.ts ===> line 65 ===> reuslt`,
+        reuslt,
+      );
+      return {
+        success: true,
+      };
+    } catch (e) {
+      this._loggerService.error(
+        e.message,
+        null,
+        'REMOVE-UserHostSocketService',
+      );
+      return null;
+    }
+  }
 }

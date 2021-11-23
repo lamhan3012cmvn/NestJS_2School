@@ -4,14 +4,12 @@ import { InstanceType, ModelType, prop } from 'typegoose';
 import { DFStatus } from 'apps/share/enums/status.enum';
 
 export class QuizClassScore extends BaseModel<QuizClassScore> {
-  @prop({ default: '' })
-  questionId: string;
-  @prop({ default: '' })
+  @prop({ required: true })
   memberId: string;
-  @prop({ default: '' })
-  score: string;
-  @prop({ default: false })
-  QuizClassId: string;
+  @prop({ required: true })
+  score: number;
+  @prop({ required: true })
+  quizClassId: string;
 
   static get model(): ModelType<QuizClassScore> {
     return new QuizClassScore().getModelForClass(QuizClassScore, {

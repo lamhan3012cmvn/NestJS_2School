@@ -1,6 +1,6 @@
 import { BaseModel } from 'apps/share/mongodb/baseModel.entity';
 import { schemaOptions } from '../../../share/mongodb/baseModel.entity';
-import { InstanceType, ModelType, prop } from 'typegoose';
+import { index, InstanceType, ModelType, prop } from 'typegoose';
 import { DFStatus } from 'apps/share/enums/status.enum';
 
 export class QuizClass extends BaseModel<QuizClass> {
@@ -8,8 +8,12 @@ export class QuizClass extends BaseModel<QuizClass> {
   classId: string;
   @prop({ default: '' })
   setOfQuestionId: string;
+  @prop({ required: true })
+  score: number;
   @prop({ default: '' })
   title: string;
+  @prop({ required: true })
+  createBy: string;
   @prop({ default: false })
   isShow: string;
   @prop({ default: DFStatus.Active })

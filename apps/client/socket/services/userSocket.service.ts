@@ -56,4 +56,24 @@ export class UserMemberSocketService extends BaseService<UserMemberSocket> {
       return false;
     }
   }
+
+  async removeUserByRoom(idRoom: string): Promise<boolean> {
+    try {
+      const rmMember = await this._userMemberSocket.deleteMany({
+        idRoom: idRoom,
+      });
+      if (rmMember) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      console.log(e);
+      this._loggerService.error(
+        e.message,
+        null,
+        'CREATE-UserHostSocketService',
+      );
+      return false;
+    }
+  }
 }

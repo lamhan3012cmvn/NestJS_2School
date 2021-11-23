@@ -14,6 +14,18 @@ export class UserHostSocket extends BaseModel<UserHostSocket> {
   @prop({ default: '' })
   @Expose()
   createBy: string;
+  @prop({ default: '' })
+  @Expose()
+  idSetOfQuestions: string;
+  @prop({ default: '' })
+  @Expose()
+  idClass: string;
+  @prop({ required: true })
+  @Expose()
+  score: number;
+  @prop({ default: '' })
+  @Expose()
+  title: string;
   @prop({ default: [] })
   @Expose()
   questions: Array<string>;

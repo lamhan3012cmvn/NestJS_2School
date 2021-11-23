@@ -24,6 +24,8 @@ import { DeviceService } from '../device/services/device.service';
 import { MemberClassService } from '../memberClass/services/memberClass.service';
 import { Notification } from '../notifycation/entities/notification.entity';
 import { NotificationService } from '../notifycation/services/notification.service';
+import { QuizClassService } from '../quizClass/services/quizClass.service';
+import { QuizClassScoreService } from '../quizClassScore/services/quizClassScore.service';
 
 type typeSocket = Socket & { user: any };
 @WebSocketGateway({ cors: true })
@@ -32,6 +34,8 @@ export class AppGateway
 {
   constructor(
     private readonly _questionService: QuestionService,
+    private readonly _quizClassService: QuizClassService,
+    private readonly _quizClassScoreService: QuizClassScoreService,
     private readonly _userHostSocketService: UserHostSocketService,
     private readonly _userScoreQuizSocketService: UserScoreQuizSocketService,
     private readonly _userMemberSocketService: UserMemberSocketService,
@@ -39,9 +43,7 @@ export class AppGateway
     private readonly _deviceService: DeviceService,
     private readonly _memberClassService: MemberClassService,
     private readonly _notificationService: NotificationService,
-  ) {
-    // this._redisSocket = {};
-  }
+  ) {}
 
   @WebSocketServer() private server: Server;
   private logger: Logger = new Logger('AppGateway');
@@ -50,7 +52,12 @@ export class AppGateway
   @SubscribeMessage(SOCKET_EVENT.CREATE_QUIZ_CSS)
   private async handleCreateRoom(
     client: typeSocket,
-    payload: { idSetOfQuestions: string; idClass: string },
+    payload: {
+      idSetOfQuestions: string;
+      idClass: string;
+      title: string;
+      description: string;
+    },
   ): Promise<void> {
     console.log(client.id);
     const questions = await this._questionService.findAll({
@@ -69,6 +76,10 @@ export class AppGateway
       .map((e) => e._id)
       .sort(() => Math.random() - 0.5);
 
+    const score = questions.reduce((t, v) => {
+      return t + v.score;
+    }, 0);
+
     const idRoom = RandomFunc();
     client.join(idRoom);
 
@@ -76,26 +87,34 @@ export class AppGateway
       await this._userHostSocketService.createUserHostSocket({
         idRoom: idRoom,
         host: client.id,
+        idClass: payload.idClass,
         createBy: client.user.createdBy,
         questions: mapIdQuestions,
+        title: payload.title,
+        idSetOfQuestions: payload.idSetOfQuestions,
+        score: score,
       });
     if (userHostSocket) {
       const listMember = await this._memberClassService.getMemberNotifyByClass(
         payload.idClass,
       );
       console.log(
-        `LHA:  ===> file: socket.gateway.ts ===> line 86 ===> listMember`,
+        `LHA:  ===> file: socket.gateway.ts ===> line 101 ===> listMember`,
         listMember,
       );
       // getMemberNotifyByClass
       for (const member of listMember) {
         const noti: any = {
           idUser: member.idUser,
-          title: 'Kiem Tra Quizz',
-          description: 'Bạn đã được phân công làm bài kiểm tra',
+          title: payload.title,
+          description: payload.description,
           typeNotify: 'quiz',
           data: idRoom,
         };
+        console.log(
+          `LHA:  ===> file: socket.gateway.ts ===> line 105 ===> noti`,
+          noti,
+        );
         this._notificationService.createNotification(noti);
       }
 
@@ -223,6 +242,7 @@ export class AppGateway
           userId: client.user._id,
         });
       if (removeUserMember) {
+        client.leave(member.idRoom);
         this.server.in(member.idRoom).emit(SOCKET_EVENT.LEAVE_ROOM_SSC, {
           msg: 'Leave Room Success',
           idUser: client.user._id,
@@ -243,6 +263,44 @@ export class AppGateway
         success: false,
       });
       return;
+    }
+  }
+
+  private async handleNotifyEndQuiz(host: UserHostSocket): Promise<void> {
+    console.log('Run end Notify End Quiz');
+    this.server.in(host.idRoom).emit(SOCKET_EVENT.END_QUIZ_SSC, {
+      msg: 'End Quiz',
+      success: true,
+    });
+    const classScore = await this._quizClassService.createQuizClass({
+      classId: host.idClass,
+      setOfQuestion: host.idSetOfQuestions,
+      title: host.title,
+      createBy: host.createBy,
+      score: host.score,
+    });
+    if (classScore) {
+      const listMember = await this._userScoreQuizSocketService.findScore(
+        host.idRoom,
+      );
+      for (const user of listMember) {
+        this._quizClassScoreService.createQuizClassScore({
+          memberId: user._id.idUser,
+          score: user.score,
+          quizClassId: classScore._id,
+        });
+      }
+      for (const user of listMember) {
+        this._userScoreQuizSocketService.removeUserHostSocket(
+          user._id.idUser,
+          host.idRoom,
+        );
+      }
+      this._userHostSocketService.removeUserHostSocket(
+        host.createBy,
+        host.idRoom,
+      );
+      this._userMemberSocketService.removeUserByRoom(host.idRoom);
     }
   }
 
@@ -409,7 +467,10 @@ export class AppGateway
 
         return;
       }
-      this.handleStatistQuizFinal(host.idRoom);
+      return;
+    }
+    if (host.questions[host.currentQuestion] === undefined) {
+      this.handleNotifyEndQuiz(host);
       return;
     }
     this.server.in(host.idRoom).emit(SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
