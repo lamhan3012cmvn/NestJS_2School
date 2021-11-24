@@ -4743,38 +4743,8 @@ let AppGateway = class AppGateway {
             data: null,
         });
     }
-    async handleLeaveRoom(client, {}) {
-        const member = await this._userMemberSocketService.findOne({
-            userId: client.user._id,
-        });
-        if (member) {
-            const removeUserMember = await this._userMemberSocketService.findOneAndRemove({
-                userId: client.user._id,
-            });
-            if (removeUserMember) {
-                client.leave(member.idRoom);
-                this.server.in(member.idRoom).emit(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_SSC, {
-                    msg: 'Leave Room Success',
-                    idUser: client.user._id,
-                    success: true,
-                });
-                return;
-            }
-            this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_SSC, {
-                msg: 'Leave Room False (Dont find Room and remove)',
-                idUser: null,
-                success: false,
-            });
-            return;
-        }
-        else {
-            this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_SSC, {
-                msg: 'Leave Room False (Dont find User)',
-                idUser: null,
-                success: false,
-            });
-            return;
-        }
+    async handleLeaveRoom(client, payload) {
+        client.leave(payload.idRoom);
     }
     async handleNotifyEndQuiz(host) {
         console.log('Run end Notify End Quiz');
