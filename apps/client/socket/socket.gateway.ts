@@ -495,9 +495,9 @@ export class AppGateway
   @UseGuards(WsJwtGuard)
   async handleDisconnect(client: typeSocket) {
     console.log(client.user);
-    const results = await this._userMemberSocketService.findOneAndRemove({
-      userId: client.user._id,
-    });
+    // const results = await this._userMemberSocketService.findOneAndRemove({
+    //   userId: client.user._id,
+    // });
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 

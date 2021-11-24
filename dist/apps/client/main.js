@@ -4939,9 +4939,6 @@ let AppGateway = class AppGateway {
     }
     async handleDisconnect(client) {
         console.log(client.user);
-        const results = await this._userMemberSocketService.findOneAndRemove({
-            userId: client.user._id,
-        });
         this.logger.log(`Client disconnected: ${client.id}`);
     }
     handleConnection(client, ...args) {
