@@ -108,7 +108,7 @@ export class RoadMapContentService extends BaseService<RoadMapContent> {
         const result = await this.createRoadMapContent(
           payload.createdBy,
           payload.type,
-          payload.createdBy,
+          payload.idRoadMap,
           { rmc: resultRMC._id },
         );
         if (result) {

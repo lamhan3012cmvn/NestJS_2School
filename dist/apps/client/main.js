@@ -6261,7 +6261,7 @@ let RoadMapContentService = class RoadMapContentService extends baseService_serv
         try {
             const resultRMC = await this._rmcAttendanceService.createClassAttendance(payload);
             if (resultRMC) {
-                const result = await this.createRoadMapContent(payload.createdBy, payload.type, payload.createdBy, { rmc: resultRMC._id });
+                const result = await this.createRoadMapContent(payload.createdBy, payload.type, payload.idRoadMap, { rmc: resultRMC._id });
                 if (result) {
                     const cloneRMCAssignment = this.cvtJSON(result);
                     cloneRMCAssignment.rmc = this.cvtJSON(resultRMC);
