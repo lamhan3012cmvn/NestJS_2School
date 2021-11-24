@@ -5432,7 +5432,7 @@ let NotificationService = class NotificationService extends baseService_service_
     async getNotification(id) {
         const notifications = await this._model
             .find({
-            userId: id,
+            idUser: id,
             isSeen: false,
         })
             .sort({ createdAt: -1 });
@@ -5510,6 +5510,11 @@ __decorate([
     class_transformer_1.Expose(),
     __metadata("design:type", String)
 ], Notification.prototype, "description", void 0);
+__decorate([
+    typegoose_1.prop(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], Notification.prototype, "image", void 0);
 __decorate([
     typegoose_1.prop(),
     class_transformer_1.Expose(),
