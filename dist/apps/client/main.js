@@ -4502,6 +4502,8 @@ const quizClass_entity_1 = __webpack_require__(103);
 const quizClassScore_entity_1 = __webpack_require__(105);
 const quizClassScore_service_1 = __webpack_require__(104);
 const quizClass_service_1 = __webpack_require__(102);
+const class_service_1 = __webpack_require__(48);
+const class_entity_1 = __webpack_require__(49);
 let SocketModule = class SocketModule {
 };
 SocketModule = __decorate([
@@ -4536,6 +4538,7 @@ SocketModule = __decorate([
                     name: quizClassScore_entity_1.QuizClassScore.modelName,
                     schema: quizClassScore_entity_1.QuizClassScore.model.schema,
                 },
+                { name: class_entity_1.Classes.modelName, schema: class_entity_1.Classes.model.schema },
             ]),
             configService_module_1.ConfigModule,
             jwt_1.JwtModule.registerAsync(setupJwt_1.setupJWT('JWT_SECRET')),
@@ -4554,6 +4557,7 @@ SocketModule = __decorate([
             logger_service_1.LoggerService,
             socket_wsJwtGuard_1.WsJwtGuard,
             device_service_1.DeviceService,
+            class_service_1.ClassService,
             memberClass_service_1.MemberClassService,
             notification_service_1.NotificationService,
             quizClass_service_1.QuizClassService,
@@ -4578,9 +4582,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppGateway = void 0;
+const class_service_1 = __webpack_require__(48);
 const socket_events_1 = __webpack_require__(91);
 const websockets_1 = __webpack_require__(92);
 const common_1 = __webpack_require__(3);
@@ -4598,7 +4603,8 @@ const notification_service_1 = __webpack_require__(100);
 const quizClass_service_1 = __webpack_require__(102);
 const quizClassScore_service_1 = __webpack_require__(104);
 let AppGateway = class AppGateway {
-    constructor(_questionService, _quizClassService, _quizClassScoreService, _userHostSocketService, _userScoreQuizSocketService, _userMemberSocketService, _setOfQuestionsService, _deviceService, _memberClassService, _notificationService) {
+    constructor(_classService, _questionService, _quizClassService, _quizClassScoreService, _userHostSocketService, _userScoreQuizSocketService, _userMemberSocketService, _setOfQuestionsService, _deviceService, _memberClassService, _notificationService) {
+        this._classService = _classService;
         this._questionService = _questionService;
         this._quizClassService = _quizClassService;
         this._quizClassScoreService = _quizClassScoreService;
@@ -4645,6 +4651,7 @@ let AppGateway = class AppGateway {
         });
         if (userHostSocket) {
             const listMember = await this._memberClassService.getMemberNotifyByClass(payload.idClass);
+            const currentClass = await this._classService.findById(payload.idClass);
             for (const member of listMember) {
                 const noti = {
                     idUser: member.idUser,
@@ -4652,6 +4659,7 @@ let AppGateway = class AppGateway {
                     description: payload.description,
                     typeNotify: 'quiz',
                     data: idRoom,
+                    image: currentClass.image,
                 };
                 this._notificationService.createNotification(noti);
             }
@@ -4978,7 +4986,7 @@ __decorate([
 ], AppGateway.prototype, "handleConnection", null);
 AppGateway = __decorate([
     websockets_1.WebSocketGateway({ cors: true }),
-    __metadata("design:paramtypes", [typeof (_k = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _k : Object, typeof (_l = typeof quizClass_service_1.QuizClassService !== "undefined" && quizClass_service_1.QuizClassService) === "function" ? _l : Object, typeof (_m = typeof quizClassScore_service_1.QuizClassScoreService !== "undefined" && quizClassScore_service_1.QuizClassScoreService) === "function" ? _m : Object, typeof (_o = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _o : Object, typeof (_p = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _p : Object, typeof (_q = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _q : Object, typeof (_r = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _r : Object, typeof (_s = typeof device_service_1.DeviceService !== "undefined" && device_service_1.DeviceService) === "function" ? _s : Object, typeof (_t = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _t : Object, typeof (_u = typeof notification_service_1.NotificationService !== "undefined" && notification_service_1.NotificationService) === "function" ? _u : Object])
+    __metadata("design:paramtypes", [typeof (_k = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _k : Object, typeof (_l = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _l : Object, typeof (_m = typeof quizClass_service_1.QuizClassService !== "undefined" && quizClass_service_1.QuizClassService) === "function" ? _m : Object, typeof (_o = typeof quizClassScore_service_1.QuizClassScoreService !== "undefined" && quizClassScore_service_1.QuizClassScoreService) === "function" ? _o : Object, typeof (_p = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _p : Object, typeof (_q = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _q : Object, typeof (_r = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _r : Object, typeof (_s = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _s : Object, typeof (_t = typeof device_service_1.DeviceService !== "undefined" && device_service_1.DeviceService) === "function" ? _t : Object, typeof (_u = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _u : Object, typeof (_v = typeof notification_service_1.NotificationService !== "undefined" && notification_service_1.NotificationService) === "function" ? _v : Object])
 ], AppGateway);
 exports.AppGateway = AppGateway;
 
@@ -5411,22 +5419,24 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c;
+var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.NotificationService = void 0;
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const device_service_1 = __webpack_require__(44);
+const up_load_file_service_1 = __webpack_require__(52);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
 const notification_entity_1 = __webpack_require__(101);
 let NotificationService = class NotificationService extends baseService_service_1.BaseService {
-    constructor(_notificationModel, _loggerService, _deviceService) {
+    constructor(_notificationModel, _loggerService, _deviceService, _uploadFileService) {
         super();
         this._notificationModel = _notificationModel;
         this._loggerService = _loggerService;
         this._deviceService = _deviceService;
+        this._uploadFileService = _uploadFileService;
         this._model = _notificationModel;
     }
     async getNotification(id) {
@@ -5435,8 +5445,16 @@ let NotificationService = class NotificationService extends baseService_service_
             idUser: id,
             isSeen: false,
         })
-            .sort({ createdAt: -1 });
-        return this.cvtJSON(notifications);
+            .sort({ createdAt: -1 })
+            .lean();
+        const results = [];
+        for (const notification of notifications) {
+            const obj = Object.assign({}, notification);
+            const image = await this._uploadFileService.findById(notification.image);
+            obj.image = image.path;
+            results.push(obj);
+        }
+        return results;
     }
     async createNotification(notification) {
         const model = notification_entity_1.Notification.createModel(notification);
@@ -5452,7 +5470,7 @@ let NotificationService = class NotificationService extends baseService_service_
 NotificationService = __decorate([
     common_1.Injectable(),
     __param(0, mongoose_1.InjectModel(notification_entity_1.Notification.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof device_service_1.DeviceService !== "undefined" && device_service_1.DeviceService) === "function" ? _c : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof device_service_1.DeviceService !== "undefined" && device_service_1.DeviceService) === "function" ? _c : Object, typeof (_d = typeof up_load_file_service_1.UpLoadFileService !== "undefined" && up_load_file_service_1.UpLoadFileService) === "function" ? _d : Object])
 ], NotificationService);
 exports.NotificationService = NotificationService;
 
@@ -7662,6 +7680,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.NotificationModule = void 0;
+const up_load_file_service_1 = __webpack_require__(52);
 const device_module_1 = __webpack_require__(42);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
@@ -7671,6 +7690,7 @@ const notification_controller_1 = __webpack_require__(139);
 const notification_entity_1 = __webpack_require__(101);
 const notification_service_1 = __webpack_require__(100);
 const device_entity_1 = __webpack_require__(43);
+const upLoadFile_entity_1 = __webpack_require__(54);
 let NotificationModule = class NotificationModule {
 };
 NotificationModule = __decorate([
@@ -7680,10 +7700,16 @@ NotificationModule = __decorate([
             mongoose_1.MongooseModule.forFeature([
                 { name: notification_entity_1.Notification.name, schema: notification_entity_1.Notification.model.modelName },
                 { name: device_entity_1.Device.modelName, schema: device_entity_1.Device.model.schema },
+                { name: upLoadFile_entity_1.UpLoadFile.modelName, schema: upLoadFile_entity_1.UpLoadFile.model.schema },
             ]),
         ],
         controllers: [notification_controller_1.NotificationController],
-        providers: [logger_service_1.LoggerService, notification_service_1.NotificationService, device_service_1.DeviceService],
+        providers: [
+            logger_service_1.LoggerService,
+            notification_service_1.NotificationService,
+            device_service_1.DeviceService,
+            up_load_file_service_1.UpLoadFileService,
+        ],
         exports: [notification_service_1.NotificationService],
     })
 ], NotificationModule);

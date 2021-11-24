@@ -1,3 +1,4 @@
+import { ClassService } from 'apps/client/class/services/class.service';
 import { DFStatus } from 'apps/share/enums/status.enum';
 import { SOCKET_EVENT } from './socket.events';
 import {
@@ -33,6 +34,7 @@ export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   constructor(
+    private readonly _classService: ClassService,
     private readonly _questionService: QuestionService,
     private readonly _quizClassService: QuizClassService,
     private readonly _quizClassScoreService: QuizClassScoreService,
@@ -98,6 +100,7 @@ export class AppGateway
       const listMember = await this._memberClassService.getMemberNotifyByClass(
         payload.idClass,
       );
+      const currentClass = await this._classService.findById(payload.idClass);
       for (const member of listMember) {
         const noti: any = {
           idUser: member.idUser,
@@ -105,6 +108,7 @@ export class AppGateway
           description: payload.description,
           typeNotify: 'quiz',
           data: idRoom,
+          image: currentClass.image,
         };
         this._notificationService.createNotification(noti);
       }

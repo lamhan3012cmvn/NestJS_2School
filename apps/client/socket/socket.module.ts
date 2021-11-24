@@ -33,6 +33,8 @@ import { QuizClass } from '../quizClass/entities/quizClass.entity';
 import { QuizClassScore } from '../quizClassScore/entities/quizClassScore.entity';
 import { QuizClassScoreService } from '../quizClassScore/services/quizClassScore.service';
 import { QuizClassService } from '../quizClass/services/quizClass.service';
+import { ClassService } from '../class/services/class.service';
+import { Classes } from '../class/entities/class.entity';
 
 @Module({
   imports: [
@@ -65,6 +67,7 @@ import { QuizClassService } from '../quizClass/services/quizClass.service';
         name: QuizClassScore.modelName,
         schema: QuizClassScore.model.schema,
       },
+      { name: Classes.modelName, schema: Classes.model.schema },
     ]),
     ConfigModule,
     JwtModule.registerAsync(setupJWT('JWT_SECRET')),
@@ -83,6 +86,7 @@ import { QuizClassService } from '../quizClass/services/quizClass.service';
     LoggerService,
     WsJwtGuard,
     DeviceService,
+    ClassService,
     MemberClassService,
     NotificationService,
     QuizClassService,
