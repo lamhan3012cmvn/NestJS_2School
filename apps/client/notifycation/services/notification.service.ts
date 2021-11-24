@@ -20,7 +20,7 @@ export class NotificationService extends BaseService<Notification> {
   async getNotification(id: string): Promise<Array<Notification>> {
     const notifications = await this._model
       .find({
-        userId: id,
+        idUser: id,
         isSeen: false,
       })
       .sort({ createdAt: -1 });

@@ -20,6 +20,9 @@ export class Notification extends BaseModel<Notification> {
   description?: string;
   @prop()
   @Expose()
+  image: string;
+  @prop()
+  @Expose()
   typeNotify?: string;
   @prop()
   @Expose()
