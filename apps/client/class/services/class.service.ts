@@ -182,6 +182,11 @@ export class ClassService extends BaseService<Classes> {
       for (const c of classes) {
         const u = await this._userService.findOne({ createdBy: c.createdBy });
         const obj = { ...c };
+        if (!(c.image === '')) {
+          const image = await this._uploadFileService.findById(c.image);
+          if (image) obj.image = image.path;
+        }
+
         if (u) obj.createdBy = this.cvtJSON(u);
         result.push(obj);
       }

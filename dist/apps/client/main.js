@@ -2147,6 +2147,11 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
             for (const c of classes) {
                 const u = await this._userService.findOne({ createdBy: c.createdBy });
                 const obj = Object.assign({}, c);
+                if (!(c.image === '')) {
+                    const image = await this._uploadFileService.findById(c.image);
+                    if (image)
+                        obj.image = image.path;
+                }
                 if (u)
                     obj.createdBy = this.cvtJSON(u);
                 result.push(obj);
