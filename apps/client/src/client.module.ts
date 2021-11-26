@@ -16,6 +16,8 @@ import { UpLoadFileModule } from '../up-load-file/up-load-file.module';
 import { RoadMapContentModule } from '../road-map-content/roadMapContent.module';
 import { MemberClassModule } from '../memberClass/memberClass.module';
 import { NotificationModule } from '../notifycation/notification.module';
+import { QuizClassModule } from '../quizClass/quizClass.module';
+import { QuizClassScoreModule } from '../quizClassScore/quizClassScore.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { NotificationModule } from '../notifycation/notification.module';
     UpLoadFileModule,
     MemberClassModule,
     NotificationModule,
+    QuizClassModule,
+    QuizClassScoreModule,
   ],
 })
 export class ClientModule {}

@@ -34,6 +34,22 @@ export class NotificationController {
     }
   }
 
+  @Get('quantity')
+  @UseGuards(JwtAuthGuard)
+  async getNotificationQuantity(@Usr() user: User) {
+    try {
+      const result = await this._notificationService.getNotificationCount(
+        user.createdBy,
+      );
+      return new Ok('Get list quantity', {
+        quantity: result,
+      });
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'get-NotificationController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
   async seenNotification(@Usr() user: User, @Query() query: { id: string }) {
@@ -42,6 +58,7 @@ export class NotificationController {
         {
           idUser: user.createdBy,
           _id: query.id,
+          isSeen: false,
         },
         {
           isSeen: true,
@@ -53,7 +70,9 @@ export class NotificationController {
           this._notificationService.cvtJSON(result),
         );
       }
-      throw new NotFoundException('Notification not found');
+      return new Ok('Notification not found or Notification is Seen', {
+        data: undefined,
+      });
     } catch (e) {
       this.loggerService.error(
         e.message,

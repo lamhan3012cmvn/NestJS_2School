@@ -29,12 +29,20 @@ export class NotificationService extends BaseService<Notification> {
       .lean();
     const results = [];
     for (const notification of notifications) {
-      const obj = { ...notification };
+      const obj = { ...this.cvtJSON(notification) };
       const image = await this._uploadFileService.findById(notification.image);
-      obj.image = image.path;
+      obj.image = image?.path || '';
       results.push(obj);
     }
     return results;
+  }
+
+  async getNotificationCount(id: string): Promise<number> {
+    const notifications = await this._model.find({
+      idUser: id,
+      isSeen: false,
+    });
+    return notifications.length;
   }
 
   async createNotification(notification: any): Promise<void> {

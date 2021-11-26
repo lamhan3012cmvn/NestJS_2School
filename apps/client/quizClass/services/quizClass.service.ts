@@ -31,4 +31,18 @@ export class QuizClassService extends BaseService<QuizClass> {
       return null;
     }
   }
+  async getHistory(idClass: string): Promise<any> {
+    try {
+      const quizClass = await this._model
+        .find({ classId: idClass })
+        .sort({ createdAt: -1 })
+        .select('_id title score isShow')
+        .exec();
+      return this.cvtJSON(quizClass);
+    } catch (e) {
+      console.log(e);
+      this._loggerService.error(e.message, null, 'GET_quizClass');
+      return null;
+    }
+  }
 }

@@ -42,4 +42,28 @@ export class QuizClassScoreService extends BaseService<QuizClassScore> {
       return null;
     }
   }
+
+  async getQuizClassScore(idQuizClass: string): Promise<any> {
+    try {
+      const quizClassScores = await this._model
+        .find({
+          quizClassId: idQuizClass,
+        })
+        .lean();
+      const results = [];
+      for (const quizClassScore of quizClassScores) {
+        results.push({
+          ...this.cvtJSON(quizClassScore),
+          user: await this._userService.findOne({
+            createdBy: quizClassScore.memberId,
+          }),
+        });
+      }
+      return results;
+    } catch (e) {
+      console.log(e);
+      this._loggerService.error(e.message, null, 'GET_quizClassScore');
+      return [];
+    }
+  }
 }

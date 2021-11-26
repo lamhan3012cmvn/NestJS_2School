@@ -32,6 +32,8 @@ const up_load_file_module_1 = __webpack_require__(106);
 const roadMapContent_module_1 = __webpack_require__(116);
 const memberClass_module_1 = __webpack_require__(136);
 const notification_module_1 = __webpack_require__(138);
+const quizClass_module_1 = __webpack_require__(140);
+const quizClassScore_module_1 = __webpack_require__(142);
 let ClientModule = class ClientModule {
 };
 ClientModule = __decorate([
@@ -53,6 +55,8 @@ ClientModule = __decorate([
             up_load_file_module_1.UpLoadFileModule,
             memberClass_module_1.MemberClassModule,
             notification_module_1.NotificationModule,
+            quizClass_module_1.QuizClassModule,
+            quizClassScore_module_1.QuizClassScoreModule,
         ],
     })
 ], ClientModule);
@@ -5449,12 +5453,19 @@ let NotificationService = class NotificationService extends baseService_service_
             .lean();
         const results = [];
         for (const notification of notifications) {
-            const obj = Object.assign({}, notification);
+            const obj = Object.assign({}, this.cvtJSON(notification));
             const image = await this._uploadFileService.findById(notification.image);
-            obj.image = image.path;
+            obj.image = (image === null || image === void 0 ? void 0 : image.path) || '';
             results.push(obj);
         }
         return results;
+    }
+    async getNotificationCount(id) {
+        const notifications = await this._model.find({
+            idUser: id,
+            isSeen: false,
+        });
+        return notifications.length;
     }
     async createNotification(notification) {
         const model = notification_entity_1.Notification.createModel(notification);
@@ -5595,6 +5606,21 @@ let QuizClassService = class QuizClassService extends baseService_service_1.Base
             return null;
         }
     }
+    async getHistory(idClass) {
+        try {
+            const quizClass = await this._model
+                .find({ classId: idClass })
+                .sort({ createdAt: -1 })
+                .select('_id title score isShow')
+                .exec();
+            return this.cvtJSON(quizClass);
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'GET_quizClass');
+            return null;
+        }
+    }
 };
 QuizClassService = __decorate([
     common_1.Injectable(),
@@ -5719,6 +5745,27 @@ let QuizClassScoreService = class QuizClassScoreService extends baseService_serv
             console.log(e);
             this._loggerService.error(e.message, null, 'CREATE_quizClassScore');
             return null;
+        }
+    }
+    async getQuizClassScore(idQuizClass) {
+        try {
+            const quizClassScores = await this._model
+                .find({
+                quizClassId: idQuizClass,
+            })
+                .lean();
+            const results = [];
+            for (const quizClassScore of quizClassScores) {
+                results.push(Object.assign(Object.assign({}, this.cvtJSON(quizClassScore)), { user: await this._userService.findOne({
+                        createdBy: quizClassScore.memberId,
+                    }) }));
+            }
+            return results;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'GET_quizClassScore');
+            return [];
         }
     }
 };
@@ -7698,7 +7745,7 @@ NotificationModule = __decorate([
         imports: [
             device_module_1.DeviceModule,
             mongoose_1.MongooseModule.forFeature([
-                { name: notification_entity_1.Notification.name, schema: notification_entity_1.Notification.model.modelName },
+                { name: notification_entity_1.Notification.modelName, schema: notification_entity_1.Notification.model.schema },
                 { name: device_entity_1.Device.modelName, schema: device_entity_1.Device.model.schema },
                 { name: upLoadFile_entity_1.UpLoadFile.modelName, schema: upLoadFile_entity_1.UpLoadFile.model.schema },
             ]),
@@ -7733,7 +7780,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d;
+var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.NotificationController = void 0;
 const user_decorator_1 = __webpack_require__(23);
@@ -7759,18 +7806,33 @@ let NotificationController = class NotificationController {
             throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
+    async getNotificationQuantity(user) {
+        try {
+            const result = await this._notificationService.getNotificationCount(user.createdBy);
+            return new baseController_1.Ok('Get list quantity', {
+                quantity: result,
+            });
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'get-NotificationController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
     async seenNotification(user, query) {
         try {
             const result = await this._notificationService.findOneAndUpdate({
                 idUser: user.createdBy,
                 _id: query.id,
+                isSeen: false,
             }, {
                 isSeen: true,
             });
             if (result) {
                 return new baseController_1.Ok('Change seen notification', this._notificationService.cvtJSON(result));
             }
-            throw new common_1.NotFoundException('Notification not found');
+            return new baseController_1.Ok('Notification not found or Notification is Seen', {
+                data: undefined,
+            });
         }
         catch (e) {
             this.loggerService.error(e.message, null, 'change-NotificationController');
@@ -7787,23 +7849,238 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], NotificationController.prototype, "getNotification", null);
 __decorate([
+    common_1.Get('quantity'),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, user_decorator_1.Usr()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_b = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _b : Object]),
+    __metadata("design:returntype", Promise)
+], NotificationController.prototype, "getNotificationQuantity", null);
+__decorate([
     common_1.Post(),
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, user_decorator_1.Usr()),
     __param(1, common_1.Query()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_b = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _b : Object, Object]),
+    __metadata("design:paramtypes", [typeof (_c = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _c : Object, Object]),
     __metadata("design:returntype", Promise)
 ], NotificationController.prototype, "seenNotification", null);
 NotificationController = __decorate([
     common_1.Controller('api/notification'),
-    __metadata("design:paramtypes", [typeof (_c = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _c : Object, typeof (_d = typeof notification_service_1.NotificationService !== "undefined" && notification_service_1.NotificationService) === "function" ? _d : Object])
+    __metadata("design:paramtypes", [typeof (_d = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _d : Object, typeof (_e = typeof notification_service_1.NotificationService !== "undefined" && notification_service_1.NotificationService) === "function" ? _e : Object])
 ], NotificationController);
 exports.NotificationController = NotificationController;
 
 
 /***/ }),
 /* 140 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QuizClassModule = void 0;
+const quizClass_controller_1 = __webpack_require__(141);
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(4);
+const quizClass_entity_1 = __webpack_require__(103);
+const quizClass_service_1 = __webpack_require__(102);
+let QuizClassModule = class QuizClassModule {
+};
+QuizClassModule = __decorate([
+    common_1.Module({
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                {
+                    name: quizClass_entity_1.QuizClass.modelName,
+                    schema: quizClass_entity_1.QuizClass.model.schema,
+                },
+            ]),
+        ],
+        controllers: [quizClass_controller_1.QuizClassController],
+        providers: [quizClass_service_1.QuizClassService],
+        exports: [quizClass_service_1.QuizClassService],
+    })
+], QuizClassModule);
+exports.QuizClassModule = QuizClassModule;
+
+
+/***/ }),
+/* 141 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b, _c;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QuizClassController = void 0;
+const common_1 = __webpack_require__(3);
+const jwt_auth_guard_1 = __webpack_require__(24);
+const user_entity_1 = __webpack_require__(26);
+const baseController_1 = __webpack_require__(32);
+const errors_exception_1 = __webpack_require__(31);
+const logger_service_1 = __webpack_require__(12);
+const user_decorator_1 = __webpack_require__(23);
+const quizClass_service_1 = __webpack_require__(102);
+let QuizClassController = class QuizClassController {
+    constructor(_quizClassService, loggerService) {
+        this._quizClassService = _quizClassService;
+        this.loggerService = loggerService;
+    }
+    async getHistory(user, query) {
+        try {
+            const result = await this._quizClassService.getHistory(query.idClass);
+            return new baseController_1.Ok('Create Question success', result);
+        }
+        catch (e) {
+            console.log(e);
+            this.loggerService.error(e.message, null, 'create-QuestionController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+};
+__decorate([
+    common_1.Get('history'),
+    common_1.HttpCode(200),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.Header('Content-Type', 'application/json'),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object, Object]),
+    __metadata("design:returntype", Promise)
+], QuizClassController.prototype, "getHistory", null);
+QuizClassController = __decorate([
+    common_1.Controller('api/quiz-class'),
+    __metadata("design:paramtypes", [typeof (_b = typeof quizClass_service_1.QuizClassService !== "undefined" && quizClass_service_1.QuizClassService) === "function" ? _b : Object, typeof (_c = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _c : Object])
+], QuizClassController);
+exports.QuizClassController = QuizClassController;
+
+
+/***/ }),
+/* 142 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QuizClassScoreModule = void 0;
+const quizClassScore_controller_1 = __webpack_require__(143);
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(4);
+const upLoadFile_entity_1 = __webpack_require__(54);
+const up_load_file_service_1 = __webpack_require__(52);
+const user_entity_1 = __webpack_require__(26);
+const user_service_1 = __webpack_require__(50);
+const quizClassScore_entity_1 = __webpack_require__(105);
+const quizClassScore_service_1 = __webpack_require__(104);
+let QuizClassScoreModule = class QuizClassScoreModule {
+};
+QuizClassScoreModule = __decorate([
+    common_1.Module({
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                {
+                    name: quizClassScore_entity_1.QuizClassScore.modelName,
+                    schema: quizClassScore_entity_1.QuizClassScore.model.schema,
+                },
+                { name: user_entity_1.User.name, schema: user_entity_1.UserSchema },
+                { name: upLoadFile_entity_1.UpLoadFile.modelName, schema: upLoadFile_entity_1.UpLoadFile.model.schema },
+            ]),
+        ],
+        controllers: [quizClassScore_controller_1.QuizClassScoreController],
+        providers: [quizClassScore_service_1.QuizClassScoreService, user_service_1.UserService, up_load_file_service_1.UpLoadFileService],
+    })
+], QuizClassScoreModule);
+exports.QuizClassScoreModule = QuizClassScoreModule;
+
+
+/***/ }),
+/* 143 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b, _c;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QuizClassScoreController = void 0;
+const common_1 = __webpack_require__(3);
+const jwt_auth_guard_1 = __webpack_require__(24);
+const user_entity_1 = __webpack_require__(26);
+const baseController_1 = __webpack_require__(32);
+const errors_exception_1 = __webpack_require__(31);
+const logger_service_1 = __webpack_require__(12);
+const user_decorator_1 = __webpack_require__(23);
+const quizClassScore_service_1 = __webpack_require__(104);
+let QuizClassScoreController = class QuizClassScoreController {
+    constructor(_quizClassScoreService, loggerService) {
+        this._quizClassScoreService = _quizClassScoreService;
+        this.loggerService = loggerService;
+    }
+    async getHistory(user, query) {
+        try {
+            const result = await this._quizClassScoreService.getQuizClassScore(query.idQuizClass);
+            return new baseController_1.Ok('Create Question success', result);
+        }
+        catch (e) {
+            console.log(e);
+            this.loggerService.error(e.message, null, 'create-QuestionController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
+};
+__decorate([
+    common_1.Get('history-detail'),
+    common_1.HttpCode(200),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.Header('Content-Type', 'application/json'),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object, Object]),
+    __metadata("design:returntype", Promise)
+], QuizClassScoreController.prototype, "getHistory", null);
+QuizClassScoreController = __decorate([
+    common_1.Controller('api/quiz-class'),
+    __metadata("design:paramtypes", [typeof (_b = typeof quizClassScore_service_1.QuizClassScoreService !== "undefined" && quizClassScore_service_1.QuizClassScoreService) === "function" ? _b : Object, typeof (_c = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _c : Object])
+], QuizClassScoreController);
+exports.QuizClassScoreController = QuizClassScoreController;
+
+
+/***/ }),
+/* 144 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7866,31 +8143,31 @@ exports.HttpExceptionFilter = HttpExceptionFilter;
 
 
 /***/ }),
-/* 141 */
+/* 145 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
 
 /***/ }),
-/* 142 */
+/* 146 */
 /***/ ((module) => {
 
 module.exports = require("express-rate-limit");
 
 /***/ }),
-/* 143 */
+/* 147 */
 /***/ ((module) => {
 
 module.exports = require("helmet");
 
 /***/ }),
-/* 144 */
+/* 148 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupSwagger = void 0;
-const swagger_1 = __webpack_require__(145);
+const swagger_1 = __webpack_require__(149);
 function setupSwagger(app, config) {
     const options = new swagger_1.DocumentBuilder()
         .setTitle(config.title || 'DocumentApi')
@@ -7906,21 +8183,21 @@ exports.setupSwagger = setupSwagger;
 
 
 /***/ }),
-/* 145 */
+/* 149 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
 
 /***/ }),
-/* 146 */
+/* 150 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RedisIoAdapter = void 0;
-const platform_socket_io_1 = __webpack_require__(147);
-const redis_1 = __webpack_require__(148);
-const socket_io_redis_1 = __webpack_require__(149);
+const platform_socket_io_1 = __webpack_require__(151);
+const redis_1 = __webpack_require__(152);
+const socket_io_redis_1 = __webpack_require__(153);
 const pubClient = new redis_1.RedisClient({ host: 'localhost', port: 6379 });
 const subClient = pubClient.duplicate();
 const redisAdapter = socket_io_redis_1.createAdapter({ pubClient, subClient });
@@ -7935,19 +8212,19 @@ exports.RedisIoAdapter = RedisIoAdapter;
 
 
 /***/ }),
-/* 147 */
+/* 151 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-socket.io");
 
 /***/ }),
-/* 148 */
+/* 152 */
 /***/ ((module) => {
 
 module.exports = require("redis");
 
 /***/ }),
-/* 149 */
+/* 153 */
 /***/ ((module) => {
 
 module.exports = require("socket.io-redis");
@@ -7987,17 +8264,17 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const client_module_1 = __webpack_require__(1);
-const http_exception_filter_1 = __webpack_require__(140);
+const http_exception_filter_1 = __webpack_require__(144);
 const config_service_1 = __webpack_require__(14);
 const logger_service_1 = __webpack_require__(12);
 const shared_module_1 = __webpack_require__(18);
-const core_1 = __webpack_require__(141);
+const core_1 = __webpack_require__(145);
 const platform_express_1 = __webpack_require__(108);
-const rateLimit = __webpack_require__(142);
-const helmet = __webpack_require__(143);
+const rateLimit = __webpack_require__(146);
+const helmet = __webpack_require__(147);
 const common_1 = __webpack_require__(3);
-const setup_1 = __webpack_require__(144);
-const RedisIoAdapter_1 = __webpack_require__(146);
+const setup_1 = __webpack_require__(148);
+const RedisIoAdapter_1 = __webpack_require__(150);
 const fire = __webpack_require__(45);
 const fs = __webpack_require__(111);
 async function bootstrap() {

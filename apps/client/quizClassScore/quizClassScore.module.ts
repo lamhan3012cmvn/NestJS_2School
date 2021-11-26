@@ -1,3 +1,4 @@
+import { QuizClassScoreController } from './controllers/quizClassScore.controller';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UpLoadFile } from '../up-load-file/entities/upLoadFile.entity';
@@ -18,7 +19,7 @@ import { QuizClassScoreService } from './services/quizClassScore.service';
       { name: UpLoadFile.modelName, schema: UpLoadFile.model.schema },
     ]),
   ],
-  controllers: [],
+  controllers: [QuizClassScoreController],
   providers: [QuizClassScoreService, UserService, UpLoadFileService],
 })
-export class QuizClassModule {}
+export class QuizClassScoreModule {}

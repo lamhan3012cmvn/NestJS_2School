@@ -1,3 +1,4 @@
+import { QuizClassController } from './controllers/quizClass.controller';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { QuizClass } from './entities/quizClass.entity';
@@ -12,7 +13,7 @@ import { QuizClassService } from './services/quizClass.service';
       },
     ]),
   ],
-  controllers: [],
+  controllers: [QuizClassController],
   providers: [QuizClassService],
   exports: [QuizClassService],
 })

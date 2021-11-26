@@ -14,7 +14,7 @@ import { UpLoadFile } from '../up-load-file/entities/upLoadFile.entity';
   imports: [
     DeviceModule,
     MongooseModule.forFeature([
-      { name: Notification.name, schema: Notification.model.modelName },
+      { name: Notification.modelName, schema: Notification.model.schema },
       { name: Device.modelName, schema: Device.model.schema },
       { name: UpLoadFile.modelName, schema: UpLoadFile.model.schema },
     ]),
