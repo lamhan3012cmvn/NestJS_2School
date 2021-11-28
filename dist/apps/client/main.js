@@ -1281,14 +1281,13 @@ __decorate([
 ], CreateQuestionDto.prototype, "idSetOfQuestions", void 0);
 __decorate([
     class_validator_1.IsArray(),
-    class_validator_1.ArrayMinSize(4),
+    class_validator_1.ArrayMinSize(2),
     class_validator_1.ArrayMaxSize(6),
     __metadata("design:type", typeof (_a = typeof Array !== "undefined" && Array) === "function" ? _a : Object)
 ], CreateQuestionDto.prototype, "answers", void 0);
 __decorate([
     class_validator_1.IsArray(),
     class_validator_1.ArrayMinSize(1),
-    class_validator_1.ArrayMaxSize(6),
     __metadata("design:type", typeof (_b = typeof Array !== "undefined" && Array) === "function" ? _b : Object)
 ], CreateQuestionDto.prototype, "correct", void 0);
 __decorate([
@@ -5611,7 +5610,7 @@ let QuizClassService = class QuizClassService extends baseService_service_1.Base
             const quizClass = await this._model
                 .find({ classId: idClass })
                 .sort({ createdAt: -1 })
-                .select('_id title score isShow')
+                .select('_id title score isShow createdAt updatedAt')
                 .exec();
             return this.cvtJSON(quizClass);
         }

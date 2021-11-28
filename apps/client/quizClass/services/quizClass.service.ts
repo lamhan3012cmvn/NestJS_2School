@@ -36,7 +36,7 @@ export class QuizClassService extends BaseService<QuizClass> {
       const quizClass = await this._model
         .find({ classId: idClass })
         .sort({ createdAt: -1 })
-        .select('_id title score isShow')
+        .select('_id title score isShow createdAt updatedAt')
         .exec();
       return this.cvtJSON(quizClass);
     } catch (e) {
