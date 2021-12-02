@@ -4330,7 +4330,7 @@ let SetOfQuestionsService = class SetOfQuestionsService extends baseService_serv
     async createSetOfQuestionExcel(createBy, idSetOfQuestion, payload) {
         try {
             const listQuestion = payload.questions.map((item) => {
-                return Object.assign(Object.assign({}, item), { setOfQuestionId: idSetOfQuestion, createBy: createBy });
+                return Object.assign(Object.assign({}, item), { idSetOfQuestions: idSetOfQuestion, createBy: createBy });
             });
             const questions = await this._questionsService.createMultiQuestion(listQuestion);
             if (!questions) {

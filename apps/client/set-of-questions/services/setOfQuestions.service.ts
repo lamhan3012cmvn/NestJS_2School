@@ -63,7 +63,7 @@ export class SetOfQuestionsService extends BaseService<SetOfQuestion> {
       const listQuestion = payload.questions.map((item) => {
         return {
           ...item,
-          setOfQuestionId: idSetOfQuestion,
+          idSetOfQuestions: idSetOfQuestion,
           createBy: createBy,
         };
       });
