@@ -33,6 +33,20 @@ export class QuestionService extends BaseService<Question> {
     }
   }
 
+  async createMultiQuestion(payload): Promise<Array<Question>> {
+    try {
+      const result = await this._model.insertMany(payload);
+      if (result) {
+        return this.cvtJSON(result) as Array<Question>;
+      }
+      return [];
+    } catch (e) {
+      console.log(e);
+      this._loggerService.error(e.message, null, 'CREATE-MultiQuestion');
+      return [];
+    }
+  }
+
   async deleteQuestion(id: string, userId: string): Promise<Question> {
     try {
       const deletedQuestion = await this._model.findOneAndRemove({

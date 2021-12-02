@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Param,
   Patch,
   Post,
   Query,
@@ -20,6 +21,7 @@ import { User } from 'apps/client/user/entities/user.entity';
 import { CreateSetOfQuestionDto } from '../dto/CreateSetOfQuestion/req.dto';
 import { UpdateSetOfQuestionDto } from '../dto/UpdateSetOfQuestion/req.dto';
 import { QueryGetSetOfQuestion } from '../dto/GetSetOfQuestion/query.dto';
+import { CreateMultiQuestion } from '../dto/CreateMultiQuestion/req.dto';
 
 @Controller('api/set-of-questions')
 export class SetOfQuestionsController {
@@ -44,6 +46,38 @@ export class SetOfQuestionsController {
         return new Ok(
           'Create SetOfQuestions success',
           this._setOfQuestionsService.cvtJSON(result),
+        );
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      this.loggerService.error(
+        e.message,
+        null,
+        'create-SetOfQuestionsController',
+      );
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  @Post('excels')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async createSetOfQuestionsExcel(
+    @Usr() user: User,
+    @Query() query,
+    @Body() payload: CreateMultiQuestion,
+  ) {
+    try {
+      const result = await this._setOfQuestionsService.createSetOfQuestionExcel(
+        user.createdBy,
+        query.idSetOfQuestion,
+        payload,
+      );
+      if (result) {
+        return new Ok(
+          'Create SetOfQuestions success',
+          result,
+          // this._setOfQuestionsService.cvtJSON(result),
         );
       }
       throw new ResourceFoundException();

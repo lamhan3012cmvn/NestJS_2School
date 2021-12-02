@@ -91,10 +91,6 @@ export class RoadMapContentController {
       }
       throw new ResourceFoundException();
     } catch (e) {
-      console.log(
-        `LHA:  ===> file: roadMapContent.controller.ts ===> line 64 ===> e`,
-        e,
-      );
       this.loggerService.error(
         e.message,
         null,

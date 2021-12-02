@@ -46,7 +46,7 @@ export class MemberClassService extends BaseService<MemberClasses> {
       const obj: any = {
         idUser: idUser,
         idClass: idClass,
-        // role: role,
+        role: role,
       };
       const exitsClass = await this.findOne(obj);
       if (!exitsClass) {
