@@ -4825,7 +4825,9 @@ let AppGateway = class AppGateway {
                 idRoom: payload.idRoom,
                 userId: client.user.createdBy,
                 user: client.user,
+                isHost: host.createBy === client.user.createdBy,
             });
+            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 149 ===> newMember`, newMember);
             if (newMember) {
                 const listMember = await this._userMemberSocketService.findAll({
                     idRoom: payload.idRoom,
@@ -5028,6 +5030,7 @@ let AppGateway = class AppGateway {
                     const userDontAnswer = await this._userMemberSocketService.findAll({
                         userId: { $nin: userAnswer.map((e) => e.userId) },
                         idRoom: host.idRoom,
+                        isHost: false,
                     });
                     console.log(`LHA:  ===> file: socket.gateway.ts ===> line 461 ===> userDontAnswer`, userDontAnswer);
                     for (const uda of userDontAnswer) {
@@ -5474,6 +5477,11 @@ __decorate([
     class_transformer_1.Expose(),
     __metadata("design:type", typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object)
 ], UserMemberSocket.prototype, "user", void 0);
+__decorate([
+    typegoose_1.prop({ default: false }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Boolean)
+], UserMemberSocket.prototype, "isHost", void 0);
 UserMemberSocket = UserMemberSocket_1 = __decorate([
     typegoose_1.index({ idRoom: 1, userId: 1 }, { unique: true })
 ], UserMemberSocket);

@@ -15,6 +15,9 @@ export class UserMemberSocket extends BaseModel<UserMemberSocket> {
   @prop({ default: null })
   @Expose()
   user: User;
+  @prop({ default: false })
+  @Expose()
+  isHost: boolean;
 
   static get model(): ModelType<UserMemberSocket> {
     return new UserMemberSocket().getModelForClass(UserMemberSocket, {

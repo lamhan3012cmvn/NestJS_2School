@@ -144,7 +144,12 @@ export class AppGateway
         idRoom: payload.idRoom,
         userId: client.user.createdBy,
         user: client.user,
+        isHost: host.createBy === client.user.createdBy,
       });
+      console.log(
+        `LHA:  ===> file: socket.gateway.ts ===> line 149 ===> newMember`,
+        newMember,
+      );
 
       if (newMember) {
         const listMember = await this._userMemberSocketService.findAll({
@@ -473,6 +478,7 @@ export class AppGateway
           const userDontAnswer = await this._userMemberSocketService.findAll({
             userId: { $nin: userAnswer.map((e) => e.userId) },
             idRoom: host.idRoom,
+            isHost: false,
           });
           console.log(
             `LHA:  ===> file: socket.gateway.ts ===> line 461 ===> userDontAnswer`,
