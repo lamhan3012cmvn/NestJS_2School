@@ -120,7 +120,7 @@ export class UpLoadFileController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async getFile(@Query() query, @Res() res) {
     // const imagePath = join(__dirname, query.id);

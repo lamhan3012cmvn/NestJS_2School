@@ -6148,7 +6148,6 @@ __decorate([
 ], UpLoadFileController.prototype, "uploadFiles", null);
 __decorate([
     common_1.Get(),
-    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
     common_1.HttpCode(200),
     __param(0, common_1.Query()),
     __param(1, common_1.Res()),
