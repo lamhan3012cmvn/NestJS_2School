@@ -32,10 +32,6 @@ export class Device extends BaseModel<Device> {
   }
 
   static createModel(payload: Device): InstanceType<Device> {
-    console.log(
-      `LHA:  ===> file: device.entity.ts ===> line 36 ===> payload`,
-      payload,
-    );
     return new this.model(payload);
   }
 }

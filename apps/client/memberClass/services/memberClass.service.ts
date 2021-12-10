@@ -95,16 +95,8 @@ export class MemberClassService extends BaseService<MemberClasses> {
         idClass: idClass,
         status: status,
       };
-      console.log(
-        `LHA:  ===> file: memberClass.service.ts ===> line 98 ===> obj`,
-        obj,
-      );
 
       const memberClass = await this._model.find(obj).lean();
-      console.log(
-        `LHA:  ===> file: memberClass.service.ts ===> line 100 ===> memberClass`,
-        memberClass,
-      );
       if (memberClass.length > 0) {
         const results = await Promise.all(
           memberClass.map(async (e) => {
@@ -138,16 +130,8 @@ export class MemberClassService extends BaseService<MemberClasses> {
         idClass: idClass,
         status: status,
       };
-      // console.log(
-      //   `LHA:  ===> file: memberClass.service.ts ===> line 98 ===> obj`,
-      //   obj,
-      // );
 
       const memberClass = await this._model.find(obj).select('idUser').lean();
-      // console.log(
-      //   `LHA:  ===> file: memberClass.service.ts ===> line 100 ===> memberClass`,
-      //   memberClass,
-      // );
 
       return this.cvtJSON(memberClass);
     } catch (e) {

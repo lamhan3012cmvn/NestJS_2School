@@ -450,10 +450,18 @@ export class AppGateway
             idRoom: host.idRoom,
             idQuestion: currentQuestion._id,
           });
+          console.log(
+            `LHA:  ===> file: socket.gateway.ts ===> line 453 ===> userAnswer`,
+            userAnswer,
+          );
           const userDontAnswer = await this._userMemberSocketService.findAll({
             userId: { $nin: userAnswer.map((e) => e.userId) },
             idRoom: host.idRoom,
           });
+          console.log(
+            `LHA:  ===> file: socket.gateway.ts ===> line 461 ===> userDontAnswer`,
+            userDontAnswer,
+          );
 
           // const payload = {
           //   idRoom: host.idRoom,

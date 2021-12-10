@@ -25,15 +25,7 @@ export class AuthService extends ResponseService {
     return this.configService.get('JWT_SECRET');
   }
   async validateUser(payload: any): Promise<User> {
-    console.log(
-      `LHA:  ===> file: auth.service.ts ===> line 28 ===> payload`,
-      payload,
-    );
     const user = await this.userModel.findOne({ createdBy: payload.id }).lean();
-    console.log(
-      `LHA:  ===> file: auth.service.ts ===> line 33 ===> user`,
-      user,
-    );
     return user;
   }
 

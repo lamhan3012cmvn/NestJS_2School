@@ -37,10 +37,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     payload: any,
     done: (error: Error, user: User | false) => any,
   ) {
-    console.log(
-      `LHA:  ===> file: local.strategy.ts ===> line 43 ===> payload`,
-      payload,
-    );
     // const user = null;
     const user = await this.authService.validateUser(payload);
 

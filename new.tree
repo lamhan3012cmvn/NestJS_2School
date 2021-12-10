@@ -1,0 +1,332 @@
+├── .circleci
+│  └── config.yml
+├── .env
+├── .env.example
+├── .eslintrc.js
+├── .gitignore
+├── .prettierrc
+├── .treerc
+├── apps
+│  ├── client
+│  │  ├── authentication
+│  │  │  ├── auth.module.ts
+│  │  │  ├── controller
+│  │  │  │  ├── auth.controller.spec.ts
+│  │  │  │  └── auth.controller.ts
+│  │  │  ├── decorator
+│  │  │  │  └── user.decorator.ts
+│  │  │  ├── dto
+│  │  │  │  ├── login
+│  │  │  │  │  ├── req.dto.ts
+│  │  │  │  │  └── resSuccess.dto.ts
+│  │  │  │  ├── register
+│  │  │  │  │  ├── req.dto.ts
+│  │  │  │  │  └── resSuccess.dto.ts
+│  │  │  │  ├── update-Account-authentication.dto.ts
+│  │  │  │  └── update-authentication.dto.ts
+│  │  │  ├── entities
+│  │  │  │  └── auth.entity.ts
+│  │  │  ├── guard
+│  │  │  │  └── jwt-auth.guard.ts
+│  │  │  ├── services
+│  │  │  │  ├── auth.service.spec.ts
+│  │  │  │  └── auth.service.ts
+│  │  │  └── strategy
+│  │  │    ├── jwt.strategy.ts
+│  │  │    └── local.strategy.ts
+│  │  ├── class
+│  │  │  ├── class.module.ts
+│  │  │  ├── controllers
+│  │  │  │  ├── class.controller.spec.ts
+│  │  │  │  └── class.controller.ts
+│  │  │  ├── dto
+│  │  │  │  ├── createClass
+│  │  │  │  │  └── create-class.dto.ts
+│  │  │  │  ├── joinClass
+│  │  │  │  │  └── query.dto.ts
+│  │  │  │  ├── updateClass
+│  │  │  │  │  └── update-class.dto.ts
+│  │  │  │  └── updateImage
+│  │  │  │    └── req,dto.ts
+│  │  │  ├── entities
+│  │  │  │  └── class.entity.ts
+│  │  │  └── services
+│  │  │    ├── class.service.spec.ts
+│  │  │    └── class.service.ts
+│  │  ├── device
+│  │  │  ├── controllers
+│  │  │  │  ├── device.controller.spec.ts
+│  │  │  │  └── device.controller.ts
+│  │  │  ├── device.module.ts
+│  │  │  ├── dto
+│  │  │  ├── entities
+│  │  │  │  └── device.entity.ts
+│  │  │  └── services
+│  │  │    ├── device.service.spec.ts
+│  │  │    └── device.service.ts
+│  │  ├── healcheck
+│  │  │  ├── healcheck.controller.spec.ts
+│  │  │  ├── healcheck.controller.ts
+│  │  │  └── healcheck.module.ts
+│  │  ├── memberClass
+│  │  │  ├── controllers
+│  │  │  │  └── memberClass.controller.ts
+│  │  │  ├── dto
+│  │  │  ├── entities
+│  │  │  │  └── memberClass.entity.ts
+│  │  │  ├── memberClass.module.ts
+│  │  │  └── services
+│  │  │    ├── memberClass.service.spec.ts
+│  │  │    └── memberClass.service.ts
+│  │  ├── notifycation
+│  │  │  ├── controllers
+│  │  │  │  └── notification.controller.ts
+│  │  │  ├── entities
+│  │  │  │  └── notification.entity.ts
+│  │  │  ├── notification.module.ts
+│  │  │  └── services
+│  │  │    └── notification.service.ts
+│  │  ├── question
+│  │  │  ├── controllers
+│  │  │  │  ├── question.controller.spec.ts
+│  │  │  │  └── question.controller.ts
+│  │  │  ├── dto
+│  │  │  │  ├── CreateQuestion
+│  │  │  │  │  └── res.dto.ts
+│  │  │  │  └── UpdateQuestion
+│  │  │  │    └── res.dto.ts
+│  │  │  ├── entities
+│  │  │  │  └── question.entity.ts
+│  │  │  ├── question.module.ts
+│  │  │  └── services
+│  │  │    ├── question.service.spec.ts
+│  │  │    └── question.service.ts
+│  │  ├── quizClass
+│  │  │  ├── controllers
+│  │  │  │  └── quizClass.controller.ts
+│  │  │  ├── entities
+│  │  │  │  └── quizClass.entity.ts
+│  │  │  ├── quizClass.module.ts
+│  │  │  └── services
+│  │  │    └── quizClass.service.ts
+│  │  ├── quizClassScore
+│  │  │  ├── controllers
+│  │  │  │  └── quizClassScore.controller.ts
+│  │  │  ├── entities
+│  │  │  │  └── quizClassScore.entity.ts
+│  │  │  ├── quizClassScore.module.ts
+│  │  │  └── services
+│  │  │    └── quizClassScore.service.ts
+│  │  ├── road-map
+│  │  │  ├── controllers
+│  │  │  │  ├── roadMap.controller.spec.ts
+│  │  │  │  └── roadMap.controller.ts
+│  │  │  ├── dto
+│  │  │  │  ├── CreateRoadMap
+│  │  │  │  │  └── res.dto.ts
+│  │  │  │  ├── DeleteRoadMap
+│  │  │  │  │  └── query.dto.ts
+│  │  │  │  └── UpdateRoadMap
+│  │  │  │    └── res.dto.ts
+│  │  │  ├── entities
+│  │  │  │  └── road-map.entity.ts
+│  │  │  ├── roadMap.module.ts
+│  │  │  └── services
+│  │  │    ├── roadMap.service.spec.ts
+│  │  │    └── roadMap.service.ts
+│  │  ├── road-map-content
+│  │  │  ├── controllers
+│  │  │  │  ├── roadMapContent.controller.spec.ts
+│  │  │  │  └── roadMapContent.controller.ts
+│  │  │  ├── dto
+│  │  │  │  ├── createRMCAssignment
+│  │  │  │  │  └── req.dto.ts
+│  │  │  │  ├── createRMCAttendance
+│  │  │  │  │  └── req.dto.ts
+│  │  │  │  ├── createRMCFile
+│  │  │  │  │  └── req.dto.ts
+│  │  │  │  ├── updateRMCAssignment
+│  │  │  │  │  └── req.dto.ts
+│  │  │  │  └── updateRMCAttendance
+│  │  │  │    └── req.dto.ts
+│  │  │  ├── entities
+│  │  │  │  ├── rmc-assignments.ts
+│  │  │  │  ├── rmc-assignmentsUser.ts
+│  │  │  │  ├── rmc-attendances.ts
+│  │  │  │  ├── rmc-attendancesUser.ts
+│  │  │  │  ├── rmc-files.ts
+│  │  │  │  └── roadMapContent.entity.ts
+│  │  │  ├── enum
+│  │  │  │  └── index.ts
+│  │  │  ├── roadMapContent.module.ts
+│  │  │  └── services
+│  │  │    ├── rmc-assignments.service.ts
+│  │  │    ├── rmc-assignmentsUserservice.ts
+│  │  │    ├── rmc-attendances.service.ts
+│  │  │    ├── rmc-attendancesUser.service.ts
+│  │  │    ├── rmc-files.service.ts
+│  │  │    ├── roadMapContent.service.spec.ts
+│  │  │    └── roadMapContent.service.ts
+│  │  ├── set-of-questions
+│  │  │  ├── controllers
+│  │  │  │  ├── setOfQuestions.controller.spec.ts
+│  │  │  │  └── setOfQuestions.controller.ts
+│  │  │  ├── dto
+│  │  │  │  ├── CreateMultiQuestion
+│  │  │  │  │  └── req.dto.ts
+│  │  │  │  ├── CreateSetOfQuestion
+│  │  │  │  │  └── req.dto.ts
+│  │  │  │  ├── GetSetOfQuestion
+│  │  │  │  │  └── query.dto.ts
+│  │  │  │  └── UpdateSetOfQuestion
+│  │  │  │    └── req.dto.ts
+│  │  │  ├── entities
+│  │  │  │  └── setOfQuestions.entity.ts
+│  │  │  ├── services
+│  │  │  │  ├── setOfQuestions.service.spec.ts
+│  │  │  │  └── setOfQuestions.service.ts
+│  │  │  └── set-of-questions.module.ts
+│  │  ├── socket
+│  │  │  ├── adapter
+│  │  │  │  └── RedisIoAdapter.ts
+│  │  │  ├── entities
+│  │  │  │  ├── userHostSocket.entity.ts
+│  │  │  │  ├── userScoreQuizSocket.entity.ts
+│  │  │  │  └── userSocket.entity.ts
+│  │  │  ├── services
+│  │  │  │  ├── userHostSocket.service.ts
+│  │  │  │  ├── userScoreQuizSocket.service.ts
+│  │  │  │  └── userSocket.service.ts
+│  │  │  ├── socket.events.ts
+│  │  │  ├── socket.gateway.spec.ts
+│  │  │  ├── socket.gateway.ts
+│  │  │  ├── socket.module.ts
+│  │  │  └── socket.wsJwtGuard.ts
+│  │  ├── src
+│  │  │  ├── client.module.ts
+│  │  │  └── main.ts
+│  │  ├── test
+│  │  │  ├── app.e2e-spec.ts
+│  │  │  └── jest-e2e.json
+│  │  ├── tsconfig.app.json
+│  │  ├── up-load-file
+│  │  │  ├── controllers
+│  │  │  │  ├── up-load-file.controller.spec.ts
+│  │  │  │  └── up-load-file.controller.ts
+│  │  │  ├── entities
+│  │  │  │  └── upLoadFile.entity.ts
+│  │  │  ├── services
+│  │  │  │  ├── up-load-file.service.spec.ts
+│  │  │  │  └── up-load-file.service.ts
+│  │  │  └── up-load-file.module.ts
+│  │  └── user
+│  │    ├── controller
+│  │    │  ├── user.controller.spec.ts
+│  │    │  └── user.controller.ts
+│  │    ├── dto
+│  │    │  ├── updateAvatar
+│  │    │  │  └── res.dto.ts
+│  │    │  └── updateUser
+│  │    │    └── res.dto.ts
+│  │    ├── entities
+│  │    │  └── user.entity.ts
+│  │    ├── service
+│  │    │  ├── user.service.spec.ts
+│  │    │  └── user.service.ts
+│  │    └── user.module.ts
+│  └── share
+│    ├── configService.module.ts
+│    ├── controller
+│    │  └── baseController.ts
+│    ├── decorator
+│    │  └── host.decorator.ts
+│    ├── enums
+│    │  ├── dirFile.enum.ts
+│    │  └── status.enum.ts
+│    ├── exceptions
+│    │  ├── errors.exception.ts
+│    │  ├── file-not-image.exception.ts
+│    │  ├── resource.exception.ts
+│    │  └── user-not-found.exception.ts
+│    ├── filters
+│    │  ├── http-exception.filter.ts
+│    │  └── rpc-exception.filter.ts
+│    ├── grpc
+│    │  ├── setup.ts
+│    │  └── svcOptions.ts
+│    ├── helpers
+│    │  ├── blurHash.ts
+│    │  └── random.ts
+│    ├── interceptors
+│    │  └── logging.interceptor.ts
+│    ├── interfaces
+│    │  ├── aws-config.interface.ts
+│    │  ├── firebase-config.interface.ts
+│    │  ├── IFile.ts
+│    │  ├── query.interface.ts
+│    │  └── swagger-config.interface.ts
+│    ├── jwt
+│    │  └── setupJwt.ts
+│    ├── mongodb
+│    │  ├── baseModel.entity.ts
+│    │  ├── createBy.entity.ts
+│    │  ├── RegExp
+│    │  │  └── index.ts
+│    │  └── setup.ts
+│    ├── services
+│    │  ├── aws-s3.service.ts
+│    │  ├── baseService.service.ts
+│    │  ├── config.service.ts
+│    │  ├── generator.service.ts
+│    │  ├── logger.service.ts
+│    │  └── respone.service.ts
+│    ├── shared.module.ts
+│    └── swagger
+│      └── setup.ts
+├── demo.tree
+├── docker-compose.yaml
+├── Dockerfile
+├── docs
+│  └── Git
+│    └── commitCode.Readme.md
+├── ecosystem.config.js
+├── logs
+│  ├── development
+│  │  ├── .b349349a44e16364e98cd89db39e8b566540488a-audit.json
+│  │  ├── .fb318f1198a61541c79346c7f7d4f5058616332a-audit.json
+│  │  ├── debug-2021-11-22.log
+│  │  ├── debug-2021-11-23.log
+│  │  ├── debug-2021-11-24.log
+│  │  ├── debug-2021-11-25.log
+│  │  ├── debug-2021-11-29.log
+│  │  ├── debug-2021-12-02.log
+│  │  ├── error-2021-11-03.log
+│  │  ├── error-2021-11-04.log
+│  │  ├── error-2021-11-05.log
+│  │  ├── error-2021-11-09.log
+│  │  ├── error-2021-11-10.log
+│  │  ├── error-2021-11-11.log
+│  │  ├── error-2021-11-12.log
+│  │  ├── error-2021-11-22.log
+│  │  ├── error-2021-11-23.log
+│  │  ├── error-2021-11-24.log
+│  │  ├── error-2021-11-25.log
+│  │  ├── error-2021-11-29.log
+│  │  └── error-2021-12-02.log
+│  └── test
+│    ├── .0e69d5fc1e2a43b15d8b21f8925dcbfa803b6384-audit.json
+│    ├── .1d47316f124eecb0fb098eb6110ac6afc66327e7-audit.json
+│    ├── debug-2021-09-26.log
+│    └── error-2021-09-26.log
+├── nest-cli.json
+├── package.json
+├── README.md
+├── serviceAccountKey.json
+├── tsconfig.build.json
+├── tsconfig.json
+├── uploads
+│  ├── 36c1f480ace4714ca194bad7ade9e813
+│  │  └── Screenshot from 2021-10-09 15-43-57.png
+│  └── a82feb96c7a5a2f443784de425b8a39e
+│    └── 250088841_1959270524232479_3329661725395611165_n.jpg
+└── yarn.lock

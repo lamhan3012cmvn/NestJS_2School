@@ -33,7 +33,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         if (image) {
           const link = image.path || '';
           user.image = link;
-          console.log(user);
         }
       }
       done(null, user);

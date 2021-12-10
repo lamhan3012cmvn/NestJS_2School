@@ -1776,7 +1776,6 @@ class Device extends baseModel_entity_2.BaseModel {
         return this.model.modelName;
     }
     static createModel(payload) {
-        console.log(`LHA:  ===> file: device.entity.ts ===> line 36 ===> payload`, payload);
         return new this.model(payload);
     }
 }
@@ -2690,9 +2689,7 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
                 idClass: idClass,
                 status: status,
             };
-            console.log(`LHA:  ===> file: memberClass.service.ts ===> line 98 ===> obj`, obj);
             const memberClass = await this._model.find(obj).lean();
-            console.log(`LHA:  ===> file: memberClass.service.ts ===> line 100 ===> memberClass`, memberClass);
             if (memberClass.length > 0) {
                 const results = await Promise.all(memberClass.map(async (e) => {
                     try {
@@ -2851,7 +2848,6 @@ let ClassController = class ClassController extends baseController_1.BaseControl
     }
     async update(user, query, updateClassDto) {
         try {
-            console.log(`LHA:  ===> file: class.controller.ts ===> line 66 ===> updateClassDto`, updateClassDto);
             const result = await this.classService.findOneAndUpdate({ createdBy: user.createdBy, _id: query.id }, updateClassDto);
             if (result) {
                 const cloneClass = this.classService.cvtJSON(result);
@@ -2888,7 +2884,6 @@ let ClassController = class ClassController extends baseController_1.BaseControl
     }
     async findAll(host, user) {
         try {
-            console.log(host);
             const result = await this.classService.findAllClasses(user, {
                 limit: '15',
                 skip: '0',
@@ -3522,9 +3517,7 @@ let AuthService = class AuthService extends respone_service_1.ResponseService {
         return this.configService.get('JWT_SECRET');
     }
     async validateUser(payload) {
-        console.log(`LHA:  ===> file: auth.service.ts ===> line 28 ===> payload`, payload);
         const user = await this.userModel.findOne({ createdBy: payload.id }).lean();
-        console.log(`LHA:  ===> file: auth.service.ts ===> line 33 ===> user`, user);
         return user;
     }
     async login(username, password) {
@@ -3700,7 +3693,6 @@ let LocalStrategy = class LocalStrategy extends passport_1.PassportStrategy(pass
         this.authService = authService;
     }
     async validate(payload, done) {
-        console.log(`LHA:  ===> file: local.strategy.ts ===> line 43 ===> payload`, payload);
         const user = await this.authService.validateUser(payload);
         if (!user) {
             return done(new common_1.UnauthorizedException(), false);
@@ -3824,7 +3816,6 @@ let JwtStrategy = class JwtStrategy extends passport_1.PassportStrategy(passport
                 if (image) {
                     const link = image.path || '';
                     user.image = link;
-                    console.log(user);
                 }
             }
             done(null, user);
@@ -5029,10 +5020,12 @@ let AppGateway = class AppGateway {
                         idRoom: host.idRoom,
                         idQuestion: currentQuestion._id,
                     });
+                    console.log(`LHA:  ===> file: socket.gateway.ts ===> line 453 ===> userAnswer`, userAnswer);
                     const userDontAnswer = await this._userMemberSocketService.findAll({
                         userId: { $nin: userAnswer.map((e) => e.userId) },
                         idRoom: host.idRoom,
                     });
+                    console.log(`LHA:  ===> file: socket.gateway.ts ===> line 461 ===> userDontAnswer`, userDontAnswer);
                     for (const uda of userDontAnswer) {
                         await this._userScoreQuizSocketService.createUserHostSocket({
                             idRoom: host.idRoom,
@@ -5527,9 +5520,7 @@ let WsJwtGuard = class WsJwtGuard {
             const client = context.switchToWs().getClient();
             console.log((_a = client.handshake) === null || _a === void 0 ? void 0 : _a.headers);
             const authToken = (_c = (_b = client.handshake) === null || _b === void 0 ? void 0 : _b.headers) === null || _c === void 0 ? void 0 : _c.authorization;
-            console.log(`LHA:  ===> file: socket.wsJwtGuard.ts ===> line 22 ===> authToken`, authToken);
             const encodeJWT = await this.jwt.verifyAsync(authToken);
-            console.log(`LHA:  ===> file: socket.wsJwtGuard.ts ===> line 22 ===> encodeJWT`, encodeJWT);
             const user = await this.authService.validateUser({
                 id: encodeJWT.data,
             });

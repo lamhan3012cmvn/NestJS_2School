@@ -65,10 +65,6 @@ export class ClassController extends BaseController {
   @UseGuards(JwtAuthGuard)
   async update(@Usr() user: User, @Query() query, @Body() updateClassDto: any) {
     try {
-      console.log(
-        `LHA:  ===> file: class.controller.ts ===> line 66 ===> updateClassDto`,
-        updateClassDto,
-      );
       const result = await this.classService.findOneAndUpdate(
         { createdBy: user.createdBy, _id: query.id },
         updateClassDto,
@@ -119,7 +115,6 @@ export class ClassController extends BaseController {
   @UseGuards(JwtAuthGuard)
   async findAll(@HostName() host, @Usr() user: User) {
     try {
-      console.log(host);
       const result = await this.classService.findAllClasses(
         user,
         {
