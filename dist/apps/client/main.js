@@ -4838,6 +4838,7 @@ let AppGateway = class AppGateway {
                     users: listMember.map((e) => e.user),
                     success: true,
                 });
+                console.log(client.user);
                 this.server.to(host.idRoom).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
                     msg: 'Join Room Quiz Success Users',
                     user: client.user,

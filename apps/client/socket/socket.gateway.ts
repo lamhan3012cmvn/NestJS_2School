@@ -162,6 +162,7 @@ export class AppGateway
           success: true,
         });
         // const abc=this.
+        console.log(client.user);
         this.server.to(host.idRoom).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
           msg: 'Join Room Quiz Success Users',
           user: client.user,
