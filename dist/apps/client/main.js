@@ -4973,14 +4973,17 @@ let AppGateway = class AppGateway {
             idRoom: payload.idRoom,
             host: client.id,
         });
+        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 389 ===> host`, host);
         if (!host)
             return;
         const question = await this._questionService.findById(payload.idQuestion);
+        console.log(`LHA:  ===> file: socket.gateway.ts ===> line 392 ===> question`, question);
         if (question) {
             const user = await this._userMemberSocketService.findOne({
                 idRoom: payload.idRoom,
                 userId: client.user.createdBy,
             });
+            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 404 ===> user`, user);
             if (!user) {
                 return;
             }
@@ -4995,6 +4998,7 @@ let AppGateway = class AppGateway {
                 }
             }
             const newUserScore = await this._userScoreQuizSocketService.createUserHostSocket(Object.assign(Object.assign({}, payload), { score, question: question.question, userId: client.user._id, socketId: client.id }));
+            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 419 ===> newUserScore`, newUserScore);
         }
     }
     async handleTakeTheQuestion(host) {
