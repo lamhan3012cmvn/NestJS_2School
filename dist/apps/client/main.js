@@ -4920,6 +4920,7 @@ let AppGateway = class AppGateway {
                     listQuizClassScore.push(resultSaveQuizClass);
                 }
             }
+            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 292 ===> listQuizClassScore`, listQuizClassScore);
             this.server
                 .in(host.idRoom)
                 .emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_FINAL_SSC, {
@@ -4999,7 +5000,7 @@ let AppGateway = class AppGateway {
                     }
                 }
             }
-            const newUserScore = await this._userScoreQuizSocketService.createUserHostSocket(Object.assign(Object.assign({}, payload), { score, question: question.question, userId: client.user._id, socketId: client.id }));
+            const newUserScore = await this._userScoreQuizSocketService.createUserHostSocket(Object.assign(Object.assign({}, payload), { score, question: question.question, userId: client.user.createdBy, socketId: client.id }));
             console.log(`LHA:  ===> file: socket.gateway.ts ===> line 419 ===> newUserScore`, newUserScore);
         }
     }

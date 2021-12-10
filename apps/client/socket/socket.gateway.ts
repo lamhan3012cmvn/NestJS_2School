@@ -300,6 +300,10 @@ export class AppGateway
           listQuizClassScore.push(resultSaveQuizClass);
         }
       }
+      console.log(
+        `LHA:  ===> file: socket.gateway.ts ===> line 292 ===> listQuizClassScore`,
+        listQuizClassScore,
+      );
       this.server
         .in(host.idRoom)
         .emit(SOCKET_EVENT.STATISTICAL_ROOM_FINAL_SSC, {
@@ -429,7 +433,7 @@ export class AppGateway
           ...payload,
           score,
           question: question.question,
-          userId: client.user._id,
+          userId: client.user.createdBy,
           socketId: client.id,
         });
       // this.server.emit(SOCKET_EVENT.ANSWER_THE_QUESTION_SSC, payload);
