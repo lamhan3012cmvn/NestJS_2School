@@ -4974,7 +4974,7 @@ let AppGateway = class AppGateway {
             host: client.id,
         });
         console.log(`LHA:  ===> file: socket.gateway.ts ===> line 389 ===> host`, host);
-        if (!host)
+        if (host)
             return;
         const question = await this._questionService.findById(payload.idQuestion);
         console.log(`LHA:  ===> file: socket.gateway.ts ===> line 392 ===> question`, question);
