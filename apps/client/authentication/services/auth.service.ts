@@ -8,6 +8,7 @@ import { ResponseService } from '../../../share/services/respone.service';
 import { JwtService } from '@nestjs/jwt';
 import { Auth, IAuth } from '../entities/auth.entity';
 import { User } from 'apps/client/user/entities/user.entity';
+import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
 @Injectable()
 export class AuthService extends ResponseService {
   constructor(
@@ -18,6 +19,7 @@ export class AuthService extends ResponseService {
     private configService: ConfigService,
     private loggerService: LoggerService,
     private jwtService: JwtService,
+    private upLoadFileService: UpLoadFileService,
   ) {
     super();
   }
@@ -26,7 +28,18 @@ export class AuthService extends ResponseService {
   }
   async validateUser(payload: any): Promise<User> {
     const user = await this.userModel.findOne({ createdBy: payload.id }).lean();
-    return user;
+    const newUser = { ...user };
+    if (newUser.image !== '') {
+      const result = await this.upLoadFileService.findById(newUser.image);
+      if (result) {
+        newUser.image = result.path;
+      }
+    }
+    console.log(
+      `LHA:  ===> file: auth.service.ts ===> line 36 ===> newUser`,
+      newUser,
+    );
+    return newUser;
   }
 
   async login(username: string, password: string): Promise<any> {

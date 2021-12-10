@@ -3491,7 +3491,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e;
+var _a, _b, _c, _d, _e, _f;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthService = void 0;
 const common_1 = __webpack_require__(3);
@@ -3504,21 +3504,31 @@ const respone_service_1 = __webpack_require__(51);
 const jwt_1 = __webpack_require__(70);
 const auth_entity_1 = __webpack_require__(71);
 const user_entity_1 = __webpack_require__(26);
+const up_load_file_service_1 = __webpack_require__(52);
 let AuthService = class AuthService extends respone_service_1.ResponseService {
-    constructor(accountModel, userModel, configService, loggerService, jwtService) {
+    constructor(accountModel, userModel, configService, loggerService, jwtService, upLoadFileService) {
         super();
         this.accountModel = accountModel;
         this.userModel = userModel;
         this.configService = configService;
         this.loggerService = loggerService;
         this.jwtService = jwtService;
+        this.upLoadFileService = upLoadFileService;
     }
     jwtSecret() {
         return this.configService.get('JWT_SECRET');
     }
     async validateUser(payload) {
         const user = await this.userModel.findOne({ createdBy: payload.id }).lean();
-        return user;
+        const newUser = Object.assign({}, user);
+        if (newUser.image !== '') {
+            const result = await this.upLoadFileService.findById(newUser.image);
+            if (result) {
+                newUser.image = result.path;
+            }
+        }
+        console.log(`LHA:  ===> file: auth.service.ts ===> line 36 ===> newUser`, newUser);
+        return newUser;
     }
     async login(username, password) {
         try {
@@ -3607,7 +3617,7 @@ AuthService = __decorate([
     common_1.Injectable(),
     __param(0, mongoose_1.InjectModel(auth_entity_1.Auth.name)),
     __param(1, mongoose_1.InjectModel(user_entity_1.User.name)),
-    __metadata("design:paramtypes", [typeof (_a = typeof mongoose_2.Model !== "undefined" && mongoose_2.Model) === "function" ? _a : Object, typeof (_b = typeof mongoose_2.Model !== "undefined" && mongoose_2.Model) === "function" ? _b : Object, typeof (_c = typeof config_service_1.ConfigService !== "undefined" && config_service_1.ConfigService) === "function" ? _c : Object, typeof (_d = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _d : Object, typeof (_e = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _e : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof mongoose_2.Model !== "undefined" && mongoose_2.Model) === "function" ? _a : Object, typeof (_b = typeof mongoose_2.Model !== "undefined" && mongoose_2.Model) === "function" ? _b : Object, typeof (_c = typeof config_service_1.ConfigService !== "undefined" && config_service_1.ConfigService) === "function" ? _c : Object, typeof (_d = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _d : Object, typeof (_e = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _e : Object, typeof (_f = typeof up_load_file_service_1.UpLoadFileService !== "undefined" && up_load_file_service_1.UpLoadFileService) === "function" ? _f : Object])
 ], AuthService);
 exports.AuthService = AuthService;
 
@@ -3810,16 +3820,7 @@ let JwtStrategy = class JwtStrategy extends passport_1.PassportStrategy(passport
     }
     async validate(req, payload, done) {
         const user = await this.authService.validateUser({ id: payload.data });
-        if (user) {
-            if (!(user.image === '')) {
-                const image = await this.uploadFileService.findById(user.image);
-                if (image) {
-                    const link = image.path || '';
-                    user.image = link;
-                }
-            }
-            done(null, user);
-        }
+        done(null, user);
         return done(new common_1.UnauthorizedException(), false);
     }
 };

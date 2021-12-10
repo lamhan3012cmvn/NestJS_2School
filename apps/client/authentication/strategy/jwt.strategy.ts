@@ -27,16 +27,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     done: (error: Error, user: any | false) => any,
   ) {
     const user = await this.authService.validateUser({ id: payload.data });
-    if (user) {
-      if (!(user.image === '')) {
-        const image = await this.uploadFileService.findById(user.image);
-        if (image) {
-          const link = image.path || '';
-          user.image = link;
-        }
-      }
-      done(null, user);
-    }
+    // if (user) {
+    //   if (!(user.image === '')) {
+    //     const image = await this.uploadFileService.findById(user.image);
+    //     if (image) {
+    //       const link = image.path || '';
+    //       user.image = link;
+    //     }
+    //   }
+    // }
+    done(null, user);
     return done(new UnauthorizedException(), false);
   }
 }
