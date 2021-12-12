@@ -4,6 +4,7 @@ import { DeviceService } from 'apps/client/device/services/device.service';
 import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
 import { BaseService } from 'apps/share/services/baseService.service';
 import { LoggerService } from 'apps/share/services/logger.service';
+import { MessagingPayload } from 'firebase-admin/lib/messaging/messaging-api';
 import { ModelType } from 'typegoose';
 import { Notification } from '../entities/notification.entity';
 
@@ -53,10 +54,17 @@ export class NotificationService extends BaseService<Notification> {
     if (newNotification) {
       this._loggerService.info(`Create new notification success`);
       //Notify
-      this._deviceService.pushDevice(
-        notification.idUser,
-        JSON.stringify(newNotification),
-      );
+
+      const data = JSON.stringify({
+        abc: 'abc',
+      });
+      const bodyNoti: MessagingPayload = {
+        notification: {
+          title: 'asdhsh',
+          body: data,
+        },
+      };
+      this._deviceService.pushDevice(notification.idUser, bodyNoti);
     } else {
       this._loggerService.error(`Create new notification failed`);
     }
