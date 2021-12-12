@@ -46,7 +46,7 @@ export class DeviceService extends BaseService<Device> {
   async pushDevice(id: string, payload: MessagingPayload) {
     try {
       const device = await this.findOne({
-        createBy: id,
+        createdBy: id,
       });
       if (!device) {
         this._loggerService.error(

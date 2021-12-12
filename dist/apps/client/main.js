@@ -1878,7 +1878,7 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
     async pushDevice(id, payload) {
         try {
             const device = await this.findOne({
-                createBy: id,
+                createdBy: id,
             });
             if (!device) {
                 this._loggerService.error('Dont find device', null, 'pushDevice-DeviceService');
