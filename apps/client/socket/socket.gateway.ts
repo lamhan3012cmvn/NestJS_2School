@@ -135,6 +135,7 @@ export class AppGateway
     client: typeSocket,
     payload: { idRoom: string },
   ): Promise<void> {
+    console.log(client.id);
     const host = await this._userHostSocketService.findOne({
       idRoom: payload.idRoom,
     });
@@ -156,13 +157,14 @@ export class AppGateway
           idRoom: payload.idRoom,
         });
 
+        console.log('Send list member to client');
         this.server.to(client.id).emit(SOCKET_EVENT.JOIN_ROOM_NEW_SSC, {
           msg: 'Join Room Quiz Success User',
           users: listMember.map((e) => e.user),
           success: true,
         });
         // const abc=this.
-        console.log(client.user);
+        console.log('Send room member to client');
         this.server.to(host.idRoom).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
           msg: 'Join Room Quiz Success Users',
           user: client.user,

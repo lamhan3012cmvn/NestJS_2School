@@ -4818,6 +4818,7 @@ let AppGateway = class AppGateway {
         }
     }
     async handleJoinRoom(client, payload) {
+        console.log(client.id);
         const host = await this._userHostSocketService.findOne({
             idRoom: payload.idRoom,
         });
@@ -4833,12 +4834,13 @@ let AppGateway = class AppGateway {
                 const listMember = await this._userMemberSocketService.findAll({
                     idRoom: payload.idRoom,
                 });
+                console.log('Send list member to client');
                 this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_NEW_SSC, {
                     msg: 'Join Room Quiz Success User',
                     users: listMember.map((e) => e.user),
                     success: true,
                 });
-                console.log(client.user);
+                console.log('Send room member to client');
                 this.server.to(host.idRoom).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
                     msg: 'Join Room Quiz Success Users',
                     user: client.user,
