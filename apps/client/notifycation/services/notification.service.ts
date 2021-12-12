@@ -53,7 +53,10 @@ export class NotificationService extends BaseService<Notification> {
     if (newNotification) {
       this._loggerService.info(`Create new notification success`);
       //Notify
-      // this._deviceService.pushDevice(notification.idUser, {});
+      this._deviceService.pushDevice(
+        notification.idUser,
+        this.cvtJSON(newNotification),
+      );
     } else {
       this._loggerService.error(`Create new notification failed`);
     }

@@ -5657,6 +5657,7 @@ let NotificationService = class NotificationService extends baseService_service_
         const newNotification = await this.create(model);
         if (newNotification) {
             this._loggerService.info(`Create new notification success`);
+            this._deviceService.pushDevice(notification.idUser, this.cvtJSON(newNotification));
         }
         else {
             this._loggerService.error(`Create new notification failed`);
