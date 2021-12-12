@@ -4793,17 +4793,17 @@ let AppGateway = class AppGateway {
         if (userHostSocket) {
             const listMember = await this._memberClassService.getMemberNotifyByClass(payload.idClass);
             const currentClass = await this._classService.findById(payload.idClass);
-            for (const member of listMember) {
-                const noti = {
-                    idUser: member.idUser,
+            const listNotify = listMember.map((e) => {
+                return {
+                    idUser: e.idUser,
                     title: payload.title,
                     description: payload.description,
                     typeNotify: 'quiz',
                     data: idRoom,
                     image: currentClass.image,
                 };
-                this._notificationService.createNotification(noti);
-            }
+            });
+            this._notificationService.createNotification(listNotify);
             this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_SSC, {
                 msg: 'Create Room Quiz Success',
                 idRoom: idRoom,
@@ -4862,7 +4862,7 @@ let AppGateway = class AppGateway {
             });
             return;
         }
-        this.server.emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
+        this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {
             msg: 'Join Room Quiz  (Dont find room)',
             err: false,
             success: false,
@@ -4879,6 +4879,7 @@ let AppGateway = class AppGateway {
                 this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.START_QUIZ_SSC, {
                     msg: 'Start Game Fail, Game Stated',
                     data: host,
+                    success: false,
                 });
                 return;
             }
@@ -4888,6 +4889,7 @@ let AppGateway = class AppGateway {
                 this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.START_QUIZ_SSC, {
                     msg: 'Start Game Success',
                     data: startGame,
+                    success: true,
                 });
                 this.handleTakeTheQuestion(startGame);
                 return;
@@ -4897,12 +4899,14 @@ let AppGateway = class AppGateway {
                 .emit(socket_events_1.SOCKET_EVENT.START_QUIZ_SSC, socket_events_1.SOCKET_EVENT.START_QUIZ_SSC, {
                 msg: 'Fail Game Success',
                 data: startGame,
+                success: false,
             });
             return;
         }
         this.server.emit(socket_events_1.SOCKET_EVENT.START_QUIZ_SSC, {
             msg: 'Dont find host start game',
             data: null,
+            success: false,
         });
     }
     async handleLeaveRoom(client, payload) {
@@ -5006,7 +5010,11 @@ let AppGateway = class AppGateway {
             }
             return t;
         }, objResult);
-        this.server.to(idRoom).emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
+        this.server.to(idRoom).emit(socket_events_1.SOCKET_EVENT.STATISTICAL_ROOM_SSC, {
+            data: result,
+            msg: 'STATISTICAL_ROOM_SSC',
+            success: true,
+        });
     }
     async handleSaveDevice(client, payload) {
         const obj = Object.assign({}, payload, {
@@ -5065,6 +5073,7 @@ let AppGateway = class AppGateway {
                 this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
                     msg: 'Take Question Success',
                     data: payload,
+                    success: true,
                 });
                 setTimeout(async () => {
                     const userAnswer = await this._userScoreQuizSocketService.findAll({
@@ -5105,6 +5114,7 @@ let AppGateway = class AppGateway {
         this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
             msg: 'Dont find Question Fail Server',
             data: null,
+            success: false,
         });
         return;
     }
@@ -5656,22 +5666,12 @@ let NotificationService = class NotificationService extends baseService_service_
         return notifications.length;
     }
     async createNotification(notification) {
-        const model = notification_entity_1.Notification.createModel(notification);
-        const newNotification = await this.create(model);
-        if (newNotification) {
-            this._loggerService.info(`Create new notification success`);
-            const bodyNoti = {
-                notification: {
-                    title: 'Bài kiểm tra mới',
-                    body: 'Bạn có bài kiểm tra mới',
-                },
-                data: {},
-            };
-            this._deviceService.pushDevice(notification.idUser, bodyNoti);
-        }
-        else {
-            this._loggerService.error(`Create new notification failed`);
-        }
+        const modelNotis = notification.map(async (item) => {
+            const model = notification_entity_1.Notification.createModel(item);
+            return await this.create(model);
+        });
+        const reuslt = Promise.all(modelNotis);
+        console.log(`LHA:  ===> file: notification.service.ts ===> line 57 ===> reuslt`, reuslt);
     }
 };
 NotificationService = __decorate([

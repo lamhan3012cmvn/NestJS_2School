@@ -46,25 +46,32 @@ export class NotificationService extends BaseService<Notification> {
     return notifications.length;
   }
 
-  async createNotification(notification: any): Promise<void> {
+  async createNotification(notification: Array<any>): Promise<void> {
     // push notify
     // const obj: any = { ...notification };
-    const model = Notification.createModel(notification);
-    const newNotification = await this.create(model);
-    if (newNotification) {
-      this._loggerService.info(`Create new notification success`);
-      //Notify
+    const modelNotis = notification.map(async (item) => {
+      const model = Notification.createModel(item);
+      return await this.create(model);
+    });
+    const reuslt = Promise.all(modelNotis);
+    console.log(
+      `LHA:  ===> file: notification.service.ts ===> line 57 ===> reuslt`,
+      reuslt,
+    );
+    // if (newNotification) {
+    //   this._loggerService.info(`Create new notification success`);
+    //   //Notify
 
-      const bodyNoti: MessagingPayload = {
-        notification: {
-          title: 'Bài kiểm tra mới',
-          body: 'Bạn có bài kiểm tra mới',
-        },
-        data: {},
-      };
-      this._deviceService.pushDevice(notification.idUser, bodyNoti);
-    } else {
-      this._loggerService.error(`Create new notification failed`);
-    }
+    //   const bodyNoti: MessagingPayload = {
+    //     notification: {
+    //       title: 'Bài kiểm tra mới',
+    //       body: 'Bạn có bài kiểm tra mới',
+    //     },
+    //     data: {},
+    //   };
+    //   this._deviceService.pushDevice(notification.idUser, bodyNoti);
+    // } else {
+    //   this._loggerService.error(`Create new notification failed`);
+    // }
   }
 }

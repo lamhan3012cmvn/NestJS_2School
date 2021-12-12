@@ -103,17 +103,17 @@ export class AppGateway
         payload.idClass,
       );
       const currentClass = await this._classService.findById(payload.idClass);
-      for (const member of listMember) {
-        const noti: any = {
-          idUser: member.idUser,
+      const listNotify = listMember.map((e: any) => {
+        return {
+          idUser: e.idUser,
           title: payload.title,
           description: payload.description,
           typeNotify: 'quiz',
           data: idRoom,
           image: currentClass.image,
         };
-        this._notificationService.createNotification(noti);
-      }
+      });
+      this._notificationService.createNotification(listNotify);
 
       this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
         msg: 'Create Room Quiz Success',
@@ -190,7 +190,7 @@ export class AppGateway
       });
       return;
     }
-    this.server.emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
+    this.server.to(client.id).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
       msg: 'Join Room Quiz  (Dont find room)',
       err: false,
       success: false,
@@ -212,6 +212,7 @@ export class AppGateway
         this.server.to(client.id).emit(SOCKET_EVENT.START_QUIZ_SSC, {
           msg: 'Start Game Fail, Game Stated',
           data: host,
+          success: false,
         });
         return;
       }
@@ -224,6 +225,7 @@ export class AppGateway
         this.server.in(host.idRoom).emit(SOCKET_EVENT.START_QUIZ_SSC, {
           msg: 'Start Game Success',
           data: startGame,
+          success: true,
         });
         this.handleTakeTheQuestion(startGame);
         return;
@@ -234,12 +236,14 @@ export class AppGateway
         .emit(SOCKET_EVENT.START_QUIZ_SSC, SOCKET_EVENT.START_QUIZ_SSC, {
           msg: 'Fail Game Success',
           data: startGame,
+          success: false,
         });
       return;
     }
     this.server.emit(SOCKET_EVENT.START_QUIZ_SSC, {
       msg: 'Dont find host start game',
       data: null,
+      success: false,
     });
   }
 
@@ -381,7 +385,11 @@ export class AppGateway
       }
       return t;
     }, objResult);
-    this.server.to(idRoom).emit(SOCKET_EVENT.STATISTICAL_ROOM_SSC, result);
+    this.server.to(idRoom).emit(SOCKET_EVENT.STATISTICAL_ROOM_SSC, {
+      data: result,
+      msg: 'STATISTICAL_ROOM_SSC',
+      success: true,
+    });
   }
   // SEND_FCM_TOKEN_CSS
   @UseGuards(WsJwtGuard)
@@ -490,6 +498,7 @@ export class AppGateway
         this.server.in(host.idRoom).emit(SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
           msg: 'Take Question Success',
           data: payload,
+          success: true,
         });
 
         setTimeout(async () => {
@@ -550,6 +559,7 @@ export class AppGateway
     this.server.in(host.idRoom).emit(SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
       msg: 'Dont find Question Fail Server',
       data: null,
+      success: false,
     });
     return;
   }
