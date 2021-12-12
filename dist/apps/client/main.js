@@ -1893,6 +1893,24 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
             this._loggerService.error(e.message, null, 'pushDevice-DeviceService');
         }
     }
+    async pushDevices(ids, payload) {
+        try {
+            const listDevice = [];
+            for (const id of ids) {
+                const device = await this.findOne({
+                    createdBy: id,
+                });
+                if (device) {
+                    listDevice.push(device.fcmToken);
+                }
+            }
+            const result = await fire.messaging().sendToDevice(listDevice, payload);
+            console.log('Successfully sent message:', result);
+        }
+        catch (e) {
+            this._loggerService.error(e.message, null, 'pushDevice-DeviceService');
+        }
+    }
 };
 DeviceService = __decorate([
     common_1.Injectable(),
@@ -4803,7 +4821,7 @@ let AppGateway = class AppGateway {
                     image: currentClass.image,
                 };
             });
-            this._notificationService.createNotification(listNotify);
+            this._notificationService.createNotification(listNotify, idRoom);
             this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_SSC, {
                 msg: 'Create Room Quiz Success',
                 idRoom: idRoom,
@@ -5665,13 +5683,23 @@ let NotificationService = class NotificationService extends baseService_service_
         });
         return notifications.length;
     }
-    async createNotification(notification) {
+    async createNotification(notification, roomId) {
         const modelNotis = notification.map(async (item) => {
             const model = notification_entity_1.Notification.createModel(item);
             return await this.create(model);
         });
         const reuslt = await Promise.all(modelNotis);
         console.log(`LHA:  ===> file: notification.service.ts ===> line 57 ===> reuslt`, reuslt);
+        const bodyNoti = {
+            notification: {
+                title: 'Bài kiểm tra mới',
+                body: 'Bạn có bài kiểm tra mới',
+            },
+            data: {
+                idRoom: roomId,
+            },
+        };
+        this._deviceService.pushDevices(reuslt.map((e) => e.idUser), bodyNoti);
     }
 };
 NotificationService = __decorate([
@@ -7872,7 +7900,6 @@ let MemberClassController = class MemberClassController {
                     typeNotify: 'quiz',
                     data: '123',
                 };
-                this._notificationService.createNotification(noti);
             }
             if (result) {
                 return new baseController_1.Ok('Get List Member Success', result);

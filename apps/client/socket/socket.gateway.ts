@@ -113,7 +113,7 @@ export class AppGateway
           image: currentClass.image,
         };
       });
-      this._notificationService.createNotification(listNotify);
+      this._notificationService.createNotification(listNotify, idRoom);
 
       this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
         msg: 'Create Room Quiz Success',

@@ -46,7 +46,10 @@ export class NotificationService extends BaseService<Notification> {
     return notifications.length;
   }
 
-  async createNotification(notification: Array<any>): Promise<void> {
+  async createNotification(
+    notification: Array<any>,
+    roomId: string,
+  ): Promise<void> {
     // push notify
     // const obj: any = { ...notification };
     const modelNotis = notification.map(async (item) => {
@@ -58,18 +61,24 @@ export class NotificationService extends BaseService<Notification> {
       `LHA:  ===> file: notification.service.ts ===> line 57 ===> reuslt`,
       reuslt,
     );
+
     // if (newNotification) {
     //   this._loggerService.info(`Create new notification success`);
     //   //Notify
 
-    //   const bodyNoti: MessagingPayload = {
-    //     notification: {
-    //       title: 'Bài kiểm tra mới',
-    //       body: 'Bạn có bài kiểm tra mới',
-    //     },
-    //     data: {},
-    //   };
-    //   this._deviceService.pushDevice(notification.idUser, bodyNoti);
+    const bodyNoti: MessagingPayload = {
+      notification: {
+        title: 'Bài kiểm tra mới',
+        body: 'Bạn có bài kiểm tra mới',
+      },
+      data: {
+        idRoom: roomId,
+      },
+    };
+    this._deviceService.pushDevices(
+      reuslt.map((e) => e.idUser),
+      bodyNoti,
+    );
     // } else {
     //   this._loggerService.error(`Create new notification failed`);
     // }

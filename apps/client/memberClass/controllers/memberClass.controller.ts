@@ -49,7 +49,7 @@ export class MemberClassController {
           typeNotify: 'quiz',
           data: '123',
         };
-        this._notificationService.createNotification(noti);
+        // this._notificationService.createNotification(noti);
       }
       if (result) {
         return new Ok('Get List Member Success', result);

@@ -56,10 +56,31 @@ export class DeviceService extends BaseService<Device> {
         );
         return;
       }
+      // fire.messaging().sendToDevice([])
       const data = Promise.all([
         await fire.messaging().sendToDevice(device.fcmToken, payload),
       ]);
       console.log('Successfully sent message:', data);
+    } catch (e) {
+      this._loggerService.error(e.message, null, 'pushDevice-DeviceService');
+    }
+  }
+
+  async pushDevices(ids: Array<string>, payload: MessagingPayload) {
+    try {
+      const listDevice = [];
+      for (const id of ids) {
+        const device = await this.findOne({
+          createdBy: id,
+        });
+        if (device) {
+          listDevice.push(device.fcmToken);
+        }
+      }
+      // fire.messaging().sendToDevice([])
+
+      const result = await fire.messaging().sendToDevice(listDevice, payload);
+      console.log('Successfully sent message:', result);
     } catch (e) {
       this._loggerService.error(e.message, null, 'pushDevice-DeviceService');
     }
