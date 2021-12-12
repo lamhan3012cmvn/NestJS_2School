@@ -4833,7 +4833,6 @@ let AppGateway = class AppGateway {
             if (newMember) {
                 console.log('Join room nek', this.count);
                 this.count++;
-                client.join(payload.idRoom);
                 const listMember = await this._userMemberSocketService.findAll({
                     idRoom: payload.idRoom,
                 });
@@ -4850,6 +4849,7 @@ let AppGateway = class AppGateway {
                     user: client.user,
                     success: true,
                 });
+                client.join(payload.idRoom);
                 console.log('Count', this.count);
                 return;
             }

@@ -153,7 +153,6 @@ export class AppGateway
       if (newMember) {
         console.log('Join room nek', this.count);
         this.count++;
-        client.join(payload.idRoom);
 
         const listMember = await this._userMemberSocketService.findAll({
           idRoom: payload.idRoom,
@@ -171,11 +170,14 @@ export class AppGateway
         });
         // const abc=this.
         console.log('Send room member to client');
+        //send nhung nguoi da join room
         this.server.to(host.idRoom).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
           msg: 'Join Room Quiz Success Users',
           user: client.user,
           success: true,
         });
+        client.join(payload.idRoom);
+
         console.log('Count', this.count);
 
         return;
@@ -546,7 +548,6 @@ export class AppGateway
 
   @UseGuards(WsJwtGuard)
   async handleDisconnect(client: typeSocket) {
-    console.log(client.user);
     // const results = await this._userMemberSocketService.findOneAndRemove({
     //   userId: client.user._id,
     // });
