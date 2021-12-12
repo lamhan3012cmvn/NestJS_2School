@@ -1884,7 +1884,8 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
                 this._loggerService.error('Dont find device', null, 'pushDevice-DeviceService');
                 return;
             }
-            fire.messaging().sendToDevice(device.fcmToken, payload);
+            await fire.messaging().sendToDevice(device.fcmToken, payload);
+            console.log('Successfully sent message:', payload);
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'pushDevice-DeviceService');
