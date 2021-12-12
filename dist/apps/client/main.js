@@ -4753,9 +4753,11 @@ let AppGateway = class AppGateway {
         this._memberClassService = _memberClassService;
         this._notificationService = _notificationService;
         this.logger = new common_1.Logger('AppGateway');
+        this.count = 0;
     }
     async handleCreateRoom(client, payload) {
         console.log(client.id);
+        console.log('Count', this.count);
         const questions = await this._questionService.findAll({
             idSetOfQuestions: payload.idSetOfQuestions,
             createBy: client.user.createdBy,
@@ -4829,10 +4831,13 @@ let AppGateway = class AppGateway {
                 isHost: host.createBy === client.user.createdBy,
             });
             if (newMember) {
+                console.log('Join room nek', this.count);
+                this.count++;
+                client.join(payload.idRoom);
                 const listMember = await this._userMemberSocketService.findAll({
                     idRoom: payload.idRoom,
                 });
-                console.log(`LHA:  ===> file: socket.gateway.ts ===> line 155 ===> listMember`, listMember, listMember.length);
+                console.log(`LHA:  ===> file: socket.gateway.ts ===> line 155 ===> listMember`, listMember.length);
                 console.log('Send list member to client');
                 this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_NEW_SSC, {
                     msg: 'Join Room Quiz Success User',
@@ -4845,7 +4850,7 @@ let AppGateway = class AppGateway {
                     user: client.user,
                     success: true,
                 });
-                client.join(payload.idRoom);
+                console.log('Count', this.count);
                 return;
             }
             this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_SSC, {

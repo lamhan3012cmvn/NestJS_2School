@@ -49,6 +49,7 @@ export class AppGateway
 
   @WebSocketServer() private server: Server;
   private logger: Logger = new Logger('AppGateway');
+  private count = 0;
 
   @UseGuards(WsJwtGuard)
   @SubscribeMessage(SOCKET_EVENT.CREATE_QUIZ_CSS)
@@ -62,6 +63,7 @@ export class AppGateway
     },
   ): Promise<void> {
     console.log(client.id);
+    console.log('Count', this.count);
     const questions = await this._questionService.findAll({
       idSetOfQuestions: payload.idSetOfQuestions,
       createBy: client.user.createdBy,
@@ -149,12 +151,15 @@ export class AppGateway
       });
 
       if (newMember) {
+        console.log('Join room nek', this.count);
+        this.count++;
+        client.join(payload.idRoom);
+
         const listMember = await this._userMemberSocketService.findAll({
           idRoom: payload.idRoom,
         });
         console.log(
           `LHA:  ===> file: socket.gateway.ts ===> line 155 ===> listMember`,
-          listMember,
           listMember.length,
         );
 
@@ -171,7 +176,7 @@ export class AppGateway
           user: client.user,
           success: true,
         });
-        client.join(payload.idRoom);
+        console.log('Count', this.count);
 
         return;
       }
