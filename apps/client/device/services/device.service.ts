@@ -105,18 +105,22 @@ export class DeviceService extends BaseService<Device> {
           fullname: 'Dao Hong Vinh',
           username: 'lambiengcode',
         },
-        token: tokens,
+        // token: tokens,
       };
-      fire
-        .messaging()
-        .send(payload)
-        .then((response) => {
-          console.log('Successfully sent message:', response);
-        })
-        .catch(function (error) {
-          console.error('Error sending message:', error);
-        });
-      // fire.messaging().sendToDevice([])
+      // fire
+      //   .messaging()
+      //   .send(payload)
+      //   .then((response) => {
+      //     console.log('Successfully sent message:', response);
+      //   })
+      //   .catch(function (error) {
+      //     console.error('Error sending message:', error);
+      //   });
+      const result = await fire.messaging().sendToDevice(tokens, payload);
+      console.log(
+        `LHA:  ===> file: device.service.ts ===> line 120 ===> result`,
+        result,
+      );
 
       // const result = await fire.messaging().sendToDevice(listDevice, payload);
       // console.log('Successfully sent message:', result);
