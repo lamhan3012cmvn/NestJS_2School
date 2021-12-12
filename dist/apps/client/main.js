@@ -1847,6 +1847,7 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
         this._model = _deviceModel;
     }
     async createDevice(payload) {
+        console.log(`LHA:  ===> file: device.service.ts ===> line 21 ===> payload`, payload);
         try {
             const newDevice = device_entity_1.Device.createModel(payload);
             const result = await this.create(newDevice);
