@@ -18,10 +18,6 @@ export class DeviceService extends BaseService<Device> {
     this._model = _deviceModel;
   }
   async createDevice(payload: any) {
-    console.log(
-      `LHA:  ===> file: device.service.ts ===> line 21 ===> payload`,
-      payload,
-    );
     try {
       const newDevice = Device.createModel(payload);
       const result = await this.create(newDevice);

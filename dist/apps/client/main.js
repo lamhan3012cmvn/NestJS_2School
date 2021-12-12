@@ -1847,7 +1847,6 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
         this._model = _deviceModel;
     }
     async createDevice(payload) {
-        console.log(`LHA:  ===> file: device.service.ts ===> line 21 ===> payload`, payload);
         try {
             const newDevice = device_entity_1.Device.createModel(payload);
             const result = await this.create(newDevice);
@@ -4904,7 +4903,39 @@ let AppGateway = class AppGateway {
         });
     }
     async handleLeaveRoom(client, payload) {
-        client.leave(payload.idRoom);
+        const member = await this._userMemberSocketService.findOne({
+            userId: client.user._id,
+            idRoom: payload.idRoom,
+        });
+        if (member) {
+            client.leave(member.idRoom);
+            const removeUserMember = await this._userMemberSocketService.findOneAndRemove({
+                userId: client.user._id,
+                idRoom: payload.idRoom,
+            });
+            if (removeUserMember) {
+                this.server.in(payload.idRoom).emit(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_SSC, {
+                    msg: 'Leave Room Success',
+                    data: { idUser: client.user._id },
+                    success: true,
+                });
+                return;
+            }
+            this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_SSC, {
+                msg: 'Leave Room False (Dont find Room and remove)',
+                data: { idUser: null },
+                success: false,
+            });
+            return;
+        }
+        else {
+            this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_SSC, {
+                msg: 'Leave Room False (Dont find User)',
+                data: { idUser: null },
+                success: false,
+            });
+            return;
+        }
     }
     async handleNotifyEndQuiz(host) {
         console.log('Run end Notify End Quiz');
@@ -5076,7 +5107,6 @@ let AppGateway = class AppGateway {
         this.logger.log('Init');
     }
     async handleDisconnect(client) {
-        console.log(client.user);
         this.logger.log(`Client disconnected: ${client.id}`);
     }
     handleConnection(client, ...args) {
@@ -5109,6 +5139,7 @@ __decorate([
 ], AppGateway.prototype, "handleStartQuiz", null);
 __decorate([
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_CSS),
+    common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
