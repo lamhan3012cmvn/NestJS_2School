@@ -35,10 +35,6 @@ export class AuthService extends ResponseService {
         newUser.image = result.path;
       }
     }
-    console.log(
-      `LHA:  ===> file: auth.service.ts ===> line 36 ===> newUser`,
-      newUser,
-    );
     return newUser;
   }
 

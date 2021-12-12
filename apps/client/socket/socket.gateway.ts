@@ -135,7 +135,7 @@ export class AppGateway
     client: typeSocket,
     payload: { idRoom: string },
   ): Promise<void> {
-    console.log(client.id);
+    console.log('Member', client.id);
     const host = await this._userHostSocketService.findOne({
       idRoom: payload.idRoom,
     });
@@ -147,15 +147,16 @@ export class AppGateway
         user: client.user,
         isHost: host.createBy === client.user.createdBy,
       });
-      console.log(
-        `LHA:  ===> file: socket.gateway.ts ===> line 149 ===> newMember`,
-        newMember,
-      );
 
       if (newMember) {
         const listMember = await this._userMemberSocketService.findAll({
           idRoom: payload.idRoom,
         });
+        console.log(
+          `LHA:  ===> file: socket.gateway.ts ===> line 155 ===> listMember`,
+          listMember,
+          listMember.length,
+        );
 
         console.log('Send list member to client');
         this.server.to(client.id).emit(SOCKET_EVENT.JOIN_ROOM_NEW_SSC, {

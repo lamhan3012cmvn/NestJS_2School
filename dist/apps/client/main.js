@@ -3527,7 +3527,6 @@ let AuthService = class AuthService extends respone_service_1.ResponseService {
                 newUser.image = result.path;
             }
         }
-        console.log(`LHA:  ===> file: auth.service.ts ===> line 36 ===> newUser`, newUser);
         return newUser;
     }
     async login(username, password) {
@@ -4818,7 +4817,7 @@ let AppGateway = class AppGateway {
         }
     }
     async handleJoinRoom(client, payload) {
-        console.log(client.id);
+        console.log('Member', client.id);
         const host = await this._userHostSocketService.findOne({
             idRoom: payload.idRoom,
         });
@@ -4829,11 +4828,11 @@ let AppGateway = class AppGateway {
                 user: client.user,
                 isHost: host.createBy === client.user.createdBy,
             });
-            console.log(`LHA:  ===> file: socket.gateway.ts ===> line 149 ===> newMember`, newMember);
             if (newMember) {
                 const listMember = await this._userMemberSocketService.findAll({
                     idRoom: payload.idRoom,
                 });
+                console.log(`LHA:  ===> file: socket.gateway.ts ===> line 155 ===> listMember`, listMember, listMember.length);
                 console.log('Send list member to client');
                 this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.JOIN_ROOM_NEW_SSC, {
                     msg: 'Join Room Quiz Success User',
@@ -5531,12 +5530,10 @@ let WsJwtGuard = class WsJwtGuard {
         this.jwt = jwt;
     }
     async canActivate(context) {
-        var _a, _b, _c;
+        var _a, _b;
         try {
-            console.log('Midderware');
             const client = context.switchToWs().getClient();
-            console.log((_a = client.handshake) === null || _a === void 0 ? void 0 : _a.headers);
-            const authToken = (_c = (_b = client.handshake) === null || _b === void 0 ? void 0 : _b.headers) === null || _c === void 0 ? void 0 : _c.authorization;
+            const authToken = (_b = (_a = client.handshake) === null || _a === void 0 ? void 0 : _a.headers) === null || _b === void 0 ? void 0 : _b.authorization;
             const encodeJWT = await this.jwt.verifyAsync(authToken);
             const user = await this.authService.validateUser({
                 id: encodeJWT.data,
