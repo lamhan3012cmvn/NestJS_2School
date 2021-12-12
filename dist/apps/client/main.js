@@ -1906,8 +1906,32 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
                 }
             }
             console.log(`LHA:  ===> file: device.service.ts ===> line 72 ===> listDevice`, listDevice);
-            const result = await fire.messaging().sendToDevice(listDevice, payload);
-            console.log('Successfully sent message:', result);
+            const payload = {
+                notification: {
+                    title: 'Hồng Vinh đã gửi cho bạn một tin nhắn',
+                    body: 'Im Mobile Developer...',
+                    image: 'https://avatars.githubusercontent.com/u/60530946?v=4',
+                },
+                data: {
+                    id: 'lambiengco12313de',
+                    invitation: 'hehe',
+                    startTime: '2021-07-30T02:40:38.448Z',
+                    avatar: 'https://avatars.githubusercontent.com/u/60530946?v=4',
+                    route: 'conversation',
+                    fullname: 'Dao Hong Vinh',
+                    username: 'lambiengcode',
+                },
+                token: listDevice,
+            };
+            fire
+                .messaging()
+                .send(payload)
+                .then((response) => {
+                console.log('Successfully sent message:', response);
+            })
+                .catch(function (error) {
+                console.error('Error sending message:', error);
+            });
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'pushDevice-DeviceService');
