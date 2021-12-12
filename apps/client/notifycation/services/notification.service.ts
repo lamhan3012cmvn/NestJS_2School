@@ -60,7 +60,7 @@ export class NotificationService extends BaseService<Notification> {
           title: 'Bài kiểm tra mới',
           body: 'Bạn có bài kiểm tra mới',
         },
-        data: this.cvtJSON(newNotification),
+        data: {},
       };
       this._deviceService.pushDevice(notification.idUser, bodyNoti);
     } else {

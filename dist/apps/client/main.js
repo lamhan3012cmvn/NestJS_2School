@@ -5665,7 +5665,7 @@ let NotificationService = class NotificationService extends baseService_service_
                     title: 'Bài kiểm tra mới',
                     body: 'Bạn có bài kiểm tra mới',
                 },
-                data: this.cvtJSON(newNotification),
+                data: {},
             };
             this._deviceService.pushDevice(notification.idUser, bodyNoti);
         }
