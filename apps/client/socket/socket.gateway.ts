@@ -163,7 +163,7 @@ export class AppGateway
         );
 
         console.log('Send list member to client');
-        this.server.to(client.id).emit(SOCKET_EVENT.JOIN_ROOM_NEW_SSC, {
+        client.to(client.id).emit(SOCKET_EVENT.JOIN_ROOM_NEW_SSC, {
           msg: 'Join Room Quiz Success User',
           users: listMember.map((e) => e.user),
           success: true,
@@ -171,7 +171,8 @@ export class AppGateway
         // const abc=this.
         console.log('Send room member to client');
         //send nhung nguoi da join room
-        this.server.to(host.idRoom).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
+
+        client.to(host.idRoom).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
           msg: 'Join Room Quiz Success Users',
           user: client.user,
           success: true,
