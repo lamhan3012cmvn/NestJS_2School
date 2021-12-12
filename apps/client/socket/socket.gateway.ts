@@ -163,7 +163,7 @@ export class AppGateway
         );
 
         console.log('Send list member to client');
-        client.to(client.id).emit(SOCKET_EVENT.JOIN_ROOM_NEW_SSC, {
+        this.server.to(client.id).emit(SOCKET_EVENT.JOIN_ROOM_NEW_SSC, {
           msg: 'Join Room Quiz Success User',
           users: listMember.map((e) => e.user),
           success: true,
