@@ -116,7 +116,7 @@ export class DeviceService extends BaseService<Device> {
       //   .catch(function (error) {
       //     console.error('Error sending message:', error);
       //   });
-      const result = await fire.messaging().sendToDevice(tokens, payload);
+      const result = await fire.messaging().sendToDevice(listDevice, payload);
       console.log(
         `LHA:  ===> file: device.service.ts ===> line 120 ===> result`,
         result,

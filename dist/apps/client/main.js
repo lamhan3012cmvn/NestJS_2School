@@ -1925,7 +1925,7 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
                     username: 'lambiengcode',
                 },
             };
-            const result = await fire.messaging().sendToDevice(tokens, payload);
+            const result = await fire.messaging().sendToDevice(listDevice, payload);
             console.log(`LHA:  ===> file: device.service.ts ===> line 120 ===> result`, result);
         }
         catch (e) {
