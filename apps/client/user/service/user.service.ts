@@ -63,7 +63,7 @@ export class UserService extends ResponseService {
           const image = await this.uploadService.findById(user.image);
           user.image = image.path;
         }
-        return user;
+        return JSON.parse(JSON.stringify(user));
       }
       return null;
     } catch (e) {

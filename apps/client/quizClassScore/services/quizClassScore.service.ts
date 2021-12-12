@@ -59,6 +59,10 @@ export class QuizClassScoreService extends BaseService<QuizClassScore> {
           ),
         });
       }
+      console.log(
+        `LHA:  ===> file: quizClassScore.service.ts ===> line 54 ===> results`,
+        results,
+      );
       return results;
     } catch (e) {
       console.log(e);

@@ -2402,7 +2402,7 @@ let UserService = class UserService extends respone_service_1.ResponseService {
                     const image = await this.uploadService.findById(user.image);
                     user.image = image.path;
                 }
-                return user;
+                return JSON.parse(JSON.stringify(user));
             }
             return null;
         }
@@ -5986,6 +5986,7 @@ let QuizClassScoreService = class QuizClassScoreService extends baseService_serv
             for (const quizClassScore of quizClassScores) {
                 results.push(Object.assign(Object.assign({}, this.cvtJSON(quizClassScore)), { user: await this._userService.findByIdAndImage(quizClassScore.memberId) }));
             }
+            console.log(`LHA:  ===> file: quizClassScore.service.ts ===> line 54 ===> results`, results);
             return results;
         }
         catch (e) {
