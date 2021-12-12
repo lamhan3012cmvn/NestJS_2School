@@ -5670,7 +5670,7 @@ let NotificationService = class NotificationService extends baseService_service_
             const model = notification_entity_1.Notification.createModel(item);
             return await this.create(model);
         });
-        const reuslt = Promise.all(modelNotis);
+        const reuslt = await Promise.all(modelNotis);
         console.log(`LHA:  ===> file: notification.service.ts ===> line 57 ===> reuslt`, reuslt);
     }
 };
