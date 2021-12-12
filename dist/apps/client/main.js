@@ -1884,8 +1884,10 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
                 this._loggerService.error('Dont find device', null, 'pushDevice-DeviceService');
                 return;
             }
-            await fire.messaging().sendToDevice(device.fcmToken, payload);
-            console.log('Successfully sent message:', payload);
+            const data = Promise.all([
+                await fire.messaging().sendToDevice(device.fcmToken, payload),
+            ]);
+            console.log('Successfully sent message:', data);
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'pushDevice-DeviceService');
@@ -5658,14 +5660,12 @@ let NotificationService = class NotificationService extends baseService_service_
         const newNotification = await this.create(model);
         if (newNotification) {
             this._loggerService.info(`Create new notification success`);
-            const data = JSON.stringify({
-                abc: 'abc',
-            });
             const bodyNoti = {
                 notification: {
-                    title: 'asdhsh',
-                    body: data,
+                    title: 'Bài kiểm tra mới',
+                    body: 'Bạn có bài kiểm tra mới',
                 },
+                data: this.cvtJSON(newNotification),
             };
             this._deviceService.pushDevice(notification.idUser, bodyNoti);
         }

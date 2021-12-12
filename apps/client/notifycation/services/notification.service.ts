@@ -55,14 +55,12 @@ export class NotificationService extends BaseService<Notification> {
       this._loggerService.info(`Create new notification success`);
       //Notify
 
-      const data = JSON.stringify({
-        abc: 'abc',
-      });
       const bodyNoti: MessagingPayload = {
         notification: {
-          title: 'asdhsh',
-          body: data,
+          title: 'Bài kiểm tra mới',
+          body: 'Bạn có bài kiểm tra mới',
         },
+        data: this.cvtJSON(newNotification),
       };
       this._deviceService.pushDevice(notification.idUser, bodyNoti);
     } else {

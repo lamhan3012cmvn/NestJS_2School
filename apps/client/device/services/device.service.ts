@@ -56,8 +56,10 @@ export class DeviceService extends BaseService<Device> {
         );
         return;
       }
-      await fire.messaging().sendToDevice(device.fcmToken, payload);
-      console.log('Successfully sent message:', payload);
+      const data = Promise.all([
+        await fire.messaging().sendToDevice(device.fcmToken, payload),
+      ]);
+      console.log('Successfully sent message:', data);
     } catch (e) {
       this._loggerService.error(e.message, null, 'pushDevice-DeviceService');
     }
