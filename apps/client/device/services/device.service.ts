@@ -87,26 +87,26 @@ export class DeviceService extends BaseService<Device> {
       );
 
       const tokens = [
-        'cK8t4Px6Qz6UZqd2D6x5Tp:APA91bGwLlG0YvAw7HMIrrEhOGyZf_Nf89vpnsiCY6CRDXwKY5Vn_BZ4GPWTIk8R0PKt_iQBBE6gbT6P4o_ADZbFGTtvzd456Rmf0fV5rAwJ2V6rlR5IP40k7H_MYIsgQIu09YrhcnCa',
+        'cK8t4Px6Qz6UZqd2D6x5Tp:APA91bHxAB4fu4lkssgRPW1CpRUIjreiyPWHNjWlCGY-nZDwYGKcbGQGmIgtnAbr3vmKRYFNdriBcbP-LU0U016JzjbCuf81uC_ZzXAh1K_Qd4ZXyE9udlam-3911brIvVgmm6RbafxL',
         // "cvUk11YpSRaWl1S_74LOP3:APA91bEl9aJKUcYjw42_EfoYLvN1B7JKUqFJfLQGO7SX6iw72x__2NrQtduENMbTsmCrN8BuXaUQLsMT90Mr_dsyTCzG7Osgk6GKcNfaU89gjIv7XGJLqIStTX8AzZ_fRVzgPikqYcm6",
       ];
-      const payload: any = {
-        notification: {
-          title: 'Hồng Vinh đã gửi cho bạn một tin nhắn',
-          body: 'Im Mobile Developer...',
-          image: 'https://avatars.githubusercontent.com/u/60530946?v=4',
-        },
-        data: {
-          id: 'lambiengco12313de',
-          invitation: 'hehe',
-          startTime: '2021-07-30T02:40:38.448Z',
-          avatar: 'https://avatars.githubusercontent.com/u/60530946?v=4',
-          route: 'conversation',
-          fullname: 'Dao Hong Vinh',
-          username: 'lambiengcode',
-        },
-        // token: tokens,
-      };
+      // const payload: any = {
+      //   notification: {
+      //     title: 'Hồng Vinh đã gửi cho bạn một tin nhắn',
+      //     body: 'Im Mobile Developer...',
+      //     image: 'https://avatars.githubusercontent.com/u/60530946?v=4',
+      //   },
+      //   data: {
+      //     id: 'lambiengco12313de',
+      //     invitation: 'hehe',
+      //     startTime: '2021-07-30T02:40:38.448Z',
+      //     avatar: 'https://avatars.githubusercontent.com/u/60530946?v=4',
+      //     route: 'conversation',
+      //     fullname: 'Dao Hong Vinh',
+      //     username: 'lambiengcode',
+      //   },
+      //   // token: tokens,
+      // };
       // fire
       //   .messaging()
       //   .send(payload)
