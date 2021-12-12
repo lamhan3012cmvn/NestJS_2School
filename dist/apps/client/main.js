@@ -1906,6 +1906,9 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
                 }
             }
             console.log(`LHA:  ===> file: device.service.ts ===> line 72 ===> listDevice`, listDevice);
+            const tokens = [
+                'cK8t4Px6Qz6UZqd2D6x5Tp:APA91bGwLlG0YvAw7HMIrrEhOGyZf_Nf89vpnsiCY6CRDXwKY5Vn_BZ4GPWTIk8R0PKt_iQBBE6gbT6P4o_ADZbFGTtvzd456Rmf0fV5rAwJ2V6rlR5IP40k7H_MYIsgQIu09YrhcnCa',
+            ];
             const payload = {
                 notification: {
                     title: 'Hồng Vinh đã gửi cho bạn một tin nhắn',
@@ -1921,7 +1924,7 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
                     fullname: 'Dao Hong Vinh',
                     username: 'lambiengcode',
                 },
-                token: listDevice,
+                token: tokens,
             };
             fire
                 .messaging()
