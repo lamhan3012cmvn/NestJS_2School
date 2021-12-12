@@ -129,6 +129,7 @@ export class MemberClassService extends BaseService<MemberClasses> {
       const obj: any = {
         idClass: idClass,
         status: status,
+        role: 0,
       };
 
       const memberClass = await this._model.find(obj).select('idUser').lean();

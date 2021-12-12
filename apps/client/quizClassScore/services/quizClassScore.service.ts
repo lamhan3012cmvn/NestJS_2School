@@ -30,9 +30,9 @@ export class QuizClassScoreService extends BaseService<QuizClassScore> {
       if (quizClassScore) {
         return {
           ...this.cvtJSON(quizClassScore),
-          user: await this._userService.findOne({
-            createdBy: quizClassScore.memberId,
-          }),
+          user: await this._userService.findByIdAndImage(
+            quizClassScore.memberId,
+          ),
         };
       }
       return null;

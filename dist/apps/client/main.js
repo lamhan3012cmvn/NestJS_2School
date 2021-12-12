@@ -1904,6 +1904,7 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
                     listDevice.push(device.fcmToken);
                 }
             }
+            console.log(`LHA:  ===> file: device.service.ts ===> line 72 ===> listDevice`, listDevice);
             const result = await fire.messaging().sendToDevice(listDevice, payload);
             console.log('Successfully sent message:', result);
         }
@@ -2736,6 +2737,7 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
             const obj = {
                 idClass: idClass,
                 status: status,
+                role: 0,
             };
             const memberClass = await this._model.find(obj).select('idUser').lean();
             return this.cvtJSON(memberClass);
@@ -5959,9 +5961,7 @@ let QuizClassScoreService = class QuizClassScoreService extends baseService_serv
             const model = quizClassScore_entity_1.QuizClassScore.createModel(obj);
             const quizClassScore = await this.create(model);
             if (quizClassScore) {
-                return Object.assign(Object.assign({}, this.cvtJSON(quizClassScore)), { user: await this._userService.findOne({
-                        createdBy: quizClassScore.memberId,
-                    }) });
+                return Object.assign(Object.assign({}, this.cvtJSON(quizClassScore)), { user: await this._userService.findByIdAndImage(quizClassScore.memberId) });
             }
             return null;
         }

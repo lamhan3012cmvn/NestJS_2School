@@ -77,6 +77,10 @@ export class DeviceService extends BaseService<Device> {
           listDevice.push(device.fcmToken);
         }
       }
+      console.log(
+        `LHA:  ===> file: device.service.ts ===> line 72 ===> listDevice`,
+        listDevice,
+      );
       // fire.messaging().sendToDevice([])
 
       const result = await fire.messaging().sendToDevice(listDevice, payload);
