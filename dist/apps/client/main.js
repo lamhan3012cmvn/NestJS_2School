@@ -5984,9 +5984,7 @@ let QuizClassScoreService = class QuizClassScoreService extends baseService_serv
                 .lean();
             const results = [];
             for (const quizClassScore of quizClassScores) {
-                results.push(Object.assign(Object.assign({}, this.cvtJSON(quizClassScore)), { user: await this._userService.findOne({
-                        createdBy: quizClassScore.memberId,
-                    }) }));
+                results.push(Object.assign(Object.assign({}, this.cvtJSON(quizClassScore)), { user: await this._userService.findByIdAndImage(quizClassScore.memberId) }));
             }
             return results;
         }

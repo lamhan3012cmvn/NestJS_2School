@@ -54,9 +54,9 @@ export class QuizClassScoreService extends BaseService<QuizClassScore> {
       for (const quizClassScore of quizClassScores) {
         results.push({
           ...this.cvtJSON(quizClassScore),
-          user: await this._userService.findOne({
-            createdBy: quizClassScore.memberId,
-          }),
+          user: await this._userService.findByIdAndImage(
+            quizClassScore.memberId,
+          ),
         });
       }
       return results;
