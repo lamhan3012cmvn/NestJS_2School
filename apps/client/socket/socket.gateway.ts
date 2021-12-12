@@ -249,21 +249,29 @@ export class AppGateway
     payload: { idRoom: string },
   ): Promise<void> {
     const member = await this._userMemberSocketService.findOne({
-      userId: client.user._id,
+      userId: client.user.createdBy,
       idRoom: payload.idRoom,
     });
+    console.log(
+      `LHA:  ===> file: socket.gateway.ts ===> line 255 ===> member`,
+      member,
+    );
     if (member) {
       client.leave(member.idRoom);
 
       const removeUserMember =
         await this._userMemberSocketService.findOneAndRemove({
-          userId: client.user._id,
+          userId: client.user.createdBy,
           idRoom: payload.idRoom,
         });
       if (removeUserMember) {
+        console.log(
+          `LHA:  ===> file: socket.gateway.ts ===> line 268 ===> removeUserMember`,
+          removeUserMember,
+        );
         this.server.in(payload.idRoom).emit(SOCKET_EVENT.LEAVE_ROOM_SSC, {
           msg: 'Leave Room Success',
-          data: { idUser: client.user._id },
+          data: { idUser: client.user },
           success: true,
         });
         return;
