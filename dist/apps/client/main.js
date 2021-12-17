@@ -5676,8 +5676,10 @@ let NotificationService = class NotificationService extends baseService_service_
         const results = [];
         for (const notification of notifications) {
             const obj = Object.assign({}, this.cvtJSON(notification));
-            const image = await this._uploadFileService.findById(notification.image);
-            obj.image = (image === null || image === void 0 ? void 0 : image.path) || '';
+            if (!(notification.image === '')) {
+                const image = await this._uploadFileService.findById(notification.image);
+                obj.image = (image === null || image === void 0 ? void 0 : image.path) || '';
+            }
             results.push(obj);
         }
         return results;

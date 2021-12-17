@@ -31,8 +31,12 @@ export class NotificationService extends BaseService<Notification> {
     const results = [];
     for (const notification of notifications) {
       const obj = { ...this.cvtJSON(notification) };
-      const image = await this._uploadFileService.findById(notification.image);
-      obj.image = image?.path || '';
+      if (!(notification.image === '')) {
+        const image = await this._uploadFileService.findById(
+          notification.image,
+        );
+        obj.image = image?.path || '';
+      }
       results.push(obj);
     }
     return results;
