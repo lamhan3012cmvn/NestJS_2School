@@ -1896,13 +1896,13 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
     }
     async pushDevices(ids, payload) {
         try {
-            const listDevice = [];
+            let listDevice = [];
             for (const id of ids) {
-                const device = await this.findOne({
+                const device = (await this.findAll({
                     createdBy: id,
-                });
+                }));
                 if (device) {
-                    listDevice.push(device.fcmToken);
+                    listDevice = [...listDevice, ...device.map((e) => e.fcmToken)];
                 }
             }
             console.log(`LHA:  ===> file: device.service.ts ===> line 72 ===> listDevice`, listDevice);

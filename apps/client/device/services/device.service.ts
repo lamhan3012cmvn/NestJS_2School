@@ -72,13 +72,13 @@ export class DeviceService extends BaseService<Device> {
 
   async pushDevices(ids: Array<string>, payload: MessagingPayload) {
     try {
-      const listDevice: Array<string> = [];
+      let listDevice: Array<string> = [];
       for (const id of ids) {
-        const device = await this.findOne({
+        const device = (await this.findAll({
           createdBy: id,
-        });
+        })) as Device[];
         if (device) {
-          listDevice.push(device.fcmToken);
+          listDevice = [...listDevice, ...device.map((e) => e.fcmToken)];
         }
       }
       console.log(
