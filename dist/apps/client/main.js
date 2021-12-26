@@ -1849,9 +1849,20 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
     async createDevice(payload) {
         console.log(`LHA:  ===> file: device.service.ts ===> line 21 ===> payload`, payload);
         try {
-            const newDevice = device_entity_1.Device.createModel(payload);
-            const result = await this.create(newDevice);
-            return JSON.parse(JSON.stringify(result));
+            const device = await this.findOne({
+                createdBy: payload.createdBy,
+                deviceUUid: payload.deviceUUid,
+            });
+            if (device) {
+                device.fcmToken = payload.fcmToken;
+                await device.save();
+                return JSON.parse(JSON.stringify(device));
+            }
+            else {
+                const newDevice = device_entity_1.Device.createModel(payload);
+                const result = await this.create(newDevice);
+                return JSON.parse(JSON.stringify(result));
+            }
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'createDevice-DeviceService');

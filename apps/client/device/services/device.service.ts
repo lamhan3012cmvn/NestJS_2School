@@ -23,9 +23,19 @@ export class DeviceService extends BaseService<Device> {
       payload,
     );
     try {
-      const newDevice = Device.createModel(payload);
-      const result = await this.create(newDevice);
-      return JSON.parse(JSON.stringify(result)) as Device;
+      const device = await this.findOne({
+        createdBy: payload.createdBy,
+        deviceUUid: payload.deviceUUid,
+      });
+      if (device) {
+        device.fcmToken = payload.fcmToken;
+        await device.save();
+        return JSON.parse(JSON.stringify(device)) as Device;
+      } else {
+        const newDevice = Device.createModel(payload);
+        const result = await this.create(newDevice);
+        return JSON.parse(JSON.stringify(result)) as Device;
+      }
     } catch (e) {
       this._loggerService.error(e.message, null, 'createDevice-DeviceService');
     }
