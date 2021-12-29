@@ -15,35 +15,37 @@
 # Clone App
 
 ```bash
-$ git clone -b dev https://github.com/lamhan3012cmvn/NestJS_2School.git
-```
+git clone -b dev https://github.com/lamhan3012cmvn/NestJS_2School.git
 
+cd NestJS_2School
+```
+start mongodb local
 # Run App
 
 ## Option 1
 ## Installation
 
 ```bash
-$ yarn
+yarn
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ yarn start:dev
+yarn start:dev
 ```
 
 ## Option 2
 Run file run.sh
 
 ```bash
-$ chmod +x ./run.sh
+chmod +x ./run.sh
 ```
 ## Running the app
 
 ```bash
 # development
-$ ./run.sh
+./run.sh
 
 ```
