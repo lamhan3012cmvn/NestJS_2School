@@ -12,6 +12,15 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+# Clone App
+
+```bash
+$ git clone -b dev https://github.com/lamhan3012cmvn/NestJS_2School.git
+```
+
+# Run App
+
+## Option 1
 ## Installation
 
 ```bash
@@ -23,4 +32,18 @@ $ yarn
 ```bash
 # development
 $ yarn start:dev
+```
+
+## Option 2
+Run file run.sh
+
+```bash
+$ chmod +x ./run.sh
+```
+## Running the app
+
+```bash
+# development
+$ ./run.sh
+
 ```
