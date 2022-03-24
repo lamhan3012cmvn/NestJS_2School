@@ -518,12 +518,18 @@ let MessageSocket = class MessageSocket {
     async handleOnJoinRoomConversation(client, payload) {
         console.log('JOIN_CONVERSATION_SSC', payload);
         client.join(payload.idConversation);
-        client.emit(message_event_1.MESSAGE_EVENT.JOIN_CONVERSATION_SSC, payload);
+        client.to(client.id).emit(message_event_1.MESSAGE_EVENT.JOIN_CONVERSATION_SSC, {
+            message: 'join room success',
+            data: null,
+        });
     }
     async handleOnLeaveRoom(client, payload) {
         console.log('LEAVE_CONVERSATION_SSC', payload);
-        client.leave(payload.conversationId);
-        client.emit(message_event_1.MESSAGE_EVENT.LEAVE_CONVERSATION_SSC, payload);
+        client.leave(payload.idConversation);
+        client.to(client.id).emit(message_event_1.MESSAGE_EVENT.LEAVE_CONVERSATION_SSC, {
+            message: 'leave room success',
+            data: null,
+        });
     }
 };
 __decorate([

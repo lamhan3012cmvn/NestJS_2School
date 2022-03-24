@@ -58,16 +58,24 @@ export class MessageSocket implements OnGatewayInit {
   ): Promise<void> {
     console.log('JOIN_CONVERSATION_SSC', payload);
     client.join(payload.idConversation);
-    client.emit(MESSAGE_EVENT.JOIN_CONVERSATION_SSC, payload);
+    client.to(client.id).emit(MESSAGE_EVENT.JOIN_CONVERSATION_SSC, {
+      message: 'join room success',
+      data: null,
+    });
   }
 
   @SubscribeMessage(MESSAGE_EVENT.LEAVE_CONVERSATION_CSS)
   private async handleOnLeaveRoom(
     client: typeSocket,
-    payload: any,
+    payload: {
+      idConversation: string;
+    },
   ): Promise<void> {
     console.log('LEAVE_CONVERSATION_SSC', payload);
-    client.leave(payload.conversationId);
-    client.emit(MESSAGE_EVENT.LEAVE_CONVERSATION_SSC, payload);
+    client.leave(payload.idConversation);
+    client.to(client.id).emit(MESSAGE_EVENT.LEAVE_CONVERSATION_SSC, {
+      message: 'leave room success',
+      data: null,
+    });
   }
 }
