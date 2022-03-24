@@ -1,11 +1,11 @@
+import { DFStatus } from 'apps/share/enums/status.enum';
+import { Expose } from 'class-transformer';
+import { ObjectId } from 'mongoose';
+import { InstanceType, ModelType, prop } from 'typegoose';
 import {
   BaseModel,
   schemaOptions,
 } from './../../../share/mongodb/baseModel.entity';
-import { Prop } from '@nestjs/mongoose';
-import { Expose } from 'class-transformer';
-import { ModelType, InstanceType, prop } from 'typegoose';
-import { DFStatus } from 'apps/share/enums/status.enum';
 
 export class Classes extends BaseModel<Classes> {
   @prop()
@@ -29,9 +29,9 @@ export class Classes extends BaseModel<Classes> {
   @prop({ default: DFStatus.Active })
   @Expose()
   status: number;
-  @prop()
+  @prop({ required: true, ref: 'User' })
   @Expose()
-  createdBy: string;
+  createdBy: ObjectId;
 
   static get model(): ModelType<Classes> {
     return new Classes().getModelForClass(Classes, { schemaOptions });

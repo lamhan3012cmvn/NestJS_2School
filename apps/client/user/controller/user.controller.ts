@@ -1,31 +1,23 @@
-import { Usr } from 'apps/client/authentication/decorator/user.decorator';
 import {
-  ApiBaseResponse,
-  BaseController,
-  Ok,
-} from '../../../share/controller/baseController';
-import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
+  HttpCode,
   Patch,
-  Param,
-  Delete,
   Query,
   UseGuards,
-  HttpCode,
 } from '@nestjs/common';
-import { IQueryFind } from '../../../share/interfaces/query.interface';
-
-import { UserService } from '../service/user.service';
-import { LoggerService } from '../../../share/services/logger.service';
-import { UpdateUserDto } from '../dto/updateUser/res.dto';
-import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
+import { Usr } from 'apps/client/authentication/decorator/user.decorator';
 import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
+import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
-import { User } from '../entities/user.entity';
+import { BaseController, Ok } from '../../../share/controller/baseController';
+import { IQueryFind } from '../../../share/interfaces/query.interface';
+import { LoggerService } from '../../../share/services/logger.service';
 import { UpdateAvatarDto } from '../dto/updateAvatar/res.dto';
+import { UpdateUserDto } from '../dto/updateUser/res.dto';
+import { User } from '../entities/user.entity';
+import { UserService } from '../service/user.service';
 
 @Controller('api/user')
 export class UserController extends BaseController {

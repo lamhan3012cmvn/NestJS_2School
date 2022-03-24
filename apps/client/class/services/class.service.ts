@@ -88,7 +88,9 @@ export class ClassService extends BaseService<Classes> {
       const classes = this.cvtJSON(newClasses) as Classes[];
       const result = [];
       for (const c of classes) {
-        const u = await this._userService.findOne({ createdBy: c.createdBy });
+        const u = await this._userService.findOne({
+          createdBy: `${c.createdBy}`,
+        });
         const obj: any = { ...c };
 
         if (!(c.image === '')) {

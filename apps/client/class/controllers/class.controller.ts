@@ -46,10 +46,13 @@ export class ClassController extends BaseController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  async create(@Usr() user: User, @Body() createClassDto: CreateClassDto) {
+  async create(
+    @Usr() user: User & { _id: string },
+    @Body() createClassDto: CreateClassDto,
+  ) {
     try {
       const result = await this.classService.createClasses(
-        user.createdBy,
+        user._id,
         createClassDto,
       );
       if (result) {

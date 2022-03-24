@@ -1,3 +1,4 @@
+import { IPopulate } from './../interfaces/populate.interface';
 import { Types, UpdateQuery } from 'mongoose';
 import { InstanceType, ModelType, Typegoose } from 'typegoose';
 import { IQueryFind } from '../interfaces/query.interface';
@@ -34,21 +35,26 @@ export abstract class BaseService<T extends Typegoose> {
   async findAll(
     filter = {},
     query: IQueryFind = { skip: '0', limit: '15' },
+    populate: IPopulate = [],
   ): Promise<InstanceType<T>[]> {
     return this._model
       .find(filter)
+      .populate(populate)
       .sort({ createdAt: -1 })
       .skip(+query.skip)
       .limit(+query.limit)
-      .exec();
+      .lean();
   }
 
   async findOne(filter = {}): Promise<InstanceType<T>> {
     return this._model.findOne(filter).exec();
   }
 
-  async findById(id: string): Promise<InstanceType<T>> {
-    return this._model.findById(this.toObjectId(id)).exec();
+  async findById(
+    id: string,
+    populate: IPopulate = [],
+  ): Promise<InstanceType<T>> {
+    return this._model.findById(this.toObjectId(id)).populate(populate).lean();
   }
 
   async create(item: InstanceType<T>): Promise<InstanceType<T>> {

@@ -102,7 +102,7 @@ export class MemberClassService extends BaseService<MemberClasses> {
           memberClass.map(async (e) => {
             try {
               return {
-                user: await this._userService.findByIdAndImage(e.idUser),
+                // user: await this._userService.findByIdAndImage(e.idUser),
                 role: e.role,
               };
             } catch (e) {

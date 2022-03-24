@@ -7,10 +7,11 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build client && cp -r .env ./dist",
+    "build": "nest build client && nest build socket && cp -r .env ./dist",
     "format": "prettier --write \"apps/**/*.ts\"",
     "start": "nest start",
     "dev": "nest start client --watch",
+    "devSocket": "nest start socket --watch",
     "start:dev": "yarn format &&./scripts/start.dev.sh",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",

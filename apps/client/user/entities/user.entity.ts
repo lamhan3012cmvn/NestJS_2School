@@ -13,7 +13,7 @@ export class User {
   displayName: string;
   @Prop({ default: '' })
   intro: string;
-  @Prop({ default: '' })
+  @Prop({ default: null, ref: 'UpLoadFile' })
   image: string;
   @Prop({ default: '' })
   blurHash: string;

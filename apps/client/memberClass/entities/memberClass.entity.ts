@@ -1,17 +1,17 @@
+import { DFStatus } from 'apps/share/enums/status.enum';
+import { Expose } from 'class-transformer';
+import { ObjectId } from 'mongoose';
+import { InstanceType, ModelType, prop } from 'typegoose';
 import {
   BaseModel,
   schemaOptions,
 } from '../../../share/mongodb/baseModel.entity';
-import { Prop } from '@nestjs/mongoose';
-import { Expose } from 'class-transformer';
-import { ModelType, InstanceType, prop } from 'typegoose';
-import { DFStatus } from 'apps/share/enums/status.enum';
 
 export class MemberClasses extends BaseModel<MemberClasses> {
-  @prop()
+  @prop({ required: true, ref: 'User' })
   @Expose()
-  idUser: string;
-  @prop()
+  idUser: ObjectId;
+  @prop({ required: true, ref: 'Classes' })
   @Expose()
   idClass: string;
   @prop({ default: 0 })

@@ -18,6 +18,7 @@ import { MemberClassModule } from '../memberClass/memberClass.module';
 import { NotificationModule } from '../notifycation/notification.module';
 import { QuizClassModule } from '../quizClass/quizClass.module';
 import { QuizClassScoreModule } from '../quizClassScore/quizClassScore.module';
+import { MessageModule } from '../message/message.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { QuizClassScoreModule } from '../quizClassScore/quizClassScore.module';
     NotificationModule,
     QuizClassModule,
     QuizClassScoreModule,
+    MessageModule,
   ],
 })
 export class ClientModule {}
