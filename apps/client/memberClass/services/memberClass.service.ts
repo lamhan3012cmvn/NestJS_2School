@@ -96,24 +96,10 @@ export class MemberClassService extends BaseService<MemberClasses> {
         status: status,
       };
 
-      const memberClass = await this._model.find(obj).lean();
-      if (memberClass.length > 0) {
-        const results = await Promise.all(
-          memberClass.map(async (e) => {
-            try {
-              return {
-                // user: await this._userService.findByIdAndImage(e.idUser),
-                role: e.role,
-              };
-            } catch (e) {
-              return e.id;
-            }
-          }),
-        );
+      const memberClass = await this._model.find(obj).populate('idUser').lean();
 
-        return this.cvtJSON(results);
-      }
-      return [];
+      return this.cvtJSON(memberClass);
+      // }
     } catch (e) {
       this._loggerService.error(
         e.message,

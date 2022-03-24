@@ -116,7 +116,7 @@ export class ClassController extends BaseController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  async findAll(@HostName() host, @Usr() user: User) {
+  async findAll(@HostName() host, @Usr() user: User & { _id: string }) {
     try {
       const result = await this.classService.findAllClasses(
         user,
@@ -125,6 +125,10 @@ export class ClassController extends BaseController {
           skip: '0',
         },
         host,
+      );
+      console.log(
+        `LHA:  ===> file: class.controller.ts ===> line 129 ===> result`,
+        result,
       );
       if (result) {
         return new Ok('Get Class success', result);

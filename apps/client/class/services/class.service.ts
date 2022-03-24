@@ -73,44 +73,37 @@ export class ClassService extends BaseService<Classes> {
     }
   }
   async findAllClasses(
-    user: User,
+    user: User & { _id: string },
     query: IQueryFind = { skip: '0', limit: '15' },
     host: string,
   ): Promise<Array<Classes>> {
     try {
       const classMember = await this._memberClassService.getClassByUserJoined(
-        user.createdBy,
+        user._id,
+      );
+      console.log(
+        `LHA:  ===> file: class.service.ts ===> line 84 ===> classMember`,
+        classMember,
       );
       const newClasses = await this.findAll(
         { $or: [{ createdBy: user.createdBy }, { _id: { $in: classMember } }] },
         query,
+        'createdBy',
+      );
+      console.log(
+        `LHA:  ===> file: class.service.ts ===> line 89 ===> newClasses`,
+        newClasses,
       );
       const classes = this.cvtJSON(newClasses) as Classes[];
       const result = [];
       for (const c of classes) {
-        const u = await this._userService.findOne({
-          createdBy: `${c.createdBy}`,
-        });
         const obj: any = { ...c };
-
-        if (!(c.image === '')) {
-          const image = await this._uploadFileService.findById(c.image);
-          if (image) obj.image = image.path;
-        }
-
-        if (u) {
-          const objUser = { ...this.cvtJSON(u) };
-          if (!(u.image === '')) {
-            const image = await this._uploadFileService.findById(u.image);
-            if (image) objUser.image = image.path;
-          }
-          obj.member = await this._memberClassService.getMemberByClass(obj._id);
-          obj.createdBy = objUser;
-        }
+        obj.member = await this._memberClassService.getMemberByClass(obj._id);
         result.push(obj);
       }
+      return result;
+
       if (newClasses) {
-        return result;
       }
       return null;
     } catch (e) {

@@ -2115,34 +2115,19 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
     }
     async findAllClasses(user, query = { skip: '0', limit: '15' }, host) {
         try {
-            const classMember = await this._memberClassService.getClassByUserJoined(user.createdBy);
-            const newClasses = await this.findAll({ $or: [{ createdBy: user.createdBy }, { _id: { $in: classMember } }] }, query);
+            const classMember = await this._memberClassService.getClassByUserJoined(user._id);
+            console.log(`LHA:  ===> file: class.service.ts ===> line 84 ===> classMember`, classMember);
+            const newClasses = await this.findAll({ $or: [{ createdBy: user.createdBy }, { _id: { $in: classMember } }] }, query, 'createdBy');
+            console.log(`LHA:  ===> file: class.service.ts ===> line 89 ===> newClasses`, newClasses);
             const classes = this.cvtJSON(newClasses);
             const result = [];
             for (const c of classes) {
-                const u = await this._userService.findOne({
-                    createdBy: `${c.createdBy}`,
-                });
                 const obj = Object.assign({}, c);
-                if (!(c.image === '')) {
-                    const image = await this._uploadFileService.findById(c.image);
-                    if (image)
-                        obj.image = image.path;
-                }
-                if (u) {
-                    const objUser = Object.assign({}, this.cvtJSON(u));
-                    if (!(u.image === '')) {
-                        const image = await this._uploadFileService.findById(u.image);
-                        if (image)
-                            objUser.image = image.path;
-                    }
-                    obj.member = await this._memberClassService.getMemberByClass(obj._id);
-                    obj.createdBy = objUser;
-                }
+                obj.member = await this._memberClassService.getMemberByClass(obj._id);
                 result.push(obj);
             }
+            return result;
             if (newClasses) {
-                return result;
             }
             return null;
         }
@@ -2732,21 +2717,8 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
                 idClass: idClass,
                 status: status,
             };
-            const memberClass = await this._model.find(obj).lean();
-            if (memberClass.length > 0) {
-                const results = await Promise.all(memberClass.map(async (e) => {
-                    try {
-                        return {
-                            role: e.role,
-                        };
-                    }
-                    catch (e) {
-                        return e.id;
-                    }
-                }));
-                return this.cvtJSON(results);
-            }
-            return [];
+            const memberClass = await this._model.find(obj).populate('idUser').lean();
+            return this.cvtJSON(memberClass);
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'leaveClass-MemberClassService');
@@ -2933,6 +2905,7 @@ let ClassController = class ClassController extends baseController_1.BaseControl
                 limit: '15',
                 skip: '0',
             }, host);
+            console.log(`LHA:  ===> file: class.controller.ts ===> line 129 ===> result`, result);
             if (result) {
                 return new baseController_1.Ok('Get Class success', result);
             }
@@ -3052,7 +3025,7 @@ __decorate([
     __param(0, host_decorator_1.HostName()),
     __param(1, user_decorator_1.Usr()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, typeof (_f = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _f : Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ClassController.prototype, "findAll", null);
 __decorate([
