@@ -2186,21 +2186,8 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
             const classes = this.cvtJSON(await this.findAll({
                 _id: { $nin: arrClass },
                 status: status_enum_1.DFStatus.Active,
-            }));
-            const result = [];
-            for (const c of classes) {
-                const u = await this._userService.findOne({ createdBy: c.createdBy });
-                const obj = Object.assign({}, c);
-                if (!(c.image === '')) {
-                    const image = await this._uploadFileService.findById(c.image);
-                    if (image)
-                        obj.image = image.path;
-                }
-                if (u)
-                    obj.createdBy = this.cvtJSON(u);
-                result.push(obj);
-            }
-            return this.cvtJSON(result);
+            }, { skip: '0', limit: '100' }, 'createdBy'));
+            return this.cvtJSON(classes);
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'recommendClasses-ClassesService');
@@ -2660,7 +2647,7 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
     async getClassByUserJoined(idUser) {
         try {
             const obj = {
-                idUser: idUser,
+                user: idUser,
                 status: status_enum_1.DFStatus.Active,
             };
             const members = await this.findAll(obj);
@@ -2674,7 +2661,7 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
     async joinClass(idUser, idClass, role = 0) {
         try {
             const obj = {
-                idUser: idUser,
+                user: idUser,
                 idClass: idClass,
                 role: role,
             };
@@ -2717,7 +2704,7 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
                 idClass: idClass,
                 status: status,
             };
-            const memberClass = await this._model.find(obj).populate('idUser').lean();
+            const memberClass = await this._model.find(obj).populate('user').lean();
             return this.cvtJSON(memberClass);
         }
         catch (e) {
@@ -2789,7 +2776,7 @@ __decorate([
     typegoose_1.prop({ required: true, ref: 'User' }),
     class_transformer_1.Expose(),
     __metadata("design:type", typeof (_a = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _a : Object)
-], MemberClasses.prototype, "idUser", void 0);
+], MemberClasses.prototype, "user", void 0);
 __decorate([
     typegoose_1.prop({ required: true, ref: 'Classes' }),
     class_transformer_1.Expose(),
@@ -2905,7 +2892,6 @@ let ClassController = class ClassController extends baseController_1.BaseControl
                 limit: '15',
                 skip: '0',
             }, host);
-            console.log(`LHA:  ===> file: class.controller.ts ===> line 129 ===> result`, result);
             if (result) {
                 return new baseController_1.Ok('Get Class success', result);
             }
@@ -2947,7 +2933,7 @@ let ClassController = class ClassController extends baseController_1.BaseControl
     }
     async joinMemberClass(user, payload) {
         try {
-            const result = await this.classService.joinMemberClass(user.createdBy, payload.idClass);
+            const result = await this.classService.joinMemberClass(user._id, payload.idClass);
             if (result) {
                 return new baseController_1.Ok('Join Class success', this.classService.cvtJSON(result));
             }
@@ -2977,7 +2963,7 @@ let ClassController = class ClassController extends baseController_1.BaseControl
     }
     async recommendClasses(user) {
         try {
-            const result = await this.classService.recommendClasses(user.createdBy);
+            const result = await this.classService.recommendClasses(user._id);
             if (result) {
                 return new baseController_1.Ok('Join Class success', this.classService.cvtJSON(result));
             }

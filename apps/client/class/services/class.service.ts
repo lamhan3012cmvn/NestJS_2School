@@ -168,24 +168,28 @@ export class ClassService extends BaseService<Classes> {
       const arrClass = memberClass.map((e) => e.idClass);
 
       const classes = this.cvtJSON(
-        await this.findAll({
-          _id: { $nin: arrClass },
-          status: DFStatus.Active,
-        }),
+        await this.findAll(
+          {
+            _id: { $nin: arrClass },
+            status: DFStatus.Active,
+          },
+          { skip: '0', limit: '100' },
+          'createdBy',
+        ),
       );
-      const result = [];
-      for (const c of classes) {
-        const u = await this._userService.findOne({ createdBy: c.createdBy });
-        const obj = { ...c };
-        if (!(c.image === '')) {
-          const image = await this._uploadFileService.findById(c.image);
-          if (image) obj.image = image.path;
-        }
+      // const result = [];
+      // for (const c of classes) {
+      //   const u = await this._userService.findOne({ createdBy: c.createdBy });
+      //   const obj = { ...c };
+      //   if (!(c.image === '')) {
+      //     const image = await this._uploadFileService.findById(c.image);
+      //     if (image) obj.image = image.path;
+      //   }
 
-        if (u) obj.createdBy = this.cvtJSON(u);
-        result.push(obj);
-      }
-      return this.cvtJSON(result);
+      //   if (u) obj.createdBy = this.cvtJSON(u);
+      //   result.push(obj);
+      // }
+      return this.cvtJSON(classes);
     } catch (e) {
       this._loggerService.error(
         e.message,

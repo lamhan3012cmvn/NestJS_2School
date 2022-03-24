@@ -126,10 +126,6 @@ export class ClassController extends BaseController {
         },
         host,
       );
-      console.log(
-        `LHA:  ===> file: class.controller.ts ===> line 129 ===> result`,
-        result,
-      );
       if (result) {
         return new Ok('Get Class success', result);
       }
@@ -181,7 +177,7 @@ export class ClassController extends BaseController {
   ) {
     try {
       const result = await this.classService.joinMemberClass(
-        user.createdBy,
+        user._id,
         payload.idClass,
       );
       if (result) {
@@ -224,7 +220,7 @@ export class ClassController extends BaseController {
     // @Body() payload: JoinClassQuery,
   ) {
     try {
-      const result = await this.classService.recommendClasses(user.createdBy);
+      const result = await this.classService.recommendClasses(user._id);
       if (result) {
         return new Ok('Join Class success', this.classService.cvtJSON(result));
       }

@@ -10,7 +10,7 @@ import {
 export class MemberClasses extends BaseModel<MemberClasses> {
   @prop({ required: true, ref: 'User' })
   @Expose()
-  idUser: ObjectId;
+  user: ObjectId;
   @prop({ required: true, ref: 'Classes' })
   @Expose()
   idClass: string;

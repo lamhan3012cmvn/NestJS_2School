@@ -27,7 +27,7 @@ export class MemberClassService extends BaseService<MemberClasses> {
   async getClassByUserJoined(idUser: string) {
     try {
       const obj: any = {
-        idUser: idUser,
+        user: idUser,
         status: DFStatus.Active,
       };
       const members = await this.findAll(obj);
@@ -44,7 +44,7 @@ export class MemberClassService extends BaseService<MemberClasses> {
   async joinClass(idUser: string, idClass: string, role = 0) {
     try {
       const obj: any = {
-        idUser: idUser,
+        user: idUser,
         idClass: idClass,
         role: role,
       };
@@ -96,7 +96,7 @@ export class MemberClassService extends BaseService<MemberClasses> {
         status: status,
       };
 
-      const memberClass = await this._model.find(obj).populate('idUser').lean();
+      const memberClass = await this._model.find(obj).populate('user').lean();
 
       return this.cvtJSON(memberClass);
       // }
