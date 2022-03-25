@@ -357,7 +357,7 @@ exports.UserScoreQuizSocketService = UserScoreQuizSocketService;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BaseService = void 0;
-const mongoose_1 = __webpack_require__(11);
+const mongoose = __webpack_require__(11);
 class BaseService {
     get modelName() {
         return this._model.modelName;
@@ -420,7 +420,7 @@ class BaseService {
         return this._model.deleteMany(filter).exec();
     }
     toObjectId(id) {
-        return mongoose_1.Types.ObjectId(id);
+        return new mongoose.Types.ObjectId(id);
     }
     cvtJSON(data) {
         return JSON.parse(JSON.stringify(data));
@@ -2244,6 +2244,21 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
             throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
+    async updateLastedMessage(idClass, idMessage) {
+        try {
+            const classes = await this.update(idClass, {
+                latestMessage: this.toObjectId(idMessage),
+            });
+            if (classes) {
+                return true;
+            }
+            return false;
+        }
+        catch (e) {
+            this._loggerService.error(e.message, null, 'updateLastedMessage-ClassesService');
+            return false;
+        }
+    }
 };
 ClassService = __decorate([
     common_1.Injectable(),
@@ -2268,7 +2283,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
+var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Classes = void 0;
 const status_enum_1 = __webpack_require__(30);
@@ -2323,6 +2338,11 @@ __decorate([
     class_transformer_1.Expose(),
     __metadata("design:type", typeof (_a = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _a : Object)
 ], Classes.prototype, "createdBy", void 0);
+__decorate([
+    typegoose_1.prop({ ref: 'Message' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", typeof (_b = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _b : Object)
+], Classes.prototype, "latestMessage", void 0);
 exports.Classes = Classes;
 
 
@@ -7879,7 +7899,14 @@ let MemberClassController = class MemberClassController {
         try {
             const result = await this._memberClassService.findAll({
                 user: user._id,
-            }, query, 'idClass');
+            }, query, [
+                {
+                    path: 'idClass',
+                    populate: {
+                        path: 'latestMessage',
+                    },
+                },
+            ]);
             if (result) {
                 return new baseController_1.Ok('Get List Member Success', JSON.parse(JSON.stringify(result)));
             }
@@ -8325,7 +8352,18 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MessageModule = void 0;
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
+const logger_service_1 = __webpack_require__(12);
 const shared_module_1 = __webpack_require__(18);
+const class_module_1 = __webpack_require__(47);
+const class_entity_1 = __webpack_require__(49);
+const class_service_1 = __webpack_require__(48);
+const memberClass_entity_1 = __webpack_require__(56);
+const memberClass_service_1 = __webpack_require__(55);
+const upLoadFile_entity_1 = __webpack_require__(54);
+const up_load_file_service_1 = __webpack_require__(52);
+const user_entity_1 = __webpack_require__(26);
+const user_service_1 = __webpack_require__(50);
+const user_module_1 = __webpack_require__(62);
 const message_controller_1 = __webpack_require__(146);
 const message_entity_1 = __webpack_require__(148);
 const message_service_1 = __webpack_require__(147);
@@ -8335,12 +8373,25 @@ MessageModule = __decorate([
     common_1.Module({
         imports: [
             shared_module_1.SharedModule,
+            class_module_1.ClassModule,
+            user_module_1.UserModule,
             mongoose_1.MongooseModule.forFeature([
+                { name: user_entity_1.User.name, schema: user_entity_1.UserSchema },
+                { name: memberClass_entity_1.MemberClasses.name, schema: memberClass_entity_1.MemberClasses.model.schema },
+                { name: class_entity_1.Classes.modelName, schema: class_entity_1.Classes.model.schema },
+                { name: upLoadFile_entity_1.UpLoadFile.modelName, schema: upLoadFile_entity_1.UpLoadFile.model.schema },
                 { name: message_entity_1.Message.modelName, schema: message_entity_1.Message.model.schema },
             ]),
         ],
         controllers: [message_controller_1.MessageController],
-        providers: [message_service_1.MessageService],
+        providers: [
+            message_service_1.MessageService,
+            class_service_1.ClassService,
+            logger_service_1.LoggerService,
+            memberClass_service_1.MemberClassService,
+            user_service_1.UserService,
+            up_load_file_service_1.UpLoadFileService,
+        ],
     })
 ], MessageModule);
 exports.MessageModule = MessageModule;
@@ -8480,20 +8531,22 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b;
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MessageService = void 0;
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
+const class_service_1 = __webpack_require__(48);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
 const message_entity_1 = __webpack_require__(148);
 let MessageService = class MessageService extends baseService_service_1.BaseService {
-    constructor(_messageModel, _loggerService) {
+    constructor(_messageModel, _loggerService, _classService) {
         super();
         this._messageModel = _messageModel;
         this._loggerService = _loggerService;
+        this._classService = _classService;
         this._model = _messageModel;
     }
     async getBaseModel() {
@@ -8505,6 +8558,7 @@ let MessageService = class MessageService extends baseService_service_1.BaseServ
             const newMessageModel = message_entity_1.Message.createModel(obj);
             const newMessage = await this.create(newMessageModel);
             if (newMessage) {
+                await this._classService.updateLastedMessage(`${newMessage.idClass}`, newMessage._id);
                 return this.cvtJSON(newMessage);
             }
             return null;
@@ -8519,7 +8573,7 @@ let MessageService = class MessageService extends baseService_service_1.BaseServ
 MessageService = __decorate([
     common_1.Injectable(),
     __param(0, mongoose_1.InjectModel(message_entity_1.Message.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _c : Object])
 ], MessageService);
 exports.MessageService = MessageService;
 

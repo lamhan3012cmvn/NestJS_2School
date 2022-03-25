@@ -46,7 +46,14 @@ export class MemberClassController {
           user: user._id,
         },
         query,
-        'idClass',
+        [
+          {
+            path: 'idClass',
+            populate: {
+              path: 'latestMessage',
+            },
+          },
+        ],
       );
       if (result) {
         return new Ok(

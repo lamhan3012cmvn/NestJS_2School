@@ -16,7 +16,6 @@ import { UpLoadFileService } from '../up-load-file/services/up-load-file.service
 @Module({
   imports: [
     UserModule,
-    // MemberClassModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: MemberClasses.name, schema: MemberClasses.model.schema },

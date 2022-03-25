@@ -1,8 +1,9 @@
 import { IPopulate } from './../interfaces/populate.interface';
-import { Types, UpdateQuery } from 'mongoose';
+import { UpdateQuery } from 'mongoose';
 import { InstanceType, ModelType, Typegoose } from 'typegoose';
 import { IQueryFind } from '../interfaces/query.interface';
 // import { AutoMapper, Constructable } from 'automapper-nartc';
+import * as mongoose from 'mongoose';
 
 export abstract class BaseService<T extends Typegoose> {
   protected _model: ModelType<T>;
@@ -111,8 +112,8 @@ export abstract class BaseService<T extends Typegoose> {
     return this._model.deleteMany(filter).exec();
   }
 
-  private toObjectId(id: string): Types.ObjectId {
-    return Types.ObjectId(id);
+  protected toObjectId(id: string): any {
+    return new mongoose.Types.ObjectId(id);
   }
   cvtJSON(data: any): any {
     return JSON.parse(JSON.stringify(data));

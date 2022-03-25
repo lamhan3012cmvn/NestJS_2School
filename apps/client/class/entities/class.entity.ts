@@ -32,6 +32,9 @@ export class Classes extends BaseModel<Classes> {
   @prop({ required: true, ref: 'User' })
   @Expose()
   createdBy: ObjectId;
+  @prop({ ref: 'Message' })
+  @Expose()
+  latestMessage: ObjectId;
 
   static get model(): ModelType<Classes> {
     return new Classes().getModelForClass(Classes, { schemaOptions });

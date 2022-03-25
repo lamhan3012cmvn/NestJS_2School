@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { ClassService } from 'apps/client/class/services/class.service';
 import { BaseService } from 'apps/share/services/baseService.service';
 import { LoggerService } from 'apps/share/services/logger.service';
 import { ModelType } from 'typegoose';
@@ -11,6 +12,7 @@ export class MessageService extends BaseService<Message> {
     @InjectModel(Message.modelName)
     private readonly _messageModel: ModelType<Message>,
     private readonly _loggerService: LoggerService,
+    private readonly _classService: ClassService,
   ) {
     super();
     this._model = _messageModel;
@@ -28,6 +30,10 @@ export class MessageService extends BaseService<Message> {
       const newMessage = await this.create(newMessageModel);
 
       if (newMessage) {
+        await this._classService.updateLastedMessage(
+          `${newMessage.idClass}`,
+          newMessage._id,
+        );
         return this.cvtJSON(newMessage) as Message;
       }
       return null;
