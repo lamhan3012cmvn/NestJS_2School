@@ -163,10 +163,11 @@ export class ClassService extends BaseService<Classes> {
   async recommendClasses(idUser: string) {
     try {
       const memberClass = await this._memberClassService.findAll({
-        idUser: idUser,
+        user: idUser,
       });
+      console.log('memberClass', memberClass);
       const arrClass = memberClass.map((e) => e.idClass);
-
+      console.log('arrClass', arrClass);
       const classes = this.cvtJSON(
         await this.findAll(
           {

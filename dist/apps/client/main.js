@@ -2180,9 +2180,11 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
     async recommendClasses(idUser) {
         try {
             const memberClass = await this._memberClassService.findAll({
-                idUser: idUser,
+                user: idUser,
             });
+            console.log('memberClass', memberClass);
             const arrClass = memberClass.map((e) => e.idClass);
+            console.log('arrClass', arrClass);
             const classes = this.cvtJSON(await this.findAll({
                 _id: { $nin: arrClass },
                 status: status_enum_1.DFStatus.Active,
@@ -7876,7 +7878,7 @@ let MemberClassController = class MemberClassController {
     async getConversation(user, query) {
         try {
             const result = await this._memberClassService.findAll({
-                idUser: user._id,
+                user: user._id,
             }, query, 'idClass');
             if (result) {
                 return new baseController_1.Ok('Get List Member Success', JSON.parse(JSON.stringify(result)));

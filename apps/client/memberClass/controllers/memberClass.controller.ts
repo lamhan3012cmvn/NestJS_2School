@@ -43,7 +43,7 @@ export class MemberClassController {
     try {
       const result = await this._memberClassService.findAll(
         {
-          idUser: user._id,
+          user: user._id,
         },
         query,
         'idClass',
