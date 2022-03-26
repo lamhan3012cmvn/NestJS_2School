@@ -35,6 +35,9 @@ import { QuizClassScoreService } from '../quizClassScore/services/quizClassScore
 import { QuizClassService } from '../quizClass/services/quizClass.service';
 import { ClassService } from '../class/services/class.service';
 import { Classes } from '../class/entities/class.entity';
+import { MessageModule } from './message/message.module';
+import { MessageSocket } from './message/message.socket';
+import { MessageService } from './message/message.service';
 
 @Module({
   imports: [
@@ -69,6 +72,7 @@ import { Classes } from '../class/entities/class.entity';
       },
       { name: Classes.modelName, schema: Classes.model.schema },
     ]),
+    // MessageModule,
     ConfigModule,
     JwtModule.registerAsync(setupJWT('JWT_SECRET')),
   ],
@@ -91,6 +95,8 @@ import { Classes } from '../class/entities/class.entity';
     NotificationService,
     QuizClassService,
     QuizClassScoreService,
+    MessageService,
+    MessageSocket,
   ],
 })
 export class SocketModule {}
