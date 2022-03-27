@@ -6092,11 +6092,15 @@ let MessageSocket = class MessageSocket {
         const result = await this._messageService.getMessageDetail(payload.idMessage);
         if (!!result) {
             result.subscribe((res) => {
-                client.emit(message_event_1.MESSAGE_EVENT.SEEN_MESSAGE_CONVERSATION_SSC, res.data);
+                this.server
+                    .to(payload.idConversation)
+                    .emit(message_event_1.MESSAGE_EVENT.SEEN_MESSAGE_CONVERSATION_SSC, res.data);
             });
             return;
         }
-        client.to(client.id).emit(message_event_1.MESSAGE_EVENT.SEEN_MESSAGE_CONVERSATION_SSC, {
+        this.server
+            .to(client.id)
+            .emit(message_event_1.MESSAGE_EVENT.SEEN_MESSAGE_CONVERSATION_SSC, {
             message: 'get message fail',
             data: null,
         });
@@ -6104,7 +6108,8 @@ let MessageSocket = class MessageSocket {
     async handleOnJoinRoomConversation(client, payload) {
         console.log('JOIN_CONVERSATION_SSC', payload);
         client.join(payload.idConversation);
-        client.to(client.id).emit(message_event_1.MESSAGE_EVENT.JOIN_CONVERSATION_SSC, {
+        console.log('client.id', client.id);
+        this.server.to(client.id).emit(message_event_1.MESSAGE_EVENT.JOIN_CONVERSATION_SSC, {
             message: 'join room success',
             data: null,
         });

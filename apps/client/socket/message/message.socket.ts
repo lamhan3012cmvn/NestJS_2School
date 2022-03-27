@@ -35,14 +35,18 @@ export class MessageSocket implements OnGatewayInit {
     );
     if (!!result) {
       result.subscribe((res) => {
-        client.emit(MESSAGE_EVENT.SEEN_MESSAGE_CONVERSATION_SSC, res.data);
+        this.server
+          .to(payload.idConversation)
+          .emit(MESSAGE_EVENT.SEEN_MESSAGE_CONVERSATION_SSC, res.data);
       });
       return;
     }
-    client.to(client.id).emit(MESSAGE_EVENT.SEEN_MESSAGE_CONVERSATION_SSC, {
-      message: 'get message fail',
-      data: null,
-    });
+    this.server
+      .to(client.id)
+      .emit(MESSAGE_EVENT.SEEN_MESSAGE_CONVERSATION_SSC, {
+        message: 'get message fail',
+        data: null,
+      });
 
     // client
     //   .to(payload.idConversation)
@@ -58,10 +62,15 @@ export class MessageSocket implements OnGatewayInit {
   ): Promise<void> {
     console.log('JOIN_CONVERSATION_SSC', payload);
     client.join(payload.idConversation);
-    client.to(client.id).emit(MESSAGE_EVENT.JOIN_CONVERSATION_SSC, {
+    console.log('client.id', client.id);
+    this.server.to(client.id).emit(MESSAGE_EVENT.JOIN_CONVERSATION_SSC, {
       message: 'join room success',
       data: null,
     });
+    // client.to(client.id).emit(MESSAGE_EVENT.JOIN_CONVERSATION_SSC, {
+    //   message: 'join room success',
+    //   data: null,
+    // });
     console.log('client.rooms', client.rooms);
   }
 
