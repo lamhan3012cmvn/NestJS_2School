@@ -57,6 +57,7 @@ export class AppGateway
     client: typeSocket,
     payload: {
       idSetOfQuestions: string;
+      arrayQuestion?: string[];
       idClass: string;
       title: string;
       description: string;
@@ -64,10 +65,21 @@ export class AppGateway
   ): Promise<void> {
     console.log(client.id);
     console.log('Count', this.count);
-    const questions = await this._questionService.findAll({
-      idSetOfQuestions: payload.idSetOfQuestions,
-      createBy: client.user.createdBy,
-    });
+    console.log('arrayQuestion', payload.arrayQuestion);
+    let questions = [];
+    if (payload.arrayQuestion && payload.arrayQuestion.length > 0) {
+      questions = await this._questionService.findAll({
+        _id: { $in: payload.arrayQuestion },
+        idSetOfQuestions: payload.idSetOfQuestions,
+        createBy: client.user.createdBy,
+      });
+    } else {
+      questions = await this._questionService.findAll({
+        idSetOfQuestions: payload.idSetOfQuestions,
+        createBy: client.user.createdBy,
+      });
+    }
+
     if (questions.length <= 0) {
       this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
         msg: 'Dont find questions or not the owner of the room',

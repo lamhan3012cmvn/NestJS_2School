@@ -35,6 +35,9 @@ export class Classes extends BaseModel<Classes> {
   @prop({ ref: 'Message' })
   @Expose()
   latestMessage: ObjectId;
+  @prop({ ref: 'SetOfQuestion', default: null })
+  @Expose()
+  setOfQuestionShare: ObjectId;
 
   static get model(): ModelType<Classes> {
     return new Classes().getModelForClass(Classes, { schemaOptions });

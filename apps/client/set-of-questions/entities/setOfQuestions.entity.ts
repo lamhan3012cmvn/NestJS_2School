@@ -24,6 +24,15 @@ export class SetOfQuestion extends BaseModel<SetOfQuestion> {
   @Expose()
   createBy: string;
 
+  /**
+   * @description: get all set of questions
+   * @param {type}
+   * @return: 0: no share, 1: share
+   */
+  @prop({ default: 0 })
+  @Expose()
+  type: number;
+
   static get model(): ModelType<SetOfQuestion> {
     return new SetOfQuestion().getModelForClass(SetOfQuestion, {
       schemaOptions,
