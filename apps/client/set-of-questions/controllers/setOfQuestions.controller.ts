@@ -1,3 +1,4 @@
+import { ClassService } from './../../class/services/class.service';
 import { Usr } from 'apps/client/authentication/decorator/user.decorator';
 import {
   Body,
@@ -28,6 +29,7 @@ import { CreateSetOfQuestionShareDto } from '../dto/CreateSetOfQuestionShare/req
 export class SetOfQuestionsController {
   constructor(
     private readonly _setOfQuestionsService: SetOfQuestionsService,
+    private readonly _classesService: ClassService,
     private readonly loggerService: LoggerService,
   ) {}
 
@@ -35,12 +37,12 @@ export class SetOfQuestionsController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async createSetOfQuestions(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Body() payload: CreateSetOfQuestionDto,
   ) {
     try {
       const result = await this._setOfQuestionsService.createSetOfQuestions(
-        user.createdBy,
+        user._id,
         payload,
       );
       if (result) {
@@ -64,13 +66,13 @@ export class SetOfQuestionsController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async createSetOfQuestionsExcel(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Query() query,
     @Body() payload: CreateMultiQuestion,
   ) {
     try {
       const result = await this._setOfQuestionsService.createSetOfQuestionExcel(
-        user.createdBy,
+        user._id,
         query.idSetOfQuestion,
         payload,
       );
@@ -96,12 +98,12 @@ export class SetOfQuestionsController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async createSetOfQuestionsShare(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Body() payload: CreateSetOfQuestionShareDto,
   ) {
     try {
       const result = await this._setOfQuestionsService.createSetOfQuestions(
-        user.createdBy,
+        user._id,
         { ...payload, type: 1 },
       );
       if (result) {
@@ -218,16 +220,29 @@ export class SetOfQuestionsController {
     @Query() query: QueryGetSetOfQuestion,
   ) {
     try {
+      const _class = await this._classesService.findOne({ _id: query.classId });
+      let setOfQuestionShare = null;
+      if (_class && _class.setOfQuestionShare) {
+        setOfQuestionShare = await this._setOfQuestionsService.findById(
+          `${_class.setOfQuestionShare}`,
+        );
+      }
+
       const result = await this._setOfQuestionsService.findAll({
         createBy: user.createdBy,
         classBy: query.classId,
         status: query.status,
       });
-      if (result) {
-        return new Ok(
-          'Get SetOfQuestions success',
-          this._setOfQuestionsService.cvtJSON(result),
-        );
+
+      const res = setOfQuestionShare
+        ? [
+            ...this._setOfQuestionsService.cvtJSON(result),
+            this._setOfQuestionsService.cvtJSON(setOfQuestionShare),
+          ]
+        : this._setOfQuestionsService.cvtJSON(result);
+
+      if (res) {
+        return new Ok('Get SetOfQuestions success', res);
       }
       throw new ResourceFoundException();
     } catch (e) {

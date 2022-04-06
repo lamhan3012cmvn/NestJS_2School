@@ -1,38 +1,27 @@
-import { AuthGuard } from '@nestjs/passport';
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  Req,
-  BadRequestException,
-  UnauthorizedException,
-  UseGuards,
+  Get,
+  Patch,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ClassService } from '../services/class.service';
-import { CreateClassDto } from '../dto/createClass/create-class.dto';
-import { UpdateClassDto } from '../dto/updateClass/update-class.dto';
-import {
-  ApiBaseResponse,
-  BaseController,
-  Ok,
-} from 'apps/share/controller/baseController';
-import { LoggerService } from 'apps/share/services/logger.service';
-import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
 import { Usr } from 'apps/client/authentication/decorator/user.decorator';
-import { Request } from 'express';
+import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
+import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
 import { ISchemaUser, User } from 'apps/client/user/entities/user.entity';
-import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
+import { BaseController, Ok } from 'apps/share/controller/baseController';
+import { HostName } from 'apps/share/decorator/host.decorator';
 import { DFStatus } from 'apps/share/enums/status.enum';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
+import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
+import { LoggerService } from 'apps/share/services/logger.service';
+import { CreateClassDto } from '../dto/createClass/create-class.dto';
 import { JoinClassQuery } from '../dto/joinClass/query.dto';
 import { UpdateImageDto } from '../dto/updateImage/req,dto';
-import { HostName } from 'apps/share/decorator/host.decorator';
-import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
+import { ClassService } from '../services/class.service';
 
 @Controller('api/classes')
 export class ClassController extends BaseController {
@@ -66,10 +55,14 @@ export class ClassController extends BaseController {
   }
   @Patch()
   @UseGuards(JwtAuthGuard)
-  async update(@Usr() user: User, @Query() query, @Body() updateClassDto: any) {
+  async update(
+    @Usr() user: User & { _id: string },
+    @Query() query,
+    @Body() updateClassDto: any,
+  ) {
     try {
       const result = await this.classService.findOneAndUpdate(
-        { createdBy: user.createdBy, _id: query.id },
+        { createdBy: user._id, _id: query.id },
         updateClassDto,
       );
       if (result) {

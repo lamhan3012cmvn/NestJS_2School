@@ -32,10 +32,13 @@ export class QuestionController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @Header('Content-Type', 'application/json')
-  async createQuestion(@Usr() user: User, @Body() payload: CreateQuestionDto) {
+  async createQuestion(
+    @Usr() user: User & { _id: string },
+    @Body() payload: CreateQuestionDto,
+  ) {
     try {
       const result = await this.questionService.createQuestion(
-        user.createdBy,
+        user._id,
         payload,
       );
       if (result) {
@@ -54,13 +57,13 @@ export class QuestionController {
   @UseGuards(JwtAuthGuard)
   @Header('Content-Type', 'application/json')
   async updateQuestion(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Query() query,
     @Body() payload: any,
   ) {
     try {
       const result = await this.questionService.findOneAndUpdate(
-        { createBy: user.createdBy, _id: query.id },
+        { createBy: user._id, _id: query.id },
         payload,
       );
       if (result) {
@@ -80,10 +83,13 @@ export class QuestionController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @Header('Content-Type', 'application/json')
-  async getQuestionBySetOf(@Usr() user: User, @Query() query) {
+  async getQuestionBySetOf(
+    @Usr() user: User & { _id: string },
+    @Query() query,
+  ) {
     try {
       const result = await this.questionService.findAll({
-        createBy: user.createdBy,
+        createBy: user._id,
         idSetOfQuestions: query.idSetOfQuestions,
       });
       const sortData = result.sort(
@@ -107,11 +113,11 @@ export class QuestionController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @Header('Content-Type', 'application/json')
-  async deleteQuestion(@Usr() user: User, @Query() query) {
+  async deleteQuestion(@Usr() user: User & { _id: string }, @Query() query) {
     try {
       const result = await this.questionService.deleteQuestion(
         query.id,
-        user.createdBy,
+        user._id,
       );
       if (result) {
         return new Ok('Delete Question success', result);
@@ -127,11 +133,14 @@ export class QuestionController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @Header('Content-Type', 'application/json')
-  async changeStatusQuestion(@Usr() user: User, @Query() query) {
+  async changeStatusQuestion(
+    @Usr() user: User & { _id: string },
+    @Query() query,
+  ) {
     try {
       const result = await this.questionService.findOneAndUpdate(
         {
-          createBy: user.createdBy,
+          createBy: user._id,
           _id: query.id,
         },
         { status: query.status },
