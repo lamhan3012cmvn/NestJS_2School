@@ -1,4 +1,4 @@
-import { Usr } from './../../authentication/decorator/user.decorator';
+import { Usr } from '../../authentication/decorator/user.decorator';
 import {
   Controller,
   Get,
