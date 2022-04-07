@@ -22,6 +22,7 @@ import { CreateClassDto } from '../dto/createClass/create-class.dto';
 import { JoinClassQuery } from '../dto/joinClass/query.dto';
 import { UpdateImageDto } from '../dto/updateImage/req,dto';
 import { ClassService } from '../services/class.service';
+import * as mongoose from 'mongoose';
 
 @Controller('api/classes')
 export class ClassController extends BaseController {
@@ -61,9 +62,18 @@ export class ClassController extends BaseController {
     @Body() updateClassDto: any,
   ) {
     try {
+      const obj = {
+        ...updateClassDto,
+      };
+      if (obj['setOfQuestionShare']) {
+        obj['setOfQuestionShare'] = obj['setOfQuestionShare'].map(
+          (item) => new mongoose.Types.ObjectId(item),
+        );
+      }
+
       const result = await this.classService.findOneAndUpdate(
         { createdBy: user._id, _id: query.id },
-        updateClassDto,
+        obj,
       );
       if (result) {
         const cloneClass = this.classService.cvtJSON(result);

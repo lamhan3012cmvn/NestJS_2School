@@ -2343,9 +2343,9 @@ __decorate([
     __metadata("design:type", typeof (_b = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _b : Object)
 ], Classes.prototype, "latestMessage", void 0);
 __decorate([
-    typegoose_1.prop({ ref: 'SetOfQuestion', default: null }),
+    typegoose_1.prop({ default: [] }),
     class_transformer_1.Expose(),
-    __metadata("design:type", typeof (_c = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _c : Object)
+    __metadata("design:type", typeof (_c = typeof Array !== "undefined" && Array) === "function" ? _c : Object)
 ], Classes.prototype, "setOfQuestionShare", void 0);
 exports.Classes = Classes;
 
@@ -2856,6 +2856,7 @@ const create_class_dto_1 = __webpack_require__(59);
 const query_dto_1 = __webpack_require__(60);
 const req_dto_1 = __webpack_require__(61);
 const class_service_1 = __webpack_require__(48);
+const mongoose = __webpack_require__(11);
 let ClassController = class ClassController extends baseController_1.BaseController {
     constructor(loggerService, classService, uploadService) {
         super();
@@ -2878,7 +2879,11 @@ let ClassController = class ClassController extends baseController_1.BaseControl
     }
     async update(user, query, updateClassDto) {
         try {
-            const result = await this.classService.findOneAndUpdate({ createdBy: user._id, _id: query.id }, updateClassDto);
+            const obj = Object.assign({}, updateClassDto);
+            if (obj['setOfQuestionShare']) {
+                obj['setOfQuestionShare'] = obj['setOfQuestionShare'].map((item) => new mongoose.Types.ObjectId(item));
+            }
+            const result = await this.classService.findOneAndUpdate({ createdBy: user._id, _id: query.id }, obj);
             if (result) {
                 const cloneClass = this.classService.cvtJSON(result);
                 if (cloneClass.image) {
@@ -4272,7 +4277,9 @@ let SetOfQuestionsController = class SetOfQuestionsController {
             const _class = await this._classesService.findOne({ _id: query.classId });
             let setOfQuestionShare = null;
             if (_class && _class.setOfQuestionShare) {
-                setOfQuestionShare = await this._setOfQuestionsService.findById(`${_class.setOfQuestionShare}`);
+                setOfQuestionShare = await this._setOfQuestionsService.findAll({
+                    _id: { $in: _class.setOfQuestionShare },
+                });
             }
             const result = await this._setOfQuestionsService.findAll({
                 createBy: user.createdBy,
@@ -4298,7 +4305,7 @@ let SetOfQuestionsController = class SetOfQuestionsController {
     async getSetOfQuestionsShare(user) {
         try {
             const result = await this._setOfQuestionsService.findAll({
-                createBy: user.createdBy,
+                createBy: user._id,
                 type: 1,
             });
             if (result) {
@@ -4391,7 +4398,7 @@ __decorate([
     common_1.HttpCode(200),
     __param(0, user_decorator_1.Usr()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_p = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _p : Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], SetOfQuestionsController.prototype, "getSetOfQuestionsShare", null);
 SetOfQuestionsController = __decorate([

@@ -223,9 +223,9 @@ export class SetOfQuestionsController {
       const _class = await this._classesService.findOne({ _id: query.classId });
       let setOfQuestionShare = null;
       if (_class && _class.setOfQuestionShare) {
-        setOfQuestionShare = await this._setOfQuestionsService.findById(
-          `${_class.setOfQuestionShare}`,
-        );
+        setOfQuestionShare = await this._setOfQuestionsService.findAll({
+          _id: { $in: _class.setOfQuestionShare },
+        });
       }
 
       const result = await this._setOfQuestionsService.findAll({
@@ -254,10 +254,10 @@ export class SetOfQuestionsController {
   @Get('share')
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  async getSetOfQuestionsShare(@Usr() user: User) {
+  async getSetOfQuestionsShare(@Usr() user: User & { _id: string }) {
     try {
       const result = await this._setOfQuestionsService.findAll({
-        createBy: user.createdBy,
+        createBy: user._id,
         type: 1,
       });
       if (result) {
