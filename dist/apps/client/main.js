@@ -4940,9 +4940,9 @@ let AppGateway = class AppGateway {
         this.count = 0;
     }
     async handleCreateRoom(client, payload) {
-        console.log(client.id);
+        console.log('client.user', client.user);
         console.log('Count', this.count);
-        console.log('arrayQuestion', payload.arrayQuestion);
+        console.log('arrayQuestion', payload === null || payload === void 0 ? void 0 : payload.arrayQuestion);
         let questions = [];
         if (payload.arrayQuestion && payload.arrayQuestion.length > 0) {
             questions = await this._questionService.findAll({

@@ -63,9 +63,9 @@ export class AppGateway
       description: string;
     },
   ): Promise<void> {
-    console.log(client.id);
+    console.log('client.user', client.user);
     console.log('Count', this.count);
-    console.log('arrayQuestion', payload.arrayQuestion);
+    console.log('arrayQuestion', payload?.arrayQuestion);
     let questions = [];
     if (payload.arrayQuestion && payload.arrayQuestion.length > 0) {
       questions = await this._questionService.findAll({
