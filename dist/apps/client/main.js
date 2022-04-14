@@ -4953,13 +4953,13 @@ let AppGateway = class AppGateway {
             questions = await this._questionService.findAll({
                 _id: { $in: payload.arrayQuestion },
                 idSetOfQuestions: payload.idSetOfQuestions,
-                createBy: client.user.createdBy,
+                createBy: client.user._id,
             });
         }
         else {
             questions = await this._questionService.findAll({
                 idSetOfQuestions: payload.idSetOfQuestions,
-                createBy: client.user.createdBy,
+                createBy: client.user._id,
             });
         }
         if (questions.length <= 0) {
