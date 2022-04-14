@@ -67,7 +67,7 @@ export class AppGateway
     console.log('Count', this.count);
     console.log('arrayQuestion', payload?.arrayQuestion);
     let questions = [];
-    if (payload.arrayQuestion && payload.arrayQuestion.length > 0) {
+    if (payload?.arrayQuestion && payload.arrayQuestion.length > 0) {
       questions = await this._questionService.findAll({
         _id: { $in: payload.arrayQuestion },
         idSetOfQuestions: payload.idSetOfQuestions,

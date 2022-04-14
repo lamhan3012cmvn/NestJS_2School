@@ -2347,6 +2347,11 @@ __decorate([
     class_transformer_1.Expose(),
     __metadata("design:type", typeof (_c = typeof Array !== "undefined" && Array) === "function" ? _c : Object)
 ], Classes.prototype, "setOfQuestionShare", void 0);
+__decorate([
+    typegoose_1.prop({ default: 0 }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], Classes.prototype, "price", void 0);
 exports.Classes = Classes;
 
 
@@ -4944,7 +4949,7 @@ let AppGateway = class AppGateway {
         console.log('Count', this.count);
         console.log('arrayQuestion', payload === null || payload === void 0 ? void 0 : payload.arrayQuestion);
         let questions = [];
-        if (payload.arrayQuestion && payload.arrayQuestion.length > 0) {
+        if ((payload === null || payload === void 0 ? void 0 : payload.arrayQuestion) && payload.arrayQuestion.length > 0) {
             questions = await this._questionService.findAll({
                 _id: { $in: payload.arrayQuestion },
                 idSetOfQuestions: payload.idSetOfQuestions,

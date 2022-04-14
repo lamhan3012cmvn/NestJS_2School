@@ -38,6 +38,9 @@ export class Classes extends BaseModel<Classes> {
   @prop({ default: [] })
   @Expose()
   setOfQuestionShare: Array<ObjectId>;
+  @prop({ default: 0 })
+  @Expose()
+  price: number;
 
   static get model(): ModelType<Classes> {
     return new Classes().getModelForClass(Classes, { schemaOptions });
