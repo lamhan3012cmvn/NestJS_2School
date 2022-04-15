@@ -3148,6 +3148,10 @@ __decorate([
     class_validator_1.IsString(),
     __metadata("design:type", String)
 ], CreateClassDto.prototype, "topic", void 0);
+__decorate([
+    class_validator_1.IsNumber(),
+    __metadata("design:type", Number)
+], CreateClassDto.prototype, "price", void 0);
 exports.CreateClassDto = CreateClassDto;
 
 
