@@ -72,7 +72,6 @@ export class MessageController {
       this.loggerService.error(e.message, null, 'create-ClassController');
       throw new Error2SchoolException(e.message);
     }
-    return;
   }
 
   @Get(':idMess')

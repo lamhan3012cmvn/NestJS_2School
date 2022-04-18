@@ -23,4 +23,5 @@ export interface ICreateRMCAssignment {
   createdBy: string;
   idRoadMap: string;
   type: number;
+  idClass: string;
 }

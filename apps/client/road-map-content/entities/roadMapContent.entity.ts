@@ -2,6 +2,7 @@ import { BaseModel } from 'apps/share/mongodb/baseModel.entity';
 import { schemaOptions } from './../../../share/mongodb/baseModel.entity';
 import { InstanceType, ModelType, prop } from 'typegoose';
 import { DFStatus } from 'apps/share/enums/status.enum';
+import { ObjectId } from 'mongoose';
 
 export class RoadMapContent extends BaseModel<RoadMapContent> {
   @prop({ default: '' })
@@ -13,7 +14,16 @@ export class RoadMapContent extends BaseModel<RoadMapContent> {
   @prop({ default: 0 })
   type: 0 | 1 | 2;
   @prop({ required: true })
-  rmc: string;
+  rmc: ObjectId;
+
+  @prop({ default: null, ref: 'RMCFile' })
+  rmcFile: ObjectId;
+
+  @prop({ default: null, ref: 'RMCAssignment' })
+  rmcAssignment: ObjectId;
+
+  @prop({ default: null, ref: 'RMCAttendances' })
+  rmcAttendance: ObjectId;
   @prop({ required: true })
   idRoadMap: string;
 

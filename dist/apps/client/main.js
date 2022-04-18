@@ -30,11 +30,11 @@ const set_of_questions_module_1 = __webpack_require__(82);
 const socket_module_1 = __webpack_require__(91);
 const up_load_file_module_1 = __webpack_require__(111);
 const roadMapContent_module_1 = __webpack_require__(121);
-const memberClass_module_1 = __webpack_require__(141);
-const notification_module_1 = __webpack_require__(143);
-const quizClass_module_1 = __webpack_require__(145);
-const quizClassScore_module_1 = __webpack_require__(147);
-const message_module_1 = __webpack_require__(149);
+const memberClass_module_1 = __webpack_require__(145);
+const notification_module_1 = __webpack_require__(147);
+const quizClass_module_1 = __webpack_require__(149);
+const quizClassScore_module_1 = __webpack_require__(151);
+const message_module_1 = __webpack_require__(153);
 let ClientModule = class ClientModule {
 };
 ClientModule = __decorate([
@@ -369,6 +369,13 @@ class BaseService {
             .sort({ createdAt: -1 })
             .skip(+query.skip)
             .limit(+query.limit)
+            .lean();
+    }
+    async findAllNoSkip(filter = {}, populate = []) {
+        return this._model
+            .find(filter)
+            .populate(populate)
+            .sort({ createdAt: -1 })
             .lean();
     }
     async findOne(filter = {}) {
@@ -6656,31 +6663,36 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RoadMapContentModule = void 0;
-const rmc_files_1 = __webpack_require__(122);
-const rmc_attendances_1 = __webpack_require__(123);
-const logger_service_1 = __webpack_require__(12);
 const common_1 = __webpack_require__(3);
-const roadMapContent_service_1 = __webpack_require__(124);
-const roadMapContent_controller_1 = __webpack_require__(134);
 const mongoose_1 = __webpack_require__(4);
-const roadMapContent_entity_1 = __webpack_require__(127);
-const rmc_assignments_service_1 = __webpack_require__(125);
-const rmc_assignmentsUserservice_1 = __webpack_require__(128);
-const rmc_attendances_service_1 = __webpack_require__(132);
-const rmc_attendancesUser_service_1 = __webpack_require__(130);
-const rmc_files_service_1 = __webpack_require__(133);
-const rmc_assignments_1 = __webpack_require__(126);
-const rmc_attendancesUser_1 = __webpack_require__(131);
-const rmc_assignmentsUser_1 = __webpack_require__(129);
-const class_entity_1 = __webpack_require__(49);
 const class_module_1 = __webpack_require__(47);
+const class_entity_1 = __webpack_require__(49);
+const post_entity_1 = __webpack_require__(122);
+const post_module_1 = __webpack_require__(123);
+const post_service_1 = __webpack_require__(124);
+const logger_service_1 = __webpack_require__(12);
+const roadMapContent_controller_1 = __webpack_require__(126);
+const rmc_assignments_1 = __webpack_require__(130);
+const rmc_assignmentsUser_1 = __webpack_require__(132);
+const rmc_attendances_1 = __webpack_require__(134);
+const rmc_attendancesUser_1 = __webpack_require__(136);
+const rmc_files_1 = __webpack_require__(138);
+const roadMapContent_entity_1 = __webpack_require__(128);
+const rmc_assignments_service_1 = __webpack_require__(129);
+const rmc_assignmentsUserservice_1 = __webpack_require__(131);
+const rmc_attendances_service_1 = __webpack_require__(133);
+const rmc_attendancesUser_service_1 = __webpack_require__(135);
+const rmc_files_service_1 = __webpack_require__(137);
+const roadMapContent_service_1 = __webpack_require__(127);
 let RoadMapContentModule = class RoadMapContentModule {
 };
 RoadMapContentModule = __decorate([
     common_1.Module({
         imports: [
             class_module_1.ClassModule,
+            post_module_1.PostModule,
             mongoose_1.MongooseModule.forFeature([
+                { name: post_entity_1.Post.modelName, schema: post_entity_1.Post.model.schema },
                 { name: roadMapContent_entity_1.RoadMapContent.modelName, schema: roadMapContent_entity_1.RoadMapContent.model.schema },
                 { name: rmc_assignments_1.RMCAssignment.modelName, schema: rmc_assignments_1.RMCAssignment.model.schema },
                 { name: rmc_attendances_1.RMCAttendances.modelName, schema: rmc_attendances_1.RMCAttendances.model.schema },
@@ -6701,6 +6713,7 @@ RoadMapContentModule = __decorate([
         ],
         controllers: [roadMapContent_controller_1.RoadMapContentController],
         providers: [
+            post_service_1.PostService,
             logger_service_1.LoggerService,
             roadMapContent_service_1.RoadMapContentService,
             rmc_assignments_service_1.RMCAssignmentService,
@@ -6728,16 +6741,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RMCFile = void 0;
+exports.Post = void 0;
 const baseModel_entity_1 = __webpack_require__(6);
 const baseModel_entity_2 = __webpack_require__(6);
 const typegoose_1 = __webpack_require__(7);
-class RMCFile extends baseModel_entity_1.BaseModel {
+const class_transformer_1 = __webpack_require__(8);
+const mongoose_1 = __webpack_require__(11);
+class Post extends baseModel_entity_2.BaseModel {
     static get model() {
-        return new RMCFile().getModelForClass(RMCFile, {
-            schemaOptions: baseModel_entity_2.schemaOptions,
-        });
+        return new Post().getModelForClass(Post, { schemaOptions: baseModel_entity_1.schemaOptions });
     }
     static get modelName() {
         return this.model.modelName;
@@ -6747,14 +6761,31 @@ class RMCFile extends baseModel_entity_1.BaseModel {
     }
 }
 __decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCFile.prototype, "name", void 0);
+    typegoose_1.prop({ required: true, ref: 'Classes' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", typeof (_a = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _a : Object)
+], Post.prototype, "class", void 0);
 __decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCFile.prototype, "fileType", void 0);
-exports.RMCFile = RMCFile;
+    typegoose_1.prop({ required: true, ref: 'RoadMapContent' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", typeof (_b = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _b : Object)
+], Post.prototype, "roadMapContent", void 0);
+__decorate([
+    typegoose_1.prop({ required: true, ref: 'like', default: [] }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", typeof (_c = typeof Array !== "undefined" && Array) === "function" ? _c : Object)
+], Post.prototype, "like", void 0);
+__decorate([
+    typegoose_1.prop({ default: 1 }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], Post.prototype, "status", void 0);
+__decorate([
+    typegoose_1.prop({ required: true, ref: 'User' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", typeof (_d = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _d : Object)
+], Post.prototype, "createdBy", void 0);
+exports.Post = Post;
 
 
 /***/ }),
@@ -6768,44 +6799,43 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RMCAttendances = void 0;
-const baseModel_entity_1 = __webpack_require__(6);
-const baseModel_entity_2 = __webpack_require__(6);
-const typegoose_1 = __webpack_require__(7);
-class RMCAttendances extends baseModel_entity_1.BaseModel {
-    static get model() {
-        return new RMCAttendances().getModelForClass(RMCAttendances, {
-            schemaOptions: baseModel_entity_2.schemaOptions,
-        });
-    }
-    static get modelName() {
-        return this.model.modelName;
-    }
-    static createModel(payload) {
-        return new this.model(payload);
-    }
-}
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCAttendances.prototype, "name", void 0);
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCAttendances.prototype, "description", void 0);
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCAttendances.prototype, "startTime", void 0);
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCAttendances.prototype, "endTime", void 0);
-exports.RMCAttendances = RMCAttendances;
+exports.PostModule = void 0;
+const post_entity_1 = __webpack_require__(122);
+const common_1 = __webpack_require__(3);
+const post_service_1 = __webpack_require__(124);
+const post_controller_1 = __webpack_require__(125);
+const mongoose_1 = __webpack_require__(4);
+const memberClass_service_1 = __webpack_require__(55);
+const user_service_1 = __webpack_require__(50);
+const memberClass_entity_1 = __webpack_require__(56);
+const user_entity_1 = __webpack_require__(39);
+const upLoadFile_entity_1 = __webpack_require__(54);
+const up_load_file_service_1 = __webpack_require__(52);
+let PostModule = class PostModule {
+};
+PostModule = __decorate([
+    common_1.Module({
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: memberClass_entity_1.MemberClasses.modelName, schema: memberClass_entity_1.MemberClasses.model.schema },
+                ,
+                { name: user_entity_1.User.name, schema: user_entity_1.UserSchema },
+                { name: post_entity_1.Post.modelName, schema: post_entity_1.Post.model.schema },
+                { name: upLoadFile_entity_1.UpLoadFile.modelName, schema: upLoadFile_entity_1.UpLoadFile.model.schema },
+            ]),
+        ],
+        controllers: [post_controller_1.PostController],
+        providers: [
+            post_service_1.PostService,
+            memberClass_service_1.MemberClassService,
+            user_service_1.UserService,
+            up_load_file_service_1.UpLoadFileService,
+        ],
+        exports: [post_service_1.PostService],
+    })
+], PostModule);
+exports.PostModule = PostModule;
 
 
 /***/ }),
@@ -6825,197 +6855,45 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g;
+var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RoadMapContentService = void 0;
-const rmc_assignments_service_1 = __webpack_require__(125);
-const logger_service_1 = __webpack_require__(12);
-const roadMapContent_entity_1 = __webpack_require__(127);
-const baseService_service_1 = __webpack_require__(10);
+exports.PostService = void 0;
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
+const baseService_service_1 = __webpack_require__(10);
+const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
-const rmc_assignmentsUserservice_1 = __webpack_require__(128);
-const rmc_attendancesUser_service_1 = __webpack_require__(130);
-const rmc_attendances_service_1 = __webpack_require__(132);
-const rmc_files_service_1 = __webpack_require__(133);
-const errors_exception_1 = __webpack_require__(30);
-let RoadMapContentService = class RoadMapContentService extends baseService_service_1.BaseService {
-    constructor(_setOfQuestionsModel, _loggerService, _rmcAssignmentService, _rmcAssignmentUserService, _rmcAttendanceService, _rmcAttendanceUserService, _rmcFilesService) {
+const post_entity_1 = __webpack_require__(122);
+let PostService = class PostService extends baseService_service_1.BaseService {
+    constructor(_postModel, _loggerService) {
         super();
-        this._setOfQuestionsModel = _setOfQuestionsModel;
+        this._postModel = _postModel;
         this._loggerService = _loggerService;
-        this._rmcAssignmentService = _rmcAssignmentService;
-        this._rmcAssignmentUserService = _rmcAssignmentUserService;
-        this._rmcAttendanceService = _rmcAttendanceService;
-        this._rmcAttendanceUserService = _rmcAttendanceUserService;
-        this._rmcFilesService = _rmcFilesService;
-        this._model = _setOfQuestionsModel;
+        this._model = _postModel;
     }
-    async createRoadMapContent(createdBy, type, idRoadMap, payload) {
+    async createPostWithRmc(post) {
         try {
-            const obj = Object.assign({}, payload);
-            obj.createBy = createdBy;
-            obj.type = type;
-            obj.idRoadMap = idRoadMap;
-            const newRoadMap = roadMapContent_entity_1.RoadMapContent.createModel(obj);
-            const roadMapS = await this.create(newRoadMap);
-            if (roadMapS) {
-                return this.cvtJSON(roadMapS);
+            const obj = Object.assign({}, post);
+            const newPostModel = post_entity_1.Post.createModel(obj);
+            const newPost = await this.create(newPostModel);
+            if (newPost) {
+                return this.cvtJSON(newPost);
             }
             return null;
         }
         catch (e) {
             console.log(e);
-            this._loggerService.error(e.message, null, 'CREATE-RoadMapContentService');
+            this._loggerService.error(e.message, null, 'CREATE-PostService');
             return null;
-        }
-    }
-    async createRMCAssignment(payload) {
-        try {
-            const resultRMC = await this._rmcAssignmentService.createClassAssignment(payload);
-            if (resultRMC) {
-                const result = await this.createRoadMapContent(payload.createdBy, payload.type, payload.idRoadMap, {
-                    rmc: resultRMC._id,
-                });
-                if (result) {
-                    const cloneRMCAssignment = this.cvtJSON(result);
-                    cloneRMCAssignment.rmc = this.cvtJSON(resultRMC);
-                    return cloneRMCAssignment;
-                }
-                throw new common_1.NotFoundException('Create RMC False');
-            }
-            throw new common_1.NotFoundException('Create RMC createRMCAssignment');
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'CREATE-RoadMapContentService');
-            throw new errors_exception_1.Error2SchoolException('RMC createRMCAssignment ERR');
-        }
-    }
-    async createRMCAttendance(payload) {
-        try {
-            const resultRMC = await this._rmcAttendanceService.createClassAttendance(payload);
-            if (resultRMC) {
-                const result = await this.createRoadMapContent(payload.createdBy, payload.type, payload.idRoadMap, { rmc: resultRMC._id });
-                if (result) {
-                    const cloneRMCAssignment = this.cvtJSON(result);
-                    cloneRMCAssignment.rmc = this.cvtJSON(resultRMC);
-                    return cloneRMCAssignment;
-                }
-                throw new common_1.NotFoundException('Create RMC False');
-            }
-            throw new common_1.NotFoundException('Create RMC createRMCAttendance');
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'CREATE-RoadMapContentService');
-            throw new errors_exception_1.Error2SchoolException('RMC createRMCAssignment ERR');
-        }
-    }
-    async createRMCFile(payload) {
-        try {
-            const resultRMC = await this._rmcFilesService.createClassFile(payload);
-            if (resultRMC) {
-                const result = await this.createRoadMapContent(payload.createdBy, payload.type, payload.idRoadMap, { rmc: resultRMC._id });
-                if (result) {
-                    return result;
-                }
-                throw new common_1.NotFoundException('Create RMC False');
-            }
-            throw new common_1.NotFoundException('Create RMC createRMCFile');
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'CREATE-RoadMapContentService');
-            throw new errors_exception_1.Error2SchoolException('RMC createRMCFile ERR');
-        }
-    }
-    async updateRMCAssignment(idRMC, payload) {
-        try {
-            const rmc = await this.findById(idRMC);
-            if (rmc) {
-                const result = await this._rmcAssignmentService.findOneAndUpdate({ _id: rmc.rmc }, payload);
-                if (result) {
-                    return result;
-                }
-            }
-            throw new common_1.NotFoundException('Update RMC False');
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'UPDATE-RoadMapContentService');
-            throw new errors_exception_1.Error2SchoolException('RMC updateRMCAssignment ERR');
-        }
-    }
-    async updateRMCAttendance(idRMC, payload) {
-        try {
-            const rmc = await this.findById(idRMC);
-            if (rmc) {
-                const result = await this._rmcAttendanceService.findOneAndUpdate({ _id: rmc.rmc }, payload);
-                if (result) {
-                    const obj = Object.assign({}, this.cvtJSON(rmc));
-                    obj.rmc = this.cvtJSON(result);
-                    return obj;
-                }
-            }
-            throw new common_1.NotFoundException('Update RMC False');
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'UPDATE-RoadMapContentService');
-            throw new errors_exception_1.Error2SchoolException('RMC updateRMCAttendance ERR');
-        }
-    }
-    async deleteRMCAssignment(idRMC) {
-        try {
-            const rmc = await this.findById(idRMC);
-            console.log(`LHA:  ===> file: roadMapContent.service.ts ===> line 212 ===> rmc`, rmc);
-            if (rmc) {
-                const resultRMC = await this._rmcAssignmentService.deleteClassAssignment(rmc.rmc);
-                if (resultRMC) {
-                    const result = await this.delete(idRMC);
-                    if (result) {
-                        return result;
-                    }
-                }
-            }
-            throw new common_1.NotFoundException('Delete RMC False');
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'DELETE-RoadMapContentService');
-            throw new errors_exception_1.Error2SchoolException('RMC deleteRMCAssignment ERR');
-        }
-    }
-    async deleteRMCAttendance(idRMC) {
-        try {
-            const rmc = await this.findById(idRMC);
-            console.log(`LHA:  ===> file: roadMapContent.service.ts ===> line 243 ===> rmc`, rmc);
-            if (rmc) {
-                const resultRMC = await this._rmcAttendanceService.deleteClassAttendance(rmc.rmc);
-                if (resultRMC) {
-                    const result = await this.delete(idRMC);
-                    if (result) {
-                        return result;
-                    }
-                }
-            }
-            throw new common_1.NotFoundException('Delete RMC False');
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'DELETE-RoadMapContentService');
-            throw new errors_exception_1.Error2SchoolException('RMC deleteRMCAttendance ERR');
         }
     }
 };
-RoadMapContentService = __decorate([
+PostService = __decorate([
     common_1.Injectable(),
-    __param(0, mongoose_1.InjectModel(roadMapContent_entity_1.RoadMapContent.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof rmc_assignments_service_1.RMCAssignmentService !== "undefined" && rmc_assignments_service_1.RMCAssignmentService) === "function" ? _c : Object, typeof (_d = typeof rmc_assignmentsUserservice_1.RMCAssignmentUserService !== "undefined" && rmc_assignmentsUserservice_1.RMCAssignmentUserService) === "function" ? _d : Object, typeof (_e = typeof rmc_attendances_service_1.RMCAttendanceService !== "undefined" && rmc_attendances_service_1.RMCAttendanceService) === "function" ? _e : Object, typeof (_f = typeof rmc_attendancesUser_service_1.RMCAttendancesUserService !== "undefined" && rmc_attendancesUser_service_1.RMCAttendancesUserService) === "function" ? _f : Object, typeof (_g = typeof rmc_files_service_1.RMCFilesService !== "undefined" && rmc_files_service_1.RMCFilesService) === "function" ? _g : Object])
-], RoadMapContentService);
-exports.RoadMapContentService = RoadMapContentService;
+    __param(0, mongoose_1.InjectModel(post_entity_1.Post.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], PostService);
+exports.PostService = PostService;
 
 
 /***/ }),
@@ -7035,521 +6913,109 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b;
+var _a, _b, _c, _d, _e, _f, _g;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RMCAssignmentService = void 0;
-const logger_service_1 = __webpack_require__(12);
-const baseService_service_1 = __webpack_require__(10);
+exports.PostController = void 0;
 const common_1 = __webpack_require__(3);
-const mongoose_1 = __webpack_require__(4);
-const typegoose_1 = __webpack_require__(7);
-const rmc_assignments_1 = __webpack_require__(126);
-let RMCAssignmentService = class RMCAssignmentService extends baseService_service_1.BaseService {
-    constructor(_RMCAssignmentModel, _loggerService) {
-        super();
-        this._RMCAssignmentModel = _RMCAssignmentModel;
+const user_decorator_1 = __webpack_require__(23);
+const jwt_auth_guard_1 = __webpack_require__(24);
+const baseController_1 = __webpack_require__(31);
+const errors_exception_1 = __webpack_require__(30);
+const resource_exception_1 = __webpack_require__(26);
+const query_interface_1 = __webpack_require__(64);
+const post_service_1 = __webpack_require__(124);
+const logger_service_1 = __webpack_require__(12);
+const memberClass_service_1 = __webpack_require__(55);
+let PostController = class PostController {
+    constructor(_postService, _memberClass, _loggerService) {
+        this._postService = _postService;
+        this._memberClass = _memberClass;
         this._loggerService = _loggerService;
-        this._model = _RMCAssignmentModel;
     }
-    async createClassAssignment(payload) {
-        console.log(`LHA:  ===> file: rmc-assignments.service.ts ===> line 22 ===> payload`, payload);
+    async getPostHomePage(user, query) {
         try {
-            const obj = Object.assign({}, payload);
-            const newClassAssignment = rmc_assignments_1.RMCAssignment.createModel(obj);
-            console.log(`LHA:  ===> file: rmc-assignments.service.ts ===> line 28 ===> newClassAssignment`, newClassAssignment);
-            const result = await this.create(newClassAssignment);
+            const memberClass = await this._memberClass.findAllNoSkip({
+                user: user._id,
+            });
+            const idClass = memberClass.map((e) => e.idClass);
+            const result = await this._postService.findAll({
+                class: { $in: idClass },
+            }, query, [
+                {
+                    path: 'class',
+                    select: '',
+                },
+                {
+                    path: 'roadMapContent',
+                    populate: 'rmcFile rmcAssignment rmcAttendance',
+                },
+            ]);
             if (result) {
-                return this.cvtJSON(result);
+                return new baseController_1.Ok('Get Message success', JSON.parse(JSON.stringify(result)));
             }
-            return null;
+            throw new resource_exception_1.ResourceFoundException({
+                message: 'Get Message fail',
+            });
         }
         catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'createClassAssignment-RMCAssignmentsService');
-            return null;
+            this._loggerService.error(e.message, null, 'get-PostController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
-    async deleteClassAssignment(id) {
+    async getPostInClass(user, idClass, query) {
         try {
-            const result = await this.delete(id);
+            const result = await this._postService.findAll({
+                class: idClass,
+            }, query, [
+                {
+                    path: 'class',
+                },
+                {
+                    path: 'roadMapContent',
+                    populate: 'rmcFile rmcAssignment rmcAttendance',
+                },
+            ]);
             if (result) {
-                return this.cvtJSON(result);
+                return new baseController_1.Ok('Get Message success', JSON.parse(JSON.stringify(result)));
             }
-            return null;
+            throw new resource_exception_1.ResourceFoundException({
+                message: 'Get Message fail',
+            });
         }
         catch (e) {
-            this._loggerService.error(e.message, null, 'deleteClassAssignment-RMCAssignmentsService');
-            return null;
+            this._loggerService.error(e.message, null, 'get-PostController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
 };
-RMCAssignmentService = __decorate([
-    common_1.Injectable(),
-    __param(0, mongoose_1.InjectModel(rmc_assignments_1.RMCAssignment.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
-], RMCAssignmentService);
-exports.RMCAssignmentService = RMCAssignmentService;
+__decorate([
+    common_1.Get('/home'),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, typeof (_b = typeof query_interface_1.IQueryFind !== "undefined" && query_interface_1.IQueryFind) === "function" ? _b : Object]),
+    __metadata("design:returntype", Promise)
+], PostController.prototype, "getPostHomePage", null);
+__decorate([
+    common_1.Get('/class/:idClass'),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Param('idClass')),
+    __param(2, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, typeof (_d = typeof query_interface_1.IQueryFind !== "undefined" && query_interface_1.IQueryFind) === "function" ? _d : Object]),
+    __metadata("design:returntype", Promise)
+], PostController.prototype, "getPostInClass", null);
+PostController = __decorate([
+    common_1.Controller('api/post'),
+    __metadata("design:paramtypes", [typeof (_e = typeof post_service_1.PostService !== "undefined" && post_service_1.PostService) === "function" ? _e : Object, typeof (_f = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _f : Object, typeof (_g = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _g : Object])
+], PostController);
+exports.PostController = PostController;
 
 
 /***/ }),
 /* 126 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RMCAssignment = void 0;
-const baseModel_entity_1 = __webpack_require__(6);
-const baseModel_entity_2 = __webpack_require__(6);
-const typegoose_1 = __webpack_require__(7);
-class RMCAssignment extends baseModel_entity_1.BaseModel {
-    static get model() {
-        return new RMCAssignment().getModelForClass(RMCAssignment, {
-            schemaOptions: baseModel_entity_2.schemaOptions,
-        });
-    }
-    static get modelName() {
-        return this.model.modelName;
-    }
-    static createModel(payload) {
-        return new this.model(payload);
-    }
-}
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCAssignment.prototype, "name", void 0);
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCAssignment.prototype, "description", void 0);
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCAssignment.prototype, "startTime", void 0);
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCAssignment.prototype, "endTime", void 0);
-exports.RMCAssignment = RMCAssignment;
-
-
-/***/ }),
-/* 127 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RoadMapContent = void 0;
-const baseModel_entity_1 = __webpack_require__(6);
-const baseModel_entity_2 = __webpack_require__(6);
-const typegoose_1 = __webpack_require__(7);
-const status_enum_1 = __webpack_require__(29);
-class RoadMapContent extends baseModel_entity_1.BaseModel {
-    static get model() {
-        return new RoadMapContent().getModelForClass(RoadMapContent, {
-            schemaOptions: baseModel_entity_2.schemaOptions,
-        });
-    }
-    static get modelName() {
-        return this.model.modelName;
-    }
-    static createModel(payload) {
-        return new this.model(payload);
-    }
-}
-__decorate([
-    typegoose_1.prop({ default: '' }),
-    __metadata("design:type", String)
-], RoadMapContent.prototype, "name", void 0);
-__decorate([
-    typegoose_1.prop({ default: '' }),
-    __metadata("design:type", String)
-], RoadMapContent.prototype, "description", void 0);
-__decorate([
-    typegoose_1.prop({ default: status_enum_1.DFStatus.Active }),
-    __metadata("design:type", Number)
-], RoadMapContent.prototype, "status", void 0);
-__decorate([
-    typegoose_1.prop({ default: 0 }),
-    __metadata("design:type", Number)
-], RoadMapContent.prototype, "type", void 0);
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RoadMapContent.prototype, "rmc", void 0);
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RoadMapContent.prototype, "idRoadMap", void 0);
-exports.RoadMapContent = RoadMapContent;
-
-
-/***/ }),
-/* 128 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RMCAssignmentUserService = void 0;
-const logger_service_1 = __webpack_require__(12);
-const baseService_service_1 = __webpack_require__(10);
-const common_1 = __webpack_require__(3);
-const mongoose_1 = __webpack_require__(4);
-const typegoose_1 = __webpack_require__(7);
-const rmc_assignmentsUser_1 = __webpack_require__(129);
-let RMCAssignmentUserService = class RMCAssignmentUserService extends baseService_service_1.BaseService {
-    constructor(_RMCAssignmentUserModel, _loggerService) {
-        super();
-        this._RMCAssignmentUserModel = _RMCAssignmentUserModel;
-        this._loggerService = _loggerService;
-        this._model = _RMCAssignmentUserModel;
-    }
-    async createRMCAssignmentUser(userId, assignmentId) {
-        try {
-            const obj = {
-                userId,
-                assignmentId,
-            };
-            const newClassAssignment = rmc_assignmentsUser_1.RMCAssignmentUser.createModel(obj);
-            const result = await this.create(newClassAssignment);
-            if (result) {
-                return this.cvtJSON(result);
-            }
-            return null;
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'createClassAssignment-RMCAssignmentUsersService');
-            return null;
-        }
-    }
-};
-RMCAssignmentUserService = __decorate([
-    common_1.Injectable(),
-    __param(0, mongoose_1.InjectModel(rmc_assignmentsUser_1.RMCAssignmentUser.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
-], RMCAssignmentUserService);
-exports.RMCAssignmentUserService = RMCAssignmentUserService;
-
-
-/***/ }),
-/* 129 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var _a;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RMCAssignmentUser = void 0;
-const baseModel_entity_1 = __webpack_require__(6);
-const baseModel_entity_2 = __webpack_require__(6);
-const typegoose_1 = __webpack_require__(7);
-class RMCAssignmentUser extends baseModel_entity_1.BaseModel {
-    static get model() {
-        return new RMCAssignmentUser().getModelForClass(RMCAssignmentUser, {
-            schemaOptions: baseModel_entity_2.schemaOptions,
-        });
-    }
-    static get modelName() {
-        return this.model.modelName;
-    }
-    static createModel(payload) {
-        return new this.model(payload);
-    }
-}
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCAssignmentUser.prototype, "userId", void 0);
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCAssignmentUser.prototype, "assignmentId", void 0);
-__decorate([
-    typegoose_1.prop({ default: null }),
-    __metadata("design:type", Number)
-], RMCAssignmentUser.prototype, "score", void 0);
-__decorate([
-    typegoose_1.prop({ default: [] }),
-    __metadata("design:type", typeof (_a = typeof Array !== "undefined" && Array) === "function" ? _a : Object)
-], RMCAssignmentUser.prototype, "commentTeacher", void 0);
-exports.RMCAssignmentUser = RMCAssignmentUser;
-
-
-/***/ }),
-/* 130 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RMCAttendancesUserService = void 0;
-const logger_service_1 = __webpack_require__(12);
-const baseService_service_1 = __webpack_require__(10);
-const common_1 = __webpack_require__(3);
-const mongoose_1 = __webpack_require__(4);
-const typegoose_1 = __webpack_require__(7);
-const rmc_attendancesUser_1 = __webpack_require__(131);
-let RMCAttendancesUserService = class RMCAttendancesUserService extends baseService_service_1.BaseService {
-    constructor(_RMCAttendancesUserModel, _loggerService) {
-        super();
-        this._RMCAttendancesUserModel = _RMCAttendancesUserModel;
-        this._loggerService = _loggerService;
-        this._model = _RMCAttendancesUserModel;
-    }
-    async createClassAttendanceUser(userId, attendanceId) {
-        try {
-            const obj = {
-                userId,
-                attendanceId,
-            };
-            const newClassAttendanceUser = rmc_attendancesUser_1.RMCAttendancesUser.createModel(obj);
-            const result = await this.create(newClassAttendanceUser);
-            if (result) {
-                return this.cvtJSON(result);
-            }
-            return null;
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'createClassAttendanceUser-RMCAttendancesUserService');
-            return null;
-        }
-    }
-};
-RMCAttendancesUserService = __decorate([
-    common_1.Injectable(),
-    __param(0, mongoose_1.InjectModel(rmc_attendancesUser_1.RMCAttendancesUser.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
-], RMCAttendancesUserService);
-exports.RMCAttendancesUserService = RMCAttendancesUserService;
-
-
-/***/ }),
-/* 131 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RMCAttendancesUser = void 0;
-const baseModel_entity_1 = __webpack_require__(6);
-const baseModel_entity_2 = __webpack_require__(6);
-const typegoose_1 = __webpack_require__(7);
-class RMCAttendancesUser extends baseModel_entity_1.BaseModel {
-    static get model() {
-        return new RMCAttendancesUser().getModelForClass(RMCAttendancesUser, {
-            schemaOptions: baseModel_entity_2.schemaOptions,
-        });
-    }
-    static get modelName() {
-        return this.model.modelName;
-    }
-    static createModel(payload) {
-        return new this.model(payload);
-    }
-}
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCAttendancesUser.prototype, "userId", void 0);
-__decorate([
-    typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
-], RMCAttendancesUser.prototype, "attendanceId", void 0);
-exports.RMCAttendancesUser = RMCAttendancesUser;
-
-
-/***/ }),
-/* 132 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RMCAttendanceService = void 0;
-const logger_service_1 = __webpack_require__(12);
-const baseService_service_1 = __webpack_require__(10);
-const common_1 = __webpack_require__(3);
-const mongoose_1 = __webpack_require__(4);
-const typegoose_1 = __webpack_require__(7);
-const rmc_attendances_1 = __webpack_require__(123);
-let RMCAttendanceService = class RMCAttendanceService extends baseService_service_1.BaseService {
-    constructor(_RMCAttendancesModel, _loggerService) {
-        super();
-        this._RMCAttendancesModel = _RMCAttendancesModel;
-        this._loggerService = _loggerService;
-        this._model = _RMCAttendancesModel;
-    }
-    async createClassAttendance(payload) {
-        try {
-            const obj = Object.assign({}, payload);
-            const newClassAttendance = rmc_attendances_1.RMCAttendances.createModel(obj);
-            const result = await this.create(newClassAttendance);
-            if (result) {
-                return this.cvtJSON(result);
-            }
-            return null;
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'createClassAttendance-RMCAttendancesService');
-            return null;
-        }
-    }
-    async deleteClassAttendance(id) {
-        try {
-            const result = await this.delete(id);
-            if (result) {
-                return this.cvtJSON(result);
-            }
-            return null;
-        }
-        catch (e) {
-            this._loggerService.error(e.message, null, 'deleteClassAttendance-RMCAttendancesService');
-            return null;
-        }
-    }
-};
-RMCAttendanceService = __decorate([
-    common_1.Injectable(),
-    __param(0, mongoose_1.InjectModel(rmc_attendances_1.RMCAttendances.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
-], RMCAttendanceService);
-exports.RMCAttendanceService = RMCAttendanceService;
-
-
-/***/ }),
-/* 133 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RMCFilesService = void 0;
-const logger_service_1 = __webpack_require__(12);
-const baseService_service_1 = __webpack_require__(10);
-const common_1 = __webpack_require__(3);
-const mongoose_1 = __webpack_require__(4);
-const typegoose_1 = __webpack_require__(7);
-const rmc_files_1 = __webpack_require__(122);
-let RMCFilesService = class RMCFilesService extends baseService_service_1.BaseService {
-    constructor(_rmcFileModel, _loggerService) {
-        super();
-        this._rmcFileModel = _rmcFileModel;
-        this._loggerService = _loggerService;
-        this._model = _rmcFileModel;
-    }
-    async createClassFile(payload) {
-        try {
-            const obj = Object.assign({}, payload);
-            const newClassFile = rmc_files_1.RMCFile.createModel(obj);
-            const result = await this.create(newClassFile);
-            if (result) {
-                return this.cvtJSON(result);
-            }
-            return null;
-        }
-        catch (e) {
-            console.log(e);
-            this._loggerService.error(e.message, null, 'createClassFile-RMCFilesService');
-            return null;
-        }
-    }
-};
-RMCFilesService = __decorate([
-    common_1.Injectable(),
-    __param(0, mongoose_1.InjectModel(rmc_files_1.RMCFile.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
-], RMCFilesService);
-exports.RMCFilesService = RMCFilesService;
-
-
-/***/ }),
-/* 134 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7572,23 +7038,23 @@ const user_decorator_1 = __webpack_require__(23);
 const common_1 = __webpack_require__(3);
 const jwt_auth_guard_1 = __webpack_require__(24);
 const logger_service_1 = __webpack_require__(12);
-const roadMapContent_service_1 = __webpack_require__(124);
+const roadMapContent_service_1 = __webpack_require__(127);
 const user_entity_1 = __webpack_require__(39);
 const resource_exception_1 = __webpack_require__(26);
 const baseController_1 = __webpack_require__(31);
 const errors_exception_1 = __webpack_require__(30);
-const req_dto_1 = __webpack_require__(135);
-const req_dto_2 = __webpack_require__(136);
-const req_dto_3 = __webpack_require__(137);
-const enum_1 = __webpack_require__(138);
+const req_dto_1 = __webpack_require__(139);
+const req_dto_2 = __webpack_require__(140);
+const req_dto_3 = __webpack_require__(141);
+const enum_1 = __webpack_require__(142);
 const class_service_1 = __webpack_require__(48);
-const req_dto_4 = __webpack_require__(139);
-const req_dto_5 = __webpack_require__(140);
-const rmc_assignments_service_1 = __webpack_require__(125);
-const rmc_assignmentsUserservice_1 = __webpack_require__(128);
-const rmc_attendances_service_1 = __webpack_require__(132);
-const rmc_attendancesUser_service_1 = __webpack_require__(130);
-const rmc_files_service_1 = __webpack_require__(133);
+const req_dto_4 = __webpack_require__(143);
+const req_dto_5 = __webpack_require__(144);
+const rmc_assignments_service_1 = __webpack_require__(129);
+const rmc_assignmentsUserservice_1 = __webpack_require__(131);
+const rmc_attendances_service_1 = __webpack_require__(133);
+const rmc_attendancesUser_service_1 = __webpack_require__(135);
+const rmc_files_service_1 = __webpack_require__(137);
 let RoadMapContentController = class RoadMapContentController {
     constructor(roadMapContentService, _rmcAssignmentService, _rmcAssignmentUserService, _rmcAttendanceService, _rmcAttendanceUserService, _rmcFilesService, loggerService, classService) {
         this.roadMapContentService = roadMapContentService;
@@ -7602,11 +7068,11 @@ let RoadMapContentController = class RoadMapContentController {
     }
     async createRMCAssignment(user, query, payload) {
         try {
-            const hostClass = await this.classService.checkHostClass(user.createdBy, query.idClass);
+            const hostClass = await this.classService.checkHostClass(user._id, query.idClass);
             if (!hostClass) {
                 throw new resource_exception_1.ResourceFoundException('The class you are trying to access does not exist');
             }
-            const payloadRMC = Object.assign(Object.assign({}, payload), { idRoadMap: query.idRoadMap, createdBy: user.createdBy, type: enum_1.RCMTypes.ASSIGNMENT });
+            const payloadRMC = Object.assign(Object.assign({}, payload), { idRoadMap: query.idRoadMap, createdBy: user._id, idClass: query.idClass, type: enum_1.RCMTypes.ASSIGNMENT });
             const result = await this.roadMapContentService.createRMCAssignment(payloadRMC);
             if (result) {
                 return new baseController_1.Ok('Create RMC Assignment', this.roadMapContentService.cvtJSON(result));
@@ -7620,11 +7086,11 @@ let RoadMapContentController = class RoadMapContentController {
     }
     async createRMCAttendance(user, query, payload) {
         try {
-            const hostClass = await this.classService.checkHostClass(user.createdBy, query.idClass);
+            const hostClass = await this.classService.checkHostClass(user._id, query.idClass);
             if (!hostClass) {
                 throw new resource_exception_1.ResourceFoundException('The class you are trying to access does not exist');
             }
-            const payloadRMC = Object.assign(Object.assign({}, payload), { idRoadMap: query.idRoadMap, createdBy: user.createdBy, type: enum_1.RCMTypes.ATTENDANCE });
+            const payloadRMC = Object.assign(Object.assign({}, payload), { idRoadMap: query.idRoadMap, idClass: query.idClass, createdBy: user._id, type: enum_1.RCMTypes.ATTENDANCE });
             const result = await this.roadMapContentService.createRMCAttendance(payloadRMC);
             if (result) {
                 return new baseController_1.Ok('Create RMC Attendance', this.roadMapContentService.cvtJSON(result));
@@ -7638,11 +7104,11 @@ let RoadMapContentController = class RoadMapContentController {
     }
     async createRMCFile(user, query, payload) {
         try {
-            const hostClass = await this.classService.checkHostClass(user.createdBy, query.idClass);
+            const hostClass = await this.classService.checkHostClass(user._id, query.idClass);
             if (!hostClass) {
                 throw new resource_exception_1.ResourceFoundException('The class you are trying to access does not exist');
             }
-            const payloadRMC = Object.assign(Object.assign({}, payload), { idRoadMap: query.idRoadMap, createdBy: user.createdBy, type: enum_1.RCMTypes.ATTENDANCE });
+            const payloadRMC = Object.assign(Object.assign({}, payload), { idRoadMap: query.idRoadMap, createdBy: user._id, idClass: query.idClass, type: enum_1.RCMTypes.ATTENDANCE });
             const result = await this.roadMapContentService.createRMCFile(payloadRMC);
             if (result) {
                 return new baseController_1.Ok('Create RMC File', this.roadMapContentService.cvtJSON(result));
@@ -7761,13 +7227,13 @@ let RoadMapContentController = class RoadMapContentController {
             for (const rmc of sortResult) {
                 switch (rmc.type) {
                     case enum_1.RCMTypes.ASSIGNMENT:
-                        resultRmc = await this._rmcAssignmentService.findById(rmc.rmc);
+                        resultRmc = await this._rmcAssignmentService.findById(`${rmc.rmc}`);
                         break;
                     case enum_1.RCMTypes.ATTENDANCE:
-                        resultRmc = await this._rmcAttendanceService.findById(rmc.rmc);
+                        resultRmc = await this._rmcAttendanceService.findById(`${rmc.rmc}`);
                         break;
                     case enum_1.RCMTypes.FILE:
-                        resultRmc = await this._rmcFilesService.findById(rmc.rmc);
+                        resultRmc = await this._rmcFilesService.findById(`${rmc.rmc}`);
                         break;
                     default:
                         break;
@@ -7794,7 +7260,7 @@ __decorate([
     __param(1, common_1.Query()),
     __param(2, common_1.Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_a = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _a : Object, Object, typeof (_b = typeof req_dto_1.CreateRMCAssignmentDto !== "undefined" && req_dto_1.CreateRMCAssignmentDto) === "function" ? _b : Object]),
+    __metadata("design:paramtypes", [Object, Object, typeof (_b = typeof req_dto_1.CreateRMCAssignmentDto !== "undefined" && req_dto_1.CreateRMCAssignmentDto) === "function" ? _b : Object]),
     __metadata("design:returntype", Promise)
 ], RoadMapContentController.prototype, "createRMCAssignment", null);
 __decorate([
@@ -7805,7 +7271,7 @@ __decorate([
     __param(1, common_1.Query()),
     __param(2, common_1.Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_c = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _c : Object, Object, typeof (_d = typeof req_dto_2.CreateRMCAttendanceDto !== "undefined" && req_dto_2.CreateRMCAttendanceDto) === "function" ? _d : Object]),
+    __metadata("design:paramtypes", [Object, Object, typeof (_d = typeof req_dto_2.CreateRMCAttendanceDto !== "undefined" && req_dto_2.CreateRMCAttendanceDto) === "function" ? _d : Object]),
     __metadata("design:returntype", Promise)
 ], RoadMapContentController.prototype, "createRMCAttendance", null);
 __decorate([
@@ -7816,7 +7282,7 @@ __decorate([
     __param(1, common_1.Query()),
     __param(2, common_1.Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_e = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _e : Object, Object, typeof (_f = typeof req_dto_3.CreateRMCFileDto !== "undefined" && req_dto_3.CreateRMCFileDto) === "function" ? _f : Object]),
+    __metadata("design:paramtypes", [Object, Object, typeof (_f = typeof req_dto_3.CreateRMCFileDto !== "undefined" && req_dto_3.CreateRMCFileDto) === "function" ? _f : Object]),
     __metadata("design:returntype", Promise)
 ], RoadMapContentController.prototype, "createRMCFile", null);
 __decorate([
@@ -7900,7 +7366,871 @@ exports.RoadMapContentController = RoadMapContentController;
 
 
 /***/ }),
+/* 127 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b, _c, _d, _e, _f, _g, _h;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RoadMapContentService = void 0;
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(4);
+const errors_exception_1 = __webpack_require__(30);
+const baseService_service_1 = __webpack_require__(10);
+const mongoose = __webpack_require__(11);
+const typegoose_1 = __webpack_require__(7);
+const logger_service_1 = __webpack_require__(12);
+const post_service_1 = __webpack_require__(124);
+const roadMapContent_entity_1 = __webpack_require__(128);
+const rmc_assignments_service_1 = __webpack_require__(129);
+const rmc_assignmentsUserservice_1 = __webpack_require__(131);
+const rmc_attendances_service_1 = __webpack_require__(133);
+const rmc_attendancesUser_service_1 = __webpack_require__(135);
+const rmc_files_service_1 = __webpack_require__(137);
+let RoadMapContentService = class RoadMapContentService extends baseService_service_1.BaseService {
+    constructor(_setOfQuestionsModel, _loggerService, _rmcAssignmentService, _rmcAssignmentUserService, _rmcAttendanceService, _rmcAttendanceUserService, _rmcFilesService, _postService) {
+        super();
+        this._setOfQuestionsModel = _setOfQuestionsModel;
+        this._loggerService = _loggerService;
+        this._rmcAssignmentService = _rmcAssignmentService;
+        this._rmcAssignmentUserService = _rmcAssignmentUserService;
+        this._rmcAttendanceService = _rmcAttendanceService;
+        this._rmcAttendanceUserService = _rmcAttendanceUserService;
+        this._rmcFilesService = _rmcFilesService;
+        this._postService = _postService;
+        this._model = _setOfQuestionsModel;
+    }
+    async createRoadMapContent(createdBy, type, idRoadMap, idClass, payload) {
+        try {
+            const obj = Object.assign({}, payload);
+            obj.createBy = createdBy;
+            obj.type = type;
+            obj.idRoadMap = idRoadMap;
+            const newRoadMap = roadMapContent_entity_1.RoadMapContent.createModel(obj);
+            const roadMapS = await this.create(newRoadMap);
+            if (roadMapS) {
+                const postDto = {
+                    class: new mongoose.Types.ObjectId(idClass),
+                    roadMapContent: new mongoose.Types.ObjectId(roadMapS._id),
+                    createdBy: new mongoose.Types.ObjectId(obj.createBy),
+                };
+                const singlePost = await this._postService.createPostWithRmc(postDto);
+                return this.cvtJSON(roadMapS);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'CREATE-RoadMapContentService');
+            return null;
+        }
+    }
+    async createRMCAssignment(payload) {
+        try {
+            const resultRMC = await this._rmcAssignmentService.createClassAssignment(payload);
+            if (resultRMC) {
+                const result = await this.createRoadMapContent(payload.createdBy, payload.type, payload.idRoadMap, payload.idClass, {
+                    rmc: new mongoose.Types.ObjectId(resultRMC._id),
+                    rmcAssignment: new mongoose.Types.ObjectId(resultRMC._id),
+                });
+                if (result) {
+                    const cloneRMCAssignment = this.cvtJSON(result);
+                    cloneRMCAssignment.rmc = this.cvtJSON(resultRMC);
+                    return cloneRMCAssignment;
+                }
+                throw new common_1.NotFoundException('Create RMC False');
+            }
+            throw new common_1.NotFoundException('Create RMC createRMCAssignment');
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'CREATE-RoadMapContentService');
+            throw new errors_exception_1.Error2SchoolException('RMC createRMCAssignment ERR');
+        }
+    }
+    async createRMCAttendance(payload) {
+        try {
+            const resultRMC = await this._rmcAttendanceService.createClassAttendance(payload);
+            if (resultRMC) {
+                const result = await this.createRoadMapContent(payload.createdBy, payload.type, payload.idRoadMap, payload.idClass, {
+                    rmc: new mongoose.Types.ObjectId(resultRMC._id),
+                    rmcAttendance: new mongoose.Types.ObjectId(resultRMC._id),
+                });
+                if (result) {
+                    const cloneRMCAssignment = this.cvtJSON(result);
+                    cloneRMCAssignment.rmc = this.cvtJSON(resultRMC);
+                    return cloneRMCAssignment;
+                }
+                throw new common_1.NotFoundException('Create RMC False');
+            }
+            throw new common_1.NotFoundException('Create RMC createRMCAttendance');
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'CREATE-RoadMapContentService');
+            throw new errors_exception_1.Error2SchoolException('RMC createRMCAssignment ERR');
+        }
+    }
+    async createRMCFile(payload) {
+        try {
+            const resultRMC = await this._rmcFilesService.createClassFile(payload);
+            if (resultRMC) {
+                const result = await this.createRoadMapContent(payload.createdBy, payload.type, payload.idRoadMap, payload.idClass, {
+                    rmc: new mongoose.Types.ObjectId(resultRMC._id),
+                    rmcFile: new mongoose.Types.ObjectId(resultRMC._id),
+                });
+                if (result) {
+                    return result;
+                }
+                throw new common_1.NotFoundException('Create RMC False');
+            }
+            throw new common_1.NotFoundException('Create RMC createRMCFile');
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'CREATE-RoadMapContentService');
+            throw new errors_exception_1.Error2SchoolException('RMC createRMCFile ERR');
+        }
+    }
+    async updateRMCAssignment(idRMC, payload) {
+        try {
+            const rmc = await this.findById(idRMC);
+            if (rmc) {
+                const result = await this._rmcAssignmentService.findOneAndUpdate({ _id: rmc.rmc }, payload);
+                if (result) {
+                    return result;
+                }
+            }
+            throw new common_1.NotFoundException('Update RMC False');
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'UPDATE-RoadMapContentService');
+            throw new errors_exception_1.Error2SchoolException('RMC updateRMCAssignment ERR');
+        }
+    }
+    async updateRMCAttendance(idRMC, payload) {
+        try {
+            const rmc = await this.findById(idRMC);
+            if (rmc) {
+                const result = await this._rmcAttendanceService.findOneAndUpdate({ _id: rmc.rmc }, payload);
+                if (result) {
+                    const obj = Object.assign({}, this.cvtJSON(rmc));
+                    obj.rmc = this.cvtJSON(result);
+                    return obj;
+                }
+            }
+            throw new common_1.NotFoundException('Update RMC False');
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'UPDATE-RoadMapContentService');
+            throw new errors_exception_1.Error2SchoolException('RMC updateRMCAttendance ERR');
+        }
+    }
+    async deleteRMCAssignment(idRMC) {
+        try {
+            const rmc = await this.findById(idRMC);
+            console.log(`LHA:  ===> file: roadMapContent.service.ts ===> line 212 ===> rmc`, rmc);
+            if (rmc) {
+                const resultRMC = await this._rmcAssignmentService.deleteClassAssignment(`${rmc.rmc}`);
+                if (resultRMC) {
+                    const result = await this.delete(idRMC);
+                    if (result) {
+                        return result;
+                    }
+                }
+            }
+            throw new common_1.NotFoundException('Delete RMC False');
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'DELETE-RoadMapContentService');
+            throw new errors_exception_1.Error2SchoolException('RMC deleteRMCAssignment ERR');
+        }
+    }
+    async deleteRMCAttendance(idRMC) {
+        try {
+            const rmc = await this.findById(idRMC);
+            console.log(`LHA:  ===> file: roadMapContent.service.ts ===> line 243 ===> rmc`, rmc);
+            if (rmc) {
+                const resultRMC = await this._rmcAttendanceService.deleteClassAttendance(`${rmc.rmc}`);
+                if (resultRMC) {
+                    const result = await this.delete(idRMC);
+                    if (result) {
+                        return result;
+                    }
+                }
+            }
+            throw new common_1.NotFoundException('Delete RMC False');
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'DELETE-RoadMapContentService');
+            throw new errors_exception_1.Error2SchoolException('RMC deleteRMCAttendance ERR');
+        }
+    }
+};
+RoadMapContentService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(roadMapContent_entity_1.RoadMapContent.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof rmc_assignments_service_1.RMCAssignmentService !== "undefined" && rmc_assignments_service_1.RMCAssignmentService) === "function" ? _c : Object, typeof (_d = typeof rmc_assignmentsUserservice_1.RMCAssignmentUserService !== "undefined" && rmc_assignmentsUserservice_1.RMCAssignmentUserService) === "function" ? _d : Object, typeof (_e = typeof rmc_attendances_service_1.RMCAttendanceService !== "undefined" && rmc_attendances_service_1.RMCAttendanceService) === "function" ? _e : Object, typeof (_f = typeof rmc_attendancesUser_service_1.RMCAttendancesUserService !== "undefined" && rmc_attendancesUser_service_1.RMCAttendancesUserService) === "function" ? _f : Object, typeof (_g = typeof rmc_files_service_1.RMCFilesService !== "undefined" && rmc_files_service_1.RMCFilesService) === "function" ? _g : Object, typeof (_h = typeof post_service_1.PostService !== "undefined" && post_service_1.PostService) === "function" ? _h : Object])
+], RoadMapContentService);
+exports.RoadMapContentService = RoadMapContentService;
+
+
+/***/ }),
+/* 128 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a, _b, _c, _d;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RoadMapContent = void 0;
+const baseModel_entity_1 = __webpack_require__(6);
+const baseModel_entity_2 = __webpack_require__(6);
+const typegoose_1 = __webpack_require__(7);
+const status_enum_1 = __webpack_require__(29);
+const mongoose_1 = __webpack_require__(11);
+class RoadMapContent extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new RoadMapContent().getModelForClass(RoadMapContent, {
+            schemaOptions: baseModel_entity_2.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+}
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    __metadata("design:type", String)
+], RoadMapContent.prototype, "name", void 0);
+__decorate([
+    typegoose_1.prop({ default: '' }),
+    __metadata("design:type", String)
+], RoadMapContent.prototype, "description", void 0);
+__decorate([
+    typegoose_1.prop({ default: status_enum_1.DFStatus.Active }),
+    __metadata("design:type", Number)
+], RoadMapContent.prototype, "status", void 0);
+__decorate([
+    typegoose_1.prop({ default: 0 }),
+    __metadata("design:type", Number)
+], RoadMapContent.prototype, "type", void 0);
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", typeof (_a = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _a : Object)
+], RoadMapContent.prototype, "rmc", void 0);
+__decorate([
+    typegoose_1.prop({ default: null, ref: 'RMCFile' }),
+    __metadata("design:type", typeof (_b = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _b : Object)
+], RoadMapContent.prototype, "rmcFile", void 0);
+__decorate([
+    typegoose_1.prop({ default: null, ref: 'RMCAssignment' }),
+    __metadata("design:type", typeof (_c = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _c : Object)
+], RoadMapContent.prototype, "rmcAssignment", void 0);
+__decorate([
+    typegoose_1.prop({ default: null, ref: 'RMCAttendances' }),
+    __metadata("design:type", typeof (_d = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _d : Object)
+], RoadMapContent.prototype, "rmcAttendance", void 0);
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RoadMapContent.prototype, "idRoadMap", void 0);
+exports.RoadMapContent = RoadMapContent;
+
+
+/***/ }),
+/* 129 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RMCAssignmentService = void 0;
+const logger_service_1 = __webpack_require__(12);
+const baseService_service_1 = __webpack_require__(10);
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(4);
+const typegoose_1 = __webpack_require__(7);
+const rmc_assignments_1 = __webpack_require__(130);
+let RMCAssignmentService = class RMCAssignmentService extends baseService_service_1.BaseService {
+    constructor(_RMCAssignmentModel, _loggerService) {
+        super();
+        this._RMCAssignmentModel = _RMCAssignmentModel;
+        this._loggerService = _loggerService;
+        this._model = _RMCAssignmentModel;
+    }
+    async createClassAssignment(payload) {
+        console.log(`LHA:  ===> file: rmc-assignments.service.ts ===> line 22 ===> payload`, payload);
+        try {
+            const obj = Object.assign({}, payload);
+            const newClassAssignment = rmc_assignments_1.RMCAssignment.createModel(obj);
+            console.log(`LHA:  ===> file: rmc-assignments.service.ts ===> line 28 ===> newClassAssignment`, newClassAssignment);
+            const result = await this.create(newClassAssignment);
+            if (result) {
+                return this.cvtJSON(result);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'createClassAssignment-RMCAssignmentsService');
+            return null;
+        }
+    }
+    async deleteClassAssignment(id) {
+        try {
+            const result = await this.delete(id);
+            if (result) {
+                return this.cvtJSON(result);
+            }
+            return null;
+        }
+        catch (e) {
+            this._loggerService.error(e.message, null, 'deleteClassAssignment-RMCAssignmentsService');
+            return null;
+        }
+    }
+};
+RMCAssignmentService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(rmc_assignments_1.RMCAssignment.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], RMCAssignmentService);
+exports.RMCAssignmentService = RMCAssignmentService;
+
+
+/***/ }),
+/* 130 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RMCAssignment = void 0;
+const baseModel_entity_1 = __webpack_require__(6);
+const baseModel_entity_2 = __webpack_require__(6);
+const typegoose_1 = __webpack_require__(7);
+class RMCAssignment extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new RMCAssignment().getModelForClass(RMCAssignment, {
+            schemaOptions: baseModel_entity_2.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+}
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCAssignment.prototype, "name", void 0);
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCAssignment.prototype, "description", void 0);
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCAssignment.prototype, "startTime", void 0);
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCAssignment.prototype, "endTime", void 0);
+exports.RMCAssignment = RMCAssignment;
+
+
+/***/ }),
+/* 131 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RMCAssignmentUserService = void 0;
+const logger_service_1 = __webpack_require__(12);
+const baseService_service_1 = __webpack_require__(10);
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(4);
+const typegoose_1 = __webpack_require__(7);
+const rmc_assignmentsUser_1 = __webpack_require__(132);
+let RMCAssignmentUserService = class RMCAssignmentUserService extends baseService_service_1.BaseService {
+    constructor(_RMCAssignmentUserModel, _loggerService) {
+        super();
+        this._RMCAssignmentUserModel = _RMCAssignmentUserModel;
+        this._loggerService = _loggerService;
+        this._model = _RMCAssignmentUserModel;
+    }
+    async createRMCAssignmentUser(userId, assignmentId) {
+        try {
+            const obj = {
+                userId,
+                assignmentId,
+            };
+            const newClassAssignment = rmc_assignmentsUser_1.RMCAssignmentUser.createModel(obj);
+            const result = await this.create(newClassAssignment);
+            if (result) {
+                return this.cvtJSON(result);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'createClassAssignment-RMCAssignmentUsersService');
+            return null;
+        }
+    }
+};
+RMCAssignmentUserService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(rmc_assignmentsUser_1.RMCAssignmentUser.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], RMCAssignmentUserService);
+exports.RMCAssignmentUserService = RMCAssignmentUserService;
+
+
+/***/ }),
+/* 132 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RMCAssignmentUser = void 0;
+const baseModel_entity_1 = __webpack_require__(6);
+const baseModel_entity_2 = __webpack_require__(6);
+const typegoose_1 = __webpack_require__(7);
+class RMCAssignmentUser extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new RMCAssignmentUser().getModelForClass(RMCAssignmentUser, {
+            schemaOptions: baseModel_entity_2.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+}
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCAssignmentUser.prototype, "userId", void 0);
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCAssignmentUser.prototype, "assignmentId", void 0);
+__decorate([
+    typegoose_1.prop({ default: null }),
+    __metadata("design:type", Number)
+], RMCAssignmentUser.prototype, "score", void 0);
+__decorate([
+    typegoose_1.prop({ default: [] }),
+    __metadata("design:type", typeof (_a = typeof Array !== "undefined" && Array) === "function" ? _a : Object)
+], RMCAssignmentUser.prototype, "commentTeacher", void 0);
+exports.RMCAssignmentUser = RMCAssignmentUser;
+
+
+/***/ }),
+/* 133 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RMCAttendanceService = void 0;
+const logger_service_1 = __webpack_require__(12);
+const baseService_service_1 = __webpack_require__(10);
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(4);
+const typegoose_1 = __webpack_require__(7);
+const rmc_attendances_1 = __webpack_require__(134);
+let RMCAttendanceService = class RMCAttendanceService extends baseService_service_1.BaseService {
+    constructor(_RMCAttendancesModel, _loggerService) {
+        super();
+        this._RMCAttendancesModel = _RMCAttendancesModel;
+        this._loggerService = _loggerService;
+        this._model = _RMCAttendancesModel;
+    }
+    async createClassAttendance(payload) {
+        try {
+            const obj = Object.assign({}, payload);
+            const newClassAttendance = rmc_attendances_1.RMCAttendances.createModel(obj);
+            const result = await this.create(newClassAttendance);
+            if (result) {
+                return this.cvtJSON(result);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'createClassAttendance-RMCAttendancesService');
+            return null;
+        }
+    }
+    async deleteClassAttendance(id) {
+        try {
+            const result = await this.delete(id);
+            if (result) {
+                return this.cvtJSON(result);
+            }
+            return null;
+        }
+        catch (e) {
+            this._loggerService.error(e.message, null, 'deleteClassAttendance-RMCAttendancesService');
+            return null;
+        }
+    }
+};
+RMCAttendanceService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(rmc_attendances_1.RMCAttendances.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], RMCAttendanceService);
+exports.RMCAttendanceService = RMCAttendanceService;
+
+
+/***/ }),
+/* 134 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RMCAttendances = void 0;
+const baseModel_entity_1 = __webpack_require__(6);
+const baseModel_entity_2 = __webpack_require__(6);
+const typegoose_1 = __webpack_require__(7);
+class RMCAttendances extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new RMCAttendances().getModelForClass(RMCAttendances, {
+            schemaOptions: baseModel_entity_2.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+}
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCAttendances.prototype, "name", void 0);
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCAttendances.prototype, "description", void 0);
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCAttendances.prototype, "startTime", void 0);
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCAttendances.prototype, "endTime", void 0);
+exports.RMCAttendances = RMCAttendances;
+
+
+/***/ }),
 /* 135 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RMCAttendancesUserService = void 0;
+const logger_service_1 = __webpack_require__(12);
+const baseService_service_1 = __webpack_require__(10);
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(4);
+const typegoose_1 = __webpack_require__(7);
+const rmc_attendancesUser_1 = __webpack_require__(136);
+let RMCAttendancesUserService = class RMCAttendancesUserService extends baseService_service_1.BaseService {
+    constructor(_RMCAttendancesUserModel, _loggerService) {
+        super();
+        this._RMCAttendancesUserModel = _RMCAttendancesUserModel;
+        this._loggerService = _loggerService;
+        this._model = _RMCAttendancesUserModel;
+    }
+    async createClassAttendanceUser(userId, attendanceId) {
+        try {
+            const obj = {
+                userId,
+                attendanceId,
+            };
+            const newClassAttendanceUser = rmc_attendancesUser_1.RMCAttendancesUser.createModel(obj);
+            const result = await this.create(newClassAttendanceUser);
+            if (result) {
+                return this.cvtJSON(result);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'createClassAttendanceUser-RMCAttendancesUserService');
+            return null;
+        }
+    }
+};
+RMCAttendancesUserService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(rmc_attendancesUser_1.RMCAttendancesUser.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], RMCAttendancesUserService);
+exports.RMCAttendancesUserService = RMCAttendancesUserService;
+
+
+/***/ }),
+/* 136 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RMCAttendancesUser = void 0;
+const baseModel_entity_1 = __webpack_require__(6);
+const baseModel_entity_2 = __webpack_require__(6);
+const typegoose_1 = __webpack_require__(7);
+class RMCAttendancesUser extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new RMCAttendancesUser().getModelForClass(RMCAttendancesUser, {
+            schemaOptions: baseModel_entity_2.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+}
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCAttendancesUser.prototype, "userId", void 0);
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCAttendancesUser.prototype, "attendanceId", void 0);
+exports.RMCAttendancesUser = RMCAttendancesUser;
+
+
+/***/ }),
+/* 137 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RMCFilesService = void 0;
+const logger_service_1 = __webpack_require__(12);
+const baseService_service_1 = __webpack_require__(10);
+const common_1 = __webpack_require__(3);
+const mongoose_1 = __webpack_require__(4);
+const typegoose_1 = __webpack_require__(7);
+const rmc_files_1 = __webpack_require__(138);
+let RMCFilesService = class RMCFilesService extends baseService_service_1.BaseService {
+    constructor(_rmcFileModel, _loggerService) {
+        super();
+        this._rmcFileModel = _rmcFileModel;
+        this._loggerService = _loggerService;
+        this._model = _rmcFileModel;
+    }
+    async createClassFile(payload) {
+        try {
+            const obj = Object.assign({}, payload);
+            const newClassFile = rmc_files_1.RMCFile.createModel(obj);
+            const result = await this.create(newClassFile);
+            if (result) {
+                return this.cvtJSON(result);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'createClassFile-RMCFilesService');
+            return null;
+        }
+    }
+};
+RMCFilesService = __decorate([
+    common_1.Injectable(),
+    __param(0, mongoose_1.InjectModel(rmc_files_1.RMCFile.modelName)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object])
+], RMCFilesService);
+exports.RMCFilesService = RMCFilesService;
+
+
+/***/ }),
+/* 138 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RMCFile = void 0;
+const baseModel_entity_1 = __webpack_require__(6);
+const baseModel_entity_2 = __webpack_require__(6);
+const typegoose_1 = __webpack_require__(7);
+class RMCFile extends baseModel_entity_1.BaseModel {
+    static get model() {
+        return new RMCFile().getModelForClass(RMCFile, {
+            schemaOptions: baseModel_entity_2.schemaOptions,
+        });
+    }
+    static get modelName() {
+        return this.model.modelName;
+    }
+    static createModel(payload) {
+        return new this.model(payload);
+    }
+}
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCFile.prototype, "name", void 0);
+__decorate([
+    typegoose_1.prop({ required: true }),
+    __metadata("design:type", String)
+], RMCFile.prototype, "fileType", void 0);
+exports.RMCFile = RMCFile;
+
+
+/***/ }),
+/* 139 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7942,7 +8272,7 @@ exports.CreateRMCAssignmentDto = CreateRMCAssignmentDto;
 
 
 /***/ }),
-/* 136 */
+/* 140 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7984,7 +8314,7 @@ exports.CreateRMCAttendanceDto = CreateRMCAttendanceDto;
 
 
 /***/ }),
-/* 137 */
+/* 141 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8016,7 +8346,7 @@ exports.CreateRMCFileDto = CreateRMCFileDto;
 
 
 /***/ }),
-/* 138 */
+/* 142 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -8031,7 +8361,7 @@ var RCMTypes;
 
 
 /***/ }),
-/* 139 */
+/* 143 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8073,7 +8403,7 @@ exports.UpdateRMCAssignmentDto = UpdateRMCAssignmentDto;
 
 
 /***/ }),
-/* 140 */
+/* 144 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8115,7 +8445,7 @@ exports.UpdateRMCAttendanceDto = UpdateRMCAttendanceDto;
 
 
 /***/ }),
-/* 141 */
+/* 145 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8139,7 +8469,7 @@ const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const memberClass_entity_1 = __webpack_require__(56);
 const memberClass_service_1 = __webpack_require__(55);
-const memberClass_controller_1 = __webpack_require__(142);
+const memberClass_controller_1 = __webpack_require__(146);
 const user_module_1 = __webpack_require__(62);
 const user_entity_2 = __webpack_require__(39);
 const upLoadFile_entity_1 = __webpack_require__(54);
@@ -8179,7 +8509,7 @@ exports.MemberClassModule = MemberClassModule;
 
 
 /***/ }),
-/* 142 */
+/* 146 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8306,7 +8636,7 @@ exports.MemberClassController = MemberClassController;
 
 
 /***/ }),
-/* 143 */
+/* 147 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8324,7 +8654,7 @@ const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const logger_service_1 = __webpack_require__(12);
 const device_service_1 = __webpack_require__(44);
-const notification_controller_1 = __webpack_require__(144);
+const notification_controller_1 = __webpack_require__(148);
 const notification_entity_1 = __webpack_require__(103);
 const notification_service_1 = __webpack_require__(102);
 const device_entity_1 = __webpack_require__(43);
@@ -8355,7 +8685,7 @@ exports.NotificationModule = NotificationModule;
 
 
 /***/ }),
-/* 144 */
+/* 148 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8464,7 +8794,7 @@ exports.NotificationController = NotificationController;
 
 
 /***/ }),
-/* 145 */
+/* 149 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8476,7 +8806,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.QuizClassModule = void 0;
-const quizClass_controller_1 = __webpack_require__(146);
+const quizClass_controller_1 = __webpack_require__(150);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const quizClass_entity_1 = __webpack_require__(105);
@@ -8502,7 +8832,7 @@ exports.QuizClassModule = QuizClassModule;
 
 
 /***/ }),
-/* 146 */
+/* 150 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8565,7 +8895,7 @@ exports.QuizClassController = QuizClassController;
 
 
 /***/ }),
-/* 147 */
+/* 151 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8577,7 +8907,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.QuizClassScoreModule = void 0;
-const quizClassScore_controller_1 = __webpack_require__(148);
+const quizClassScore_controller_1 = __webpack_require__(152);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const upLoadFile_entity_1 = __webpack_require__(54);
@@ -8608,7 +8938,7 @@ exports.QuizClassScoreModule = QuizClassScoreModule;
 
 
 /***/ }),
-/* 148 */
+/* 152 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8671,7 +9001,7 @@ exports.QuizClassScoreController = QuizClassScoreController;
 
 
 /***/ }),
-/* 149 */
+/* 153 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8697,9 +9027,9 @@ const up_load_file_service_1 = __webpack_require__(52);
 const user_entity_1 = __webpack_require__(39);
 const user_service_1 = __webpack_require__(50);
 const user_module_1 = __webpack_require__(62);
-const message_controller_1 = __webpack_require__(150);
-const message_entity_1 = __webpack_require__(152);
-const message_service_1 = __webpack_require__(151);
+const message_controller_1 = __webpack_require__(154);
+const message_entity_1 = __webpack_require__(156);
+const message_service_1 = __webpack_require__(155);
 let MessageModule = class MessageModule {
 };
 MessageModule = __decorate([
@@ -8731,7 +9061,7 @@ exports.MessageModule = MessageModule;
 
 
 /***/ }),
-/* 150 */
+/* 154 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8759,7 +9089,7 @@ const errors_exception_1 = __webpack_require__(30);
 const resource_exception_1 = __webpack_require__(26);
 const query_interface_1 = __webpack_require__(64);
 const logger_service_1 = __webpack_require__(12);
-const message_service_1 = __webpack_require__(151);
+const message_service_1 = __webpack_require__(155);
 let MessageController = class MessageController {
     constructor(_messageService, loggerService) {
         this._messageService = _messageService;
@@ -8793,7 +9123,6 @@ let MessageController = class MessageController {
             this.loggerService.error(e.message, null, 'create-ClassController');
             throw new errors_exception_1.Error2SchoolException(e.message);
         }
-        return;
     }
     async getMessageDetail(idMess) {
         try {
@@ -8848,7 +9177,7 @@ exports.MessageController = MessageController;
 
 
 /***/ }),
-/* 151 */
+/* 155 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8873,7 +9202,7 @@ const class_service_1 = __webpack_require__(48);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
-const message_entity_1 = __webpack_require__(152);
+const message_entity_1 = __webpack_require__(156);
 let MessageService = class MessageService extends baseService_service_1.BaseService {
     constructor(_messageModel, _loggerService, _classService) {
         super();
@@ -8912,7 +9241,7 @@ exports.MessageService = MessageService;
 
 
 /***/ }),
-/* 152 */
+/* 156 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8993,7 +9322,7 @@ exports.Message = Message;
 
 
 /***/ }),
-/* 153 */
+/* 157 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9056,31 +9385,31 @@ exports.HttpExceptionFilter = HttpExceptionFilter;
 
 
 /***/ }),
-/* 154 */
+/* 158 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
 
 /***/ }),
-/* 155 */
+/* 159 */
 /***/ ((module) => {
 
 module.exports = require("express-rate-limit");
 
 /***/ }),
-/* 156 */
+/* 160 */
 /***/ ((module) => {
 
 module.exports = require("helmet");
 
 /***/ }),
-/* 157 */
+/* 161 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupSwagger = void 0;
-const swagger_1 = __webpack_require__(158);
+const swagger_1 = __webpack_require__(162);
 function setupSwagger(app, config) {
     const options = new swagger_1.DocumentBuilder()
         .setTitle(config.title || 'DocumentApi')
@@ -9096,21 +9425,21 @@ exports.setupSwagger = setupSwagger;
 
 
 /***/ }),
-/* 158 */
+/* 162 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
 
 /***/ }),
-/* 159 */
+/* 163 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RedisIoAdapter = void 0;
-const platform_socket_io_1 = __webpack_require__(160);
-const redis_1 = __webpack_require__(161);
-const socket_io_redis_1 = __webpack_require__(162);
+const platform_socket_io_1 = __webpack_require__(164);
+const redis_1 = __webpack_require__(165);
+const socket_io_redis_1 = __webpack_require__(166);
 const pubClient = new redis_1.RedisClient({ host: 'localhost', port: 6379 });
 const subClient = pubClient.duplicate();
 const redisAdapter = socket_io_redis_1.createAdapter({ pubClient, subClient });
@@ -9125,19 +9454,19 @@ exports.RedisIoAdapter = RedisIoAdapter;
 
 
 /***/ }),
-/* 160 */
+/* 164 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-socket.io");
 
 /***/ }),
-/* 161 */
+/* 165 */
 /***/ ((module) => {
 
 module.exports = require("redis");
 
 /***/ }),
-/* 162 */
+/* 166 */
 /***/ ((module) => {
 
 module.exports = require("socket.io-redis");
@@ -9177,17 +9506,17 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const client_module_1 = __webpack_require__(1);
-const http_exception_filter_1 = __webpack_require__(153);
+const http_exception_filter_1 = __webpack_require__(157);
 const config_service_1 = __webpack_require__(14);
 const logger_service_1 = __webpack_require__(12);
 const shared_module_1 = __webpack_require__(18);
-const core_1 = __webpack_require__(154);
+const core_1 = __webpack_require__(158);
 const platform_express_1 = __webpack_require__(113);
-const rateLimit = __webpack_require__(155);
-const helmet = __webpack_require__(156);
+const rateLimit = __webpack_require__(159);
+const helmet = __webpack_require__(160);
 const common_1 = __webpack_require__(3);
-const setup_1 = __webpack_require__(157);
-const RedisIoAdapter_1 = __webpack_require__(159);
+const setup_1 = __webpack_require__(161);
+const RedisIoAdapter_1 = __webpack_require__(163);
 const fire = __webpack_require__(45);
 const fs = __webpack_require__(116);
 async function bootstrap() {

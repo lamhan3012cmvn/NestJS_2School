@@ -23,4 +23,5 @@ export interface ICreateRMCAttendance {
   createdBy: string;
   idRoadMap: string;
   type: number;
+  idClass: string;
 }

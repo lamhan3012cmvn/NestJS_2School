@@ -1,25 +1,20 @@
-import {
-  CreateRMCAttendanceDto,
-  ICreateRMCAttendance,
-} from './../dto/createRMCAttendance/req.dto';
-import {
-  CreateRMCAssignmentDto,
-  ICreateRMCAssignment,
-} from './../dto/createRMCAssignment/req.dto';
-import { RMCAssignmentService } from './rmc-assignments.service';
-import { LoggerService } from './../../../share/services/logger.service';
-import { RoadMapContent } from './../entities/roadMapContent.entity';
-import { BaseService } from 'apps/share/services/baseService.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ModelType } from 'typegoose';
-import { RMCAssignmentUserService } from './rmc-assignmentsUserservice';
-import { RMCAttendancesUserService } from './rmc-attendancesUser.service';
-import { RMCAttendanceService } from './rmc-attendances.service';
-import { RMCFilesService } from './rmc-files.service';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
-import { CreateRMCFileDto, ICreateRMCFile } from '../dto/createRMCFile/req.dto';
-import { runInThisContext } from 'vm';
+import { BaseService } from 'apps/share/services/baseService.service';
+import * as mongoose from 'mongoose';
+import { ModelType } from 'typegoose';
+import { ICreateRMCFile } from '../dto/createRMCFile/req.dto';
+import { LoggerService } from './../../../share/services/logger.service';
+import { PostService } from './../../post/services/post.service';
+import { ICreateRMCAssignment } from './../dto/createRMCAssignment/req.dto';
+import { ICreateRMCAttendance } from './../dto/createRMCAttendance/req.dto';
+import { RoadMapContent } from './../entities/roadMapContent.entity';
+import { RMCAssignmentService } from './rmc-assignments.service';
+import { RMCAssignmentUserService } from './rmc-assignmentsUserservice';
+import { RMCAttendanceService } from './rmc-attendances.service';
+import { RMCAttendancesUserService } from './rmc-attendancesUser.service';
+import { RMCFilesService } from './rmc-files.service';
 
 @Injectable()
 export class RoadMapContentService extends BaseService<RoadMapContent> {
@@ -32,6 +27,7 @@ export class RoadMapContentService extends BaseService<RoadMapContent> {
     private readonly _rmcAttendanceService: RMCAttendanceService,
     private readonly _rmcAttendanceUserService: RMCAttendancesUserService,
     private readonly _rmcFilesService: RMCFilesService,
+    private readonly _postService: PostService,
   ) {
     super();
     this._model = _setOfQuestionsModel;
@@ -41,6 +37,7 @@ export class RoadMapContentService extends BaseService<RoadMapContent> {
     createdBy: string,
     type: number,
     idRoadMap: string,
+    idClass: string,
     payload: any,
   ): Promise<RoadMapContent> {
     try {
@@ -52,6 +49,12 @@ export class RoadMapContentService extends BaseService<RoadMapContent> {
 
       const roadMapS = await this.create(newRoadMap);
       if (roadMapS) {
+        const postDto = {
+          class: new mongoose.Types.ObjectId(idClass),
+          roadMapContent: new mongoose.Types.ObjectId(roadMapS._id),
+          createdBy: new mongoose.Types.ObjectId(obj.createBy),
+        };
+        const singlePost = await this._postService.createPostWithRmc(postDto);
         return this.cvtJSON(roadMapS) as RoadMapContent;
       }
       return null;
@@ -76,8 +79,10 @@ export class RoadMapContentService extends BaseService<RoadMapContent> {
           payload.createdBy,
           payload.type,
           payload.idRoadMap,
+          payload.idClass,
           {
-            rmc: resultRMC._id,
+            rmc: new mongoose.Types.ObjectId(resultRMC._id),
+            rmcAssignment: new mongoose.Types.ObjectId(resultRMC._id),
           },
         );
         if (result) {
@@ -109,7 +114,11 @@ export class RoadMapContentService extends BaseService<RoadMapContent> {
           payload.createdBy,
           payload.type,
           payload.idRoadMap,
-          { rmc: resultRMC._id },
+          payload.idClass,
+          {
+            rmc: new mongoose.Types.ObjectId(resultRMC._id),
+            rmcAttendance: new mongoose.Types.ObjectId(resultRMC._id),
+          },
         );
         if (result) {
           const cloneRMCAssignment = this.cvtJSON(result);
@@ -138,7 +147,11 @@ export class RoadMapContentService extends BaseService<RoadMapContent> {
           payload.createdBy,
           payload.type,
           payload.idRoadMap,
-          { rmc: resultRMC._id },
+          payload.idClass,
+          {
+            rmc: new mongoose.Types.ObjectId(resultRMC._id),
+            rmcFile: new mongoose.Types.ObjectId(resultRMC._id),
+          },
         );
         if (result) {
           return result;
@@ -219,7 +232,7 @@ export class RoadMapContentService extends BaseService<RoadMapContent> {
       );
       if (rmc) {
         const resultRMC =
-          await this._rmcAssignmentService.deleteClassAssignment(rmc.rmc);
+          await this._rmcAssignmentService.deleteClassAssignment(`${rmc.rmc}`);
         if (resultRMC) {
           const result = await this.delete(idRMC);
           if (result) {
@@ -250,7 +263,7 @@ export class RoadMapContentService extends BaseService<RoadMapContent> {
       );
       if (rmc) {
         const resultRMC =
-          await this._rmcAttendanceService.deleteClassAttendance(rmc.rmc);
+          await this._rmcAttendanceService.deleteClassAttendance(`${rmc.rmc}`);
         if (resultRMC) {
           const result = await this.delete(idRMC);
           if (result) {

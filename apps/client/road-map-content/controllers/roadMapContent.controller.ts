@@ -59,13 +59,13 @@ export class RoadMapContentController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async createRMCAssignment(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Query() query: { idClass: string; idRoadMap: string },
     @Body() payload: CreateRMCAssignmentDto,
   ) {
     try {
       const hostClass = await this.classService.checkHostClass(
-        user.createdBy,
+        user._id,
         query.idClass,
       );
       if (!hostClass) {
@@ -76,7 +76,8 @@ export class RoadMapContentController {
       const payloadRMC: ICreateRMCAssignment = {
         ...payload,
         idRoadMap: query.idRoadMap,
-        createdBy: user.createdBy,
+        createdBy: user._id,
+        idClass: query.idClass,
         type: RCMTypes.ASSIGNMENT,
       };
 
@@ -104,13 +105,13 @@ export class RoadMapContentController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async createRMCAttendance(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Query() query: { idClass: string; idRoadMap: string },
     @Body() payload: CreateRMCAttendanceDto,
   ) {
     try {
       const hostClass = await this.classService.checkHostClass(
-        user.createdBy,
+        user._id,
         query.idClass,
       );
       if (!hostClass) {
@@ -121,9 +122,11 @@ export class RoadMapContentController {
       const payloadRMC: ICreateRMCAttendance = {
         ...payload,
         idRoadMap: query.idRoadMap,
-        createdBy: user.createdBy,
+        idClass: query.idClass,
+        createdBy: user._id,
         type: RCMTypes.ATTENDANCE,
       };
+
       const result = await this.roadMapContentService.createRMCAttendance(
         payloadRMC,
       );
@@ -148,13 +151,13 @@ export class RoadMapContentController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async createRMCFile(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Query() query: { idClass: string; idRoadMap: string },
     @Body() payload: CreateRMCFileDto,
   ) {
     try {
       const hostClass = await this.classService.checkHostClass(
-        user.createdBy,
+        user._id,
         query.idClass,
       );
       if (!hostClass) {
@@ -165,7 +168,8 @@ export class RoadMapContentController {
       const payloadRMC: ICreateRMCFile = {
         ...payload,
         idRoadMap: query.idRoadMap,
-        createdBy: user.createdBy,
+        createdBy: user._id,
+        idClass: query.idClass,
         type: RCMTypes.ATTENDANCE,
       };
       const result = await this.roadMapContentService.createRMCFile(payloadRMC);
@@ -402,13 +406,13 @@ export class RoadMapContentController {
       for (const rmc of sortResult) {
         switch (rmc.type) {
           case RCMTypes.ASSIGNMENT:
-            resultRmc = await this._rmcAssignmentService.findById(rmc.rmc);
+            resultRmc = await this._rmcAssignmentService.findById(`${rmc.rmc}`);
             break;
           case RCMTypes.ATTENDANCE:
-            resultRmc = await this._rmcAttendanceService.findById(rmc.rmc);
+            resultRmc = await this._rmcAttendanceService.findById(`${rmc.rmc}`);
             break;
           case RCMTypes.FILE:
-            resultRmc = await this._rmcFilesService.findById(rmc.rmc);
+            resultRmc = await this._rmcFilesService.findById(`${rmc.rmc}`);
             break;
           default:
             break;

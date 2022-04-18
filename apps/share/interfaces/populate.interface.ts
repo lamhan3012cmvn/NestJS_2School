@@ -1,8 +1,8 @@
 export interface IPopulateMongoose {
-  path: string;
+  path?: string;
   select?: string;
   match?: any;
-  populate?: IPopulateMongoose;
+  populate?: Array<IPopulateMongoose> | IPopulateMongoose | string;
 }
 
 export type IPopulate = Array<IPopulateMongoose> | IPopulateMongoose | string;

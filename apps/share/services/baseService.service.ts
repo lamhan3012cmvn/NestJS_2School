@@ -47,6 +47,17 @@ export abstract class BaseService<T extends Typegoose> {
       .lean();
   }
 
+  async findAllNoSkip(
+    filter = {},
+    populate: IPopulate = [],
+  ): Promise<InstanceType<T>[]> {
+    return this._model
+      .find(filter)
+      .populate(populate)
+      .sort({ createdAt: -1 })
+      .lean();
+  }
+
   async findOne(filter = {}): Promise<InstanceType<T>> {
     return this._model.findOne(filter).exec();
   }

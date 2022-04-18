@@ -15,4 +15,5 @@ export interface ICreateRMCFile {
   createdBy: string;
   type: number;
   idRoadMap: string;
+  idClass: string;
 }
