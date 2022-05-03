@@ -56,10 +56,7 @@ export class PostController {
         },
         query,
         [
-          {
-            path: 'class',
-            select: '',
-          },
+          'class',
           {
             path: 'roadMapContent',
             populate: 'rmcFile rmcAssignment rmcAttendance',
@@ -95,9 +92,7 @@ export class PostController {
         },
         query,
         [
-          {
-            path: 'class',
-          },
+          'class',
           {
             path: 'roadMapContent',
             populate: 'rmcFile rmcAssignment rmcAttendance',
