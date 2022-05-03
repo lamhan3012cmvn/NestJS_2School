@@ -22,19 +22,11 @@ export class RMCAssignmentService extends BaseService<RMCAssignment> {
   async createClassAssignment(
     payload: ICreateRMCAssignment,
   ): Promise<RMCAssignment> {
-    console.log(
-      `LHA:  ===> file: rmc-assignments.service.ts ===> line 22 ===> payload`,
-      payload,
-    );
     try {
       const obj: any = {
         ...payload,
       };
       const newClassAssignment = RMCAssignment.createModel(obj);
-      console.log(
-        `LHA:  ===> file: rmc-assignments.service.ts ===> line 28 ===> newClassAssignment`,
-        newClassAssignment,
-      );
 
       const result = await this.create(newClassAssignment);
       if (result) {

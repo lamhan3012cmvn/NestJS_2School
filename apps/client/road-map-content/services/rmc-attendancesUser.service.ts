@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModelType } from 'typegoose';
 import { RMCAttendancesUser } from '../entities/rmc-attendancesUser';
+import * as mongoose from 'mongoose';
 
 @Injectable()
 export class RMCAttendancesUserService extends BaseService<RMCAttendancesUser> {
@@ -17,12 +18,12 @@ export class RMCAttendancesUserService extends BaseService<RMCAttendancesUser> {
   }
   async createClassAttendanceUser(
     userId: string,
-    attendanceId: string,
+    rmcId: string,
   ): Promise<RMCAttendancesUser> {
     try {
       const obj: any = {
-        userId,
-        attendanceId,
+        user: new mongoose.Types.ObjectId(userId),
+        rmc: new mongoose.Types.ObjectId(rmcId),
       };
       const newClassAttendanceUser = RMCAttendancesUser.createModel(obj);
 

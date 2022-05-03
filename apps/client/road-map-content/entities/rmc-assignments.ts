@@ -11,7 +11,10 @@ export class RMCAssignment extends BaseModel<RMCAssignment> {
   startTime: string;
   @prop({ required: true })
   endTime: string;
+  @prop({ required: true })
+  fileExtensions: Array<string>;
 
+  // file extension
   static get model(): ModelType<RMCAssignment> {
     return new RMCAssignment().getModelForClass(RMCAssignment, {
       schemaOptions,

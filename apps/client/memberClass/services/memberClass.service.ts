@@ -130,4 +130,24 @@ export class MemberClassService extends BaseService<MemberClasses> {
       throw new Error2SchoolException(e.message);
     }
   }
+
+  checkExitsUserInClass = async (idUser: string, idClass: string) => {
+    try {
+      const obj: any = {
+        user: idUser,
+        idClass: idClass,
+      };
+
+      const memberClass = await this._model.findOne(obj).lean();
+
+      return this.cvtJSON(memberClass);
+    } catch (e) {
+      this._loggerService.error(
+        e.message,
+        null,
+        'leaveClass-MemberClassService',
+      );
+      throw new Error2SchoolException(e.message);
+    }
+  };
 }

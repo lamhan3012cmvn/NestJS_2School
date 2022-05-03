@@ -58,8 +58,11 @@ export abstract class BaseService<T extends Typegoose> {
       .lean();
   }
 
-  async findOne(filter = {}): Promise<InstanceType<T>> {
-    return this._model.findOne(filter).exec();
+  async findOne(
+    filter = {},
+    populate: IPopulate = [],
+  ): Promise<InstanceType<T>> {
+    return this._model.findOne(filter).populate(populate).lean();
   }
 
   async findById(
@@ -106,12 +109,14 @@ export abstract class BaseService<T extends Typegoose> {
   async findOneAndUpdate(
     query: any,
     item: UpdateQuery<InstanceType<T>>,
+    populate: IPopulate = [],
   ): Promise<InstanceType<T>> {
     try {
       return this._model
         .findOneAndUpdate(query, item, {
           new: true,
         })
+        .populate(populate)
         .exec();
     } catch (e) {
       console.log(e);

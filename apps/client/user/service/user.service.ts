@@ -109,7 +109,7 @@ export class UserService extends ResponseService {
     try {
       const obj: any = { ...payload };
       const user = await this.userModel
-        .findOneAndUpdate({ createdBy: id }, obj, { new: true })
+        .findOneAndUpdate({ _id: id }, obj, { new: true })
         .lean();
 
       // uploadService

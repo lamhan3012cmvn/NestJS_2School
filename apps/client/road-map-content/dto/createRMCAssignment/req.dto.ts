@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsString,
+} from 'class-validator';
 
 export class CreateRMCAssignmentDto {
   @IsNotEmpty()
@@ -13,6 +20,12 @@ export class CreateRMCAssignmentDto {
   @IsNotEmpty()
   @IsString()
   endTime: string;
+
+  @IsArray()
+  @ArrayMinSize(2)
+  @ArrayMaxSize(6)
+  @Type(() => String)
+  fileExtensions: Array<string>;
 }
 
 export interface ICreateRMCAssignment {
@@ -24,4 +37,5 @@ export interface ICreateRMCAssignment {
   idRoadMap: string;
   type: number;
   idClass: string;
+  fileExtensions: Array<string>;
 }

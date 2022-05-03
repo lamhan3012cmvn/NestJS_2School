@@ -93,20 +93,21 @@ export class ClassController extends BaseController {
   @Patch('image')
   @UseGuards(JwtAuthGuard)
   async updateImage(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Query() query,
     @Body() updateClassDto: UpdateImageDto,
   ) {
     try {
+      console.log('run hre');
       const result = await this.classService.findOneAndUpdate(
-        { createdBy: user.createdBy, _id: query.id },
+        { createdBy: user._id, _id: query.id },
         updateClassDto,
       );
       if (result) {
         const cloneClass = this.classService.cvtJSON(result);
         if (cloneClass.image) {
           const image = await this.uploadService.findById(cloneClass.image);
-          cloneClass.image = image.path || '';
+          cloneClass.image = image?.path || '';
         }
         return new Ok('Update Class Image success', cloneClass);
       }
@@ -149,6 +150,7 @@ export class ClassController extends BaseController {
       }
       throw new ResourceFoundException();
     } catch (e) {
+      console.log(e);
       this.loggerService.error(e.message, null, 'create-ClassController');
       throw new Error2SchoolException(e.message);
     }

@@ -58,12 +58,12 @@ export class UserController extends BaseController {
   @Patch()
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  async update(@Usr() user: User, @Body() updateUserDto: UpdateUserDto) {
+  async update(
+    @Usr() user: User & { _id: string },
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     try {
-      const result = await this.userService.update(
-        user.createdBy,
-        updateUserDto,
-      );
+      const result = await this.userService.update(user._id, updateUserDto);
       if (result) {
         return new Ok('Get User Success', result);
       }
@@ -76,12 +76,12 @@ export class UserController extends BaseController {
   @Patch('avatar')
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  async updateAvatar(@Usr() user: User, @Body() payload: UpdateAvatarDto) {
+  async updateAvatar(
+    @Usr() user: User & { _id: string },
+    @Body() payload: UpdateAvatarDto,
+  ) {
     try {
-      const result = await this.userService.updateAvatar(
-        user.createdBy,
-        payload,
-      );
+      const result = await this.userService.updateAvatar(user._id, payload);
       if (result) {
         return new Ok('Get User Success', result);
       }

@@ -223,10 +223,6 @@ export class ClassService extends BaseService<Classes> {
         idUser,
         idClass,
       );
-      console.log(
-        `LHA:  ===> file: class.service.ts ===> line 165 ===> newMemberClass`,
-        newMemberClass,
-      );
       if (newMemberClass) {
         return true;
       }
@@ -238,28 +234,11 @@ export class ClassService extends BaseService<Classes> {
   }
 
   async checkHostClass(idUser: string, idClass: string): Promise<Classes> {
-    console.log(
-      `LHA:  ===> file: class.service.ts ===> line 236 ===> idClass`,
-      idClass,
-    );
-    console.log(
-      `LHA:  ===> file: class.service.ts ===> line 236 ===> idUser`,
-      idUser,
-    );
     try {
-      const classes = await this.findById(idClass);
-      console.log(
-        `LHA:  ===> file: class.service.ts ===> line 246 ===> classes`,
-        classes,
-      );
       const newHostClass = await this.findOne({
         createdBy: idUser,
         _id: idClass,
       });
-      console.log(
-        `LHA:  ===> file: class.service.ts ===> line 241 ===> newHostClass`,
-        newHostClass,
-      );
       if (newHostClass) {
         return newHostClass;
       }

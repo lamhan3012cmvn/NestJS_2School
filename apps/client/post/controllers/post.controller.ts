@@ -17,6 +17,28 @@ export class PostController {
     private readonly _memberClass: MemberClassService,
     private readonly _loggerService: LoggerService,
   ) {}
+
+  // @Post()
+  // @UseGuards(JwtAuthGuard)
+  // async create(
+  //   @Usr() user: User & { _id: string },
+  //   @Body() createMessage: any,
+  // ) {
+  //   try {
+  //     const result = await this._postService.createPostWithRmc({
+  //       ...createMessage,
+  //       sender: user._id,
+  //     });
+  //     if (result) {
+  //       return new Ok('Create Class success', result);
+  //     }
+  //     throw new ResourceFoundException();
+  //   } catch (e) {
+  //     this.loggerService.error(e.message, null, 'create-ClassController');
+  //     throw new Error2SchoolException(e.message);
+  //   }
+  // }
+
   @Get('/home')
   @UseGuards(JwtAuthGuard)
   async getPostHomePage(

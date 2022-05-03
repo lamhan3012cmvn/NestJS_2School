@@ -1,12 +1,18 @@
 import { BaseModel } from 'apps/share/mongodb/baseModel.entity';
 import { schemaOptions } from '../../../share/mongodb/baseModel.entity';
-import { InstanceType, ModelType, prop } from 'typegoose';
+import { index, InstanceType, ModelType, prop } from 'typegoose';
+import { ObjectId } from 'mongoose';
 
+@index({ user: 1, rmc: 1 }, { unique: true }) // compound index
 export class RMCAttendancesUser extends BaseModel<RMCAttendancesUser> {
-  @prop({ required: true })
-  userId: string;
-  @prop({ required: true })
-  attendanceId: string;
+  @prop({ required: true, ref: 'User' })
+  user: ObjectId;
+  @prop({ required: true, ref: 'RoadMapContent' })
+  rmc: ObjectId;
+  //-1 Vang
+  // 1 Co Mat
+  @prop({ default: 1 })
+  status: number;
 
   static get model(): ModelType<RMCAttendancesUser> {
     return new RMCAttendancesUser().getModelForClass(RMCAttendancesUser, {

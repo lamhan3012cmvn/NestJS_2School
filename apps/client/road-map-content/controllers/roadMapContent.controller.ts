@@ -1,3 +1,4 @@
+import { IUserRMCAttendance } from './../dto/userRMCAttendance/req.dto';
 import { Usr } from 'apps/client/authentication/decorator/user.decorator';
 import {
   Body,
@@ -41,6 +42,8 @@ import { RMCAssignmentUserService } from '../services/rmc-assignmentsUserservice
 import { RMCAttendanceService } from '../services/rmc-attendances.service';
 import { RMCAttendancesUserService } from '../services/rmc-attendancesUser.service';
 import { RMCFilesService } from '../services/rmc-files.service';
+import { MemberClasses } from 'apps/client/memberClass/entities/memberClass.entity';
+import { MemberClassService } from 'apps/client/memberClass/services/memberClass.service';
 
 @Controller('api/road-map-content')
 export class RoadMapContentController {
@@ -53,6 +56,7 @@ export class RoadMapContentController {
     private readonly _rmcFilesService: RMCFilesService,
     private readonly loggerService: LoggerService,
     private readonly classService: ClassService,
+    private readonly memberClassService: MemberClassService,
   ) {}
 
   @Post('assignment')
@@ -147,6 +151,46 @@ export class RoadMapContentController {
     }
   }
 
+  @Post('attendance-user')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async userRMCAttendance(
+    @Usr() user: User & { _id: string },
+    @Body() payload: IUserRMCAttendance,
+  ) {
+    try {
+      const existClass = await this.memberClassService.checkExitsUserInClass(
+        user._id,
+        payload.idClass,
+      );
+      if (!existClass) {
+        throw new ResourceFoundException(
+          'The class you are trying to access does not exist',
+        );
+      }
+      const result =
+        await this._rmcAttendanceUserService.createClassAttendanceUser(
+          user._id,
+          payload.rmc,
+        );
+      if (result) {
+        return new Ok(
+          'Create RMC USER Attendance',
+          this.roadMapContentService.cvtJSON(result),
+        );
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      console.log('e', e);
+      this.loggerService.error(
+        e.message,
+        null,
+        'create-RMCAttendanceController',
+      );
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
   @Post('file')
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
@@ -190,13 +234,13 @@ export class RoadMapContentController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async updateRMCAssignment(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Query() query: { idClass: string; idRMC: string },
     @Body() payload: UpdateRMCAssignmentDto,
   ) {
     try {
       const hostClass = await this.classService.checkHostClass(
-        user.createdBy,
+        user._id,
         query.idClass,
       );
       if (!hostClass) {
@@ -232,13 +276,13 @@ export class RoadMapContentController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async updateRMCAttendance(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Query() query: { idClass: string; idRMC: string },
     @Body() payload: UpdateRMCAttendanceDto,
   ) {
     try {
       const hostClass = await this.classService.checkHostClass(
-        user.createdBy,
+        user._id,
         query.idClass,
       );
       if (!hostClass) {
@@ -274,13 +318,13 @@ export class RoadMapContentController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async updateRoadMap(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Query() query,
     @Body() updateRoadMap,
   ) {
     try {
       const result = await this.roadMapContentService.findOneAndUpdate(
-        { createBy: user.createdBy, _id: query.id },
+        { createBy: user._id, _id: query.id },
         updateRoadMap,
       );
       if (result) {
@@ -300,12 +344,12 @@ export class RoadMapContentController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async deleteRMCAssignment(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Query() query: { idClass: string; idRMC: string },
   ) {
     try {
       const hostClass = await this.classService.checkHostClass(
-        user.createdBy,
+        user._id,
         query.idClass,
       );
       if (!hostClass) {
@@ -334,12 +378,12 @@ export class RoadMapContentController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async deleteRMCAttendance(
-    @Usr() user: User,
+    @Usr() user: User & { _id: string },
     @Query() query: { idClass: string; idRMC: string },
   ) {
     try {
       const hostClass = await this.classService.checkHostClass(
-        user.createdBy,
+        user._id,
         query.idClass,
       );
       if (!hostClass) {
@@ -390,10 +434,20 @@ export class RoadMapContentController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async getRoadMapContent(
-    @Usr() user: User,
-    @Query() query: { idRoadMap: string },
+    @Usr() user: User & { _id: string },
+    @Query() query: { idRoadMap: string; idClass: string },
   ) {
     try {
+      const existClass = await this.memberClassService.checkExitsUserInClass(
+        user._id,
+        query.idClass,
+      );
+      if (!existClass) {
+        throw new ResourceFoundException(
+          'The class you are trying to access does not exist',
+        );
+      }
+
       const result = await this.roadMapContentService.findAll({
         idRoadMap: query.idRoadMap,
       });
@@ -409,7 +463,19 @@ export class RoadMapContentController {
             resultRmc = await this._rmcAssignmentService.findById(`${rmc.rmc}`);
             break;
           case RCMTypes.ATTENDANCE:
+            const isSubmit = await this._rmcAttendanceUserService.findOne(
+              {
+                user: user._id,
+                rmc: rmc.rmc,
+              },
+              'user',
+            );
             resultRmc = await this._rmcAttendanceService.findById(`${rmc.rmc}`);
+            resultRmc = {
+              ...resultRmc,
+              isSubmit: existClass.role === 1 ? true : Boolean(isSubmit),
+              submit: isSubmit ? { ...isSubmit } : null,
+            };
             break;
           case RCMTypes.FILE:
             resultRmc = await this._rmcFilesService.findById(`${rmc.rmc}`);

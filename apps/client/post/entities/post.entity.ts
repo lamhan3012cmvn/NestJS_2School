@@ -8,7 +8,7 @@ export class Post extends BaseModel<Post> {
   @prop({ required: true, ref: 'Classes' })
   @Expose()
   class: ObjectId;
-  @prop({ required: true, ref: 'RoadMapContent' })
+  @prop({ ref: 'RoadMapContent', default: null })
   @Expose()
   roadMapContent: ObjectId;
 

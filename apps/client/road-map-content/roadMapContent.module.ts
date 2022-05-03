@@ -2,9 +2,15 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ClassModule } from '../class/class.module';
 import { Classes } from '../class/entities/class.entity';
+import { MemberClasses } from '../memberClass/entities/memberClass.entity';
+import { MemberClassService } from '../memberClass/services/memberClass.service';
 import { Post } from '../post/entities/post.entity';
 import { PostModule } from '../post/post.module';
 import { PostService } from '../post/services/post.service';
+import { UpLoadFile } from '../up-load-file/entities/upLoadFile.entity';
+import { UpLoadFileService } from '../up-load-file/services/up-load-file.service';
+import { User, UserSchema } from '../user/entities/user.entity';
+import { UserService } from '../user/service/user.service';
 import { LoggerService } from './../../share/services/logger.service';
 import { RoadMapContentController } from './controllers/roadMapContent.controller';
 import { RMCAssignment } from './entities/rmc-assignments';
@@ -42,6 +48,12 @@ import { RoadMapContentService } from './services/roadMapContent.service';
         schema: RMCFile.model.schema,
       },
       { name: Classes.modelName, schema: Classes.model.schema },
+      {
+        name: MemberClasses.modelName,
+        schema: MemberClasses.model.schema,
+      },
+      { name: User.name, schema: UserSchema },
+      { name: UpLoadFile.modelName, schema: UpLoadFile.model.schema },
     ]),
   ],
   controllers: [RoadMapContentController],
@@ -55,6 +67,9 @@ import { RoadMapContentService } from './services/roadMapContent.service';
     RMCAttendanceService,
     RMCAttendancesUserService,
     RMCFilesService,
+    MemberClassService,
+    UserService,
+    UpLoadFileService,
   ],
 })
 export class RoadMapContentModule {}
