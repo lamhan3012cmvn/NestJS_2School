@@ -6511,6 +6511,7 @@ let UpLoadFileController = class UpLoadFileController {
     async getFile(query, res) {
         try {
             const buffer = fs.readFileSync(`./${query.id}`);
+            console.log("buffer", buffer);
             const typeFile = await FileType.fromBuffer(buffer);
             res.writeHead(200, { 'Content-Type': typeFile.mime });
             res.end(buffer, 'binary');
@@ -6938,12 +6939,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g;
+var _a, _b, _c, _d, _e, _f, _g, _h;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PostController = void 0;
 const common_1 = __webpack_require__(3);
 const user_decorator_1 = __webpack_require__(23);
 const jwt_auth_guard_1 = __webpack_require__(24);
+const up_load_file_service_1 = __webpack_require__(52);
 const baseController_1 = __webpack_require__(31);
 const errors_exception_1 = __webpack_require__(30);
 const resource_exception_1 = __webpack_require__(26);
@@ -6952,12 +6954,14 @@ const post_service_1 = __webpack_require__(124);
 const logger_service_1 = __webpack_require__(12);
 const memberClass_service_1 = __webpack_require__(55);
 let PostController = class PostController {
-    constructor(_postService, _memberClass, _loggerService) {
+    constructor(_postService, _memberClass, _loggerService, _uploadService) {
         this._postService = _postService;
         this._memberClass = _memberClass;
         this._loggerService = _loggerService;
+        this._uploadService = _uploadService;
     }
     async getPostHomePage(user, query) {
+        var _a, _b;
         try {
             const memberClass = await this._memberClass.findAllNoSkip({
                 user: user._id,
@@ -6968,13 +6972,21 @@ let PostController = class PostController {
             }, query, [
                 {
                     path: 'class',
-                    select: '',
+                    populate: 'createdBy',
                 },
                 {
                     path: 'roadMapContent',
                     populate: 'rmcFile rmcAssignment rmcAttendance',
                 },
             ]);
+            const addImagePath = [];
+            for (const post in result) {
+                const clonePost = Object.assign({}, post);
+                if ((_a = post === null || post === void 0 ? void 0 : post.class) === null || _a === void 0 ? void 0 : _a.image) {
+                    const image = await this.uploadService.findById(((_b = post === null || post === void 0 ? void 0 : post.class) === null || _b === void 0 ? void 0 : _b.image));
+                    clonePost.class.image = image.path || '';
+                }
+            }
             if (result) {
                 return new baseController_1.Ok('Get Message success', JSON.parse(JSON.stringify(result)));
             }
@@ -6994,6 +7006,7 @@ let PostController = class PostController {
             }, query, [
                 {
                     path: 'class',
+                    populate: 'createdBy',
                 },
                 {
                     path: 'roadMapContent',
@@ -7034,7 +7047,7 @@ __decorate([
 ], PostController.prototype, "getPostInClass", null);
 PostController = __decorate([
     common_1.Controller('api/post'),
-    __metadata("design:paramtypes", [typeof (_e = typeof post_service_1.PostService !== "undefined" && post_service_1.PostService) === "function" ? _e : Object, typeof (_f = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _f : Object, typeof (_g = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _g : Object])
+    __metadata("design:paramtypes", [typeof (_e = typeof post_service_1.PostService !== "undefined" && post_service_1.PostService) === "function" ? _e : Object, typeof (_f = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _f : Object, typeof (_g = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _g : Object, typeof (_h = typeof up_load_file_service_1.UpLoadFileService !== "undefined" && up_load_file_service_1.UpLoadFileService) === "function" ? _h : Object])
 ], PostController);
 exports.PostController = PostController;
 

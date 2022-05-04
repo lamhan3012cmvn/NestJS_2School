@@ -126,6 +126,7 @@ export class UpLoadFileController {
     // const imagePath = join(__dirname, query.id);
     try {
       const buffer = fs.readFileSync(`./${query.id}`);
+      console.log("buffer",buffer)
       const typeFile = await FileType.fromBuffer(buffer);
       res.writeHead(200, { 'Content-Type': typeFile.mime });
       res.end(buffer, 'binary');

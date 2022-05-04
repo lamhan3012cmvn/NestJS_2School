@@ -1,6 +1,7 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { Usr } from 'apps/client/authentication/decorator/user.decorator';
 import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
+import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
 import { Ok } from 'apps/share/controller/baseController';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
@@ -66,6 +67,7 @@ export class PostController {
           },
         ],
       );
+      
       if (result) {
         return new Ok(
           'Get Message success',
