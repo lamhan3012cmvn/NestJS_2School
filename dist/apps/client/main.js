@@ -6980,15 +6980,17 @@ let PostController = class PostController {
                 },
             ]);
             const addImagePath = [];
-            for (const post in result) {
-                const clonePost = Object.assign({}, post);
-                if ((_a = post === null || post === void 0 ? void 0 : post.class) === null || _a === void 0 ? void 0 : _a.image) {
-                    const image = await this.uploadService.findById(((_b = post === null || post === void 0 ? void 0 : post.class) === null || _b === void 0 ? void 0 : _b.image));
+            for (const current of JSON.parse(JSON.stringify(result))) {
+                const clonePost = Object.assign({}, current);
+                if (((_a = current === null || current === void 0 ? void 0 : current.class) === null || _a === void 0 ? void 0 : _a.image) && ((_b = current === null || current === void 0 ? void 0 : current.class) === null || _b === void 0 ? void 0 : _b.image) !== '') {
+                    const image = await this._uploadService.findById(current.class.image);
                     clonePost.class.image = image.path || '';
                 }
+                console.log(`LHA:  ===> file: post.controller.ts ===> line 78 ===> clonePost`, clonePost);
+                addImagePath.push(clonePost);
             }
             if (result) {
-                return new baseController_1.Ok('Get Message success', JSON.parse(JSON.stringify(result)));
+                return new baseController_1.Ok('Get Message success', addImagePath);
             }
             throw new resource_exception_1.ResourceFoundException({
                 message: 'Get Message fail',

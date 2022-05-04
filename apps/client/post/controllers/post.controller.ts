@@ -17,6 +17,7 @@ export class PostController {
     private readonly _postService: PostService,
     private readonly _memberClass: MemberClassService,
     private readonly _loggerService: LoggerService,
+    private readonly _uploadService: UpLoadFileService,
   ) {}
 
   // @Post()
@@ -67,12 +68,23 @@ export class PostController {
           },
         ],
       );
-      
-      if (result) {
-        return new Ok(
-          'Get Message success',
-          JSON.parse(JSON.stringify(result)),
+
+      const addImagePath = [];
+      for (const current of JSON.parse(JSON.stringify(result as Array<any>))) {
+        const clonePost = { ...current };
+        if (current?.class?.image && current?.class?.image !== '') {
+          const image = await this._uploadService.findById(current.class.image);
+          clonePost.class.image = image.path || '';
+        }
+        console.log(
+          `LHA:  ===> file: post.controller.ts ===> line 78 ===> clonePost`,
+          clonePost,
         );
+        addImagePath.push(clonePost);
+      }
+
+      if (result) {
+        return new Ok('Get Message success', addImagePath);
       }
       throw new ResourceFoundException({
         message: 'Get Message fail',
