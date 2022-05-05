@@ -11,7 +11,9 @@ export class Post extends BaseModel<Post> {
   @prop({ ref: 'RoadMapContent', default: null })
   @Expose()
   roadMapContent: ObjectId;
-
+  @prop({ default: '' })
+  @Expose()
+  content: string;
   @prop({ required: true, ref: 'like', default: [] })
   @Expose()
   like: Array<ObjectId>;

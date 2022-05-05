@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { Usr } from 'apps/client/authentication/decorator/user.decorator';
 import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
 import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
@@ -10,6 +18,7 @@ import { PostService } from '../services/post.service';
 import { LoggerService } from './../../../share/services/logger.service';
 import { MemberClassService } from './../../memberClass/services/memberClass.service';
 import { User } from './../../user/entities/user.entity';
+import * as mongoose from 'mongoose';
 
 @Controller('api/post')
 export class PostController {
@@ -20,26 +29,25 @@ export class PostController {
     private readonly _uploadService: UpLoadFileService,
   ) {}
 
-  // @Post()
-  // @UseGuards(JwtAuthGuard)
-  // async create(
-  //   @Usr() user: User & { _id: string },
-  //   @Body() createMessage: any,
-  // ) {
-  //   try {
-  //     const result = await this._postService.createPostWithRmc({
-  //       ...createMessage,
-  //       sender: user._id,
-  //     });
-  //     if (result) {
-  //       return new Ok('Create Class success', result);
-  //     }
-  //     throw new ResourceFoundException();
-  //   } catch (e) {
-  //     this.loggerService.error(e.message, null, 'create-ClassController');
-  //     throw new Error2SchoolException(e.message);
-  //   }
-  // }
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  async create(@Usr() user: User & { _id: string }, @Body() payload: any) {
+    try {
+      console.log('payload', payload);
+      const result = await this._postService.createPost({
+        ...payload,
+        class: new mongoose.Types.ObjectId(payload.classId),
+        createdBy: new mongoose.Types.ObjectId(user._id),
+      });
+      if (result) {
+        return new Ok('Create Class success', result);
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      this._loggerService.error(e.message, null, 'create-ClassController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
 
   @Get('/home')
   @UseGuards(JwtAuthGuard)

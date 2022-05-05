@@ -6828,6 +6828,11 @@ __decorate([
     __metadata("design:type", typeof (_b = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _b : Object)
 ], Post.prototype, "roadMapContent", void 0);
 __decorate([
+    typegoose_1.prop({ default: '' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], Post.prototype, "content", void 0);
+__decorate([
     typegoose_1.prop({ required: true, ref: 'like', default: [] }),
     class_transformer_1.Expose(),
     __metadata("design:type", typeof (_c = typeof Array !== "undefined" && Array) === "function" ? _c : Object)
@@ -6944,6 +6949,22 @@ let PostService = class PostService extends baseService_service_1.BaseService {
             return null;
         }
     }
+    async createPost(post) {
+        try {
+            const obj = Object.assign({}, post);
+            const newPostModel = post_entity_1.Post.createModel(obj);
+            const newPost = await this.create(newPostModel);
+            if (newPost) {
+                return this.cvtJSON(newPost);
+            }
+            return null;
+        }
+        catch (e) {
+            console.log(e);
+            this._loggerService.error(e.message, null, 'CREATE-PostService');
+            return null;
+        }
+    }
 };
 PostService = __decorate([
     common_1.Injectable(),
@@ -6970,7 +6991,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PostController = void 0;
 const common_1 = __webpack_require__(3);
@@ -6984,12 +7005,27 @@ const query_interface_1 = __webpack_require__(64);
 const post_service_1 = __webpack_require__(124);
 const logger_service_1 = __webpack_require__(12);
 const memberClass_service_1 = __webpack_require__(55);
+const mongoose = __webpack_require__(11);
 let PostController = class PostController {
     constructor(_postService, _memberClass, _loggerService, _uploadService) {
         this._postService = _postService;
         this._memberClass = _memberClass;
         this._loggerService = _loggerService;
         this._uploadService = _uploadService;
+    }
+    async create(user, payload) {
+        try {
+            console.log('payload', payload);
+            const result = await this._postService.createPost(Object.assign(Object.assign({}, payload), { class: new mongoose.Types.ObjectId(payload.classId), createdBy: new mongoose.Types.ObjectId(user._id) }));
+            if (result) {
+                return new baseController_1.Ok('Create Class success', result);
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            this._loggerService.error(e.message, null, 'create-ClassController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
     }
     async getPostHomePage(user, query) {
         var _a, _b;
@@ -7059,6 +7095,12 @@ let PostController = class PostController {
                     const image = await this._uploadService.findById(current.class.image);
                     clonePost.class.image = image.path || '';
                 }
+                const memmberInClass = await this._memberClass.findAllNoSkip({
+                    role: 0,
+                    idClass: clonePost.class._id,
+                });
+                clonePost.class.memmberInClass =
+                    this._memberClass.cvtJSON(memmberInClass);
                 addImagePath.push(clonePost);
             }
             if (addImagePath) {
@@ -7075,12 +7117,21 @@ let PostController = class PostController {
     }
 };
 __decorate([
+    common_1.Post(),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], PostController.prototype, "create", null);
+__decorate([
     common_1.Get('/home'),
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, user_decorator_1.Usr()),
     __param(1, common_1.Query()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, typeof (_b = typeof query_interface_1.IQueryFind !== "undefined" && query_interface_1.IQueryFind) === "function" ? _b : Object]),
+    __metadata("design:paramtypes", [Object, typeof (_c = typeof query_interface_1.IQueryFind !== "undefined" && query_interface_1.IQueryFind) === "function" ? _c : Object]),
     __metadata("design:returntype", Promise)
 ], PostController.prototype, "getPostHomePage", null);
 __decorate([
@@ -7090,12 +7141,12 @@ __decorate([
     __param(1, common_1.Param('idClass')),
     __param(2, common_1.Query()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, typeof (_d = typeof query_interface_1.IQueryFind !== "undefined" && query_interface_1.IQueryFind) === "function" ? _d : Object]),
+    __metadata("design:paramtypes", [Object, String, typeof (_e = typeof query_interface_1.IQueryFind !== "undefined" && query_interface_1.IQueryFind) === "function" ? _e : Object]),
     __metadata("design:returntype", Promise)
 ], PostController.prototype, "getPostInClass", null);
 PostController = __decorate([
     common_1.Controller('api/post'),
-    __metadata("design:paramtypes", [typeof (_e = typeof post_service_1.PostService !== "undefined" && post_service_1.PostService) === "function" ? _e : Object, typeof (_f = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _f : Object, typeof (_g = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _g : Object, typeof (_h = typeof up_load_file_service_1.UpLoadFileService !== "undefined" && up_load_file_service_1.UpLoadFileService) === "function" ? _h : Object])
+    __metadata("design:paramtypes", [typeof (_f = typeof post_service_1.PostService !== "undefined" && post_service_1.PostService) === "function" ? _f : Object, typeof (_g = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _g : Object, typeof (_h = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _h : Object, typeof (_j = typeof up_load_file_service_1.UpLoadFileService !== "undefined" && up_load_file_service_1.UpLoadFileService) === "function" ? _j : Object])
 ], PostController);
 exports.PostController = PostController;
 
