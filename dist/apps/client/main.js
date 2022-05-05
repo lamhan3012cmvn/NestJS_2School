@@ -2130,13 +2130,15 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
             const result = [];
             for (const c of classes) {
                 const obj = Object.assign({}, c);
+                if (!(c.image === '')) {
+                    const image = await this._uploadFileService.findById(c.image);
+                    if (image)
+                        obj.image = image.path;
+                }
                 obj.member = await this._memberClassService.getMemberByClass(obj._id);
                 result.push(obj);
             }
             return result;
-            if (newClasses) {
-            }
-            return null;
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'FIND_ALL_CLASSES-ClassesService');
@@ -2189,14 +2191,22 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
             const memberClass = await this._memberClassService.findAll({
                 user: idUser,
             });
-            console.log('memberClass', memberClass);
             const arrClass = memberClass.map((e) => e.idClass);
-            console.log('arrClass', arrClass);
             const classes = this.cvtJSON(await this.findAll({
                 _id: { $nin: arrClass },
                 status: status_enum_1.DFStatus.Active,
-            }, { skip: '0', limit: '100' }, 'createdBy'));
-            return this.cvtJSON(classes);
+            }, { skip: '0', limit: '100' }, "createdBy"));
+            const result = [];
+            for (const c of classes) {
+                const obj = Object.assign({}, c);
+                if (!(c.image === '')) {
+                    const image = await this._uploadFileService.findById(c.image);
+                    if (image)
+                        obj.image = image.path;
+                }
+                result.push(obj);
+            }
+            return this.cvtJSON(result);
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'recommendClasses-ClassesService');
@@ -2656,7 +2666,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c;
+var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MemberClassService = void 0;
 const memberClass_entity_1 = __webpack_require__(56);
@@ -2669,12 +2679,14 @@ const status_enum_1 = __webpack_require__(29);
 const user_service_1 = __webpack_require__(50);
 const errors_exception_1 = __webpack_require__(30);
 const user_not_found_exception_1 = __webpack_require__(53);
+const up_load_file_service_1 = __webpack_require__(52);
 let MemberClassService = class MemberClassService extends baseService_service_1.BaseService {
-    constructor(_memberClassModel, _loggerService, _userService) {
+    constructor(_memberClassModel, _loggerService, _userService, _uploadService) {
         super();
         this._memberClassModel = _memberClassModel;
         this._loggerService = _loggerService;
         this._userService = _userService;
+        this._uploadService = _uploadService;
         this.checkExitsUserInClass = async (idUser, idClass) => {
             try {
                 const obj = {
@@ -2752,6 +2764,16 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
                 status: status,
             };
             const memberClass = await this._model.find(obj).populate('user').lean();
+            const result = [];
+            for (const member of memberClass) {
+                const obj = Object.assign({}, member);
+                if (obj.user.image !== '') {
+                    const image = await this._uploadService.findById(obj.user.image);
+                    if (image)
+                        obj.user.image = image.path;
+                }
+                result.push(obj);
+            }
             return this.cvtJSON(memberClass);
         }
         catch (e) {
@@ -2778,7 +2800,7 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
 MemberClassService = __decorate([
     common_1.Injectable(),
     __param(0, mongoose_1.InjectModel(memberClass_entity_1.MemberClasses.modelName)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof user_service_1.UserService !== "undefined" && user_service_1.UserService) === "function" ? _c : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof typegoose_1.ModelType !== "undefined" && typegoose_1.ModelType) === "function" ? _a : Object, typeof (_b = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _b : Object, typeof (_c = typeof user_service_1.UserService !== "undefined" && user_service_1.UserService) === "function" ? _c : Object, typeof (_d = typeof up_load_file_service_1.UpLoadFileService !== "undefined" && up_load_file_service_1.UpLoadFileService) === "function" ? _d : Object])
 ], MemberClassService);
 exports.MemberClassService = MemberClassService;
 
@@ -6986,10 +7008,9 @@ let PostController = class PostController {
                     const image = await this._uploadService.findById(current.class.image);
                     clonePost.class.image = image.path || '';
                 }
-                console.log(`LHA:  ===> file: post.controller.ts ===> line 78 ===> clonePost`, clonePost);
                 addImagePath.push(clonePost);
             }
-            if (result) {
+            if (addImagePath) {
                 return new baseController_1.Ok('Get Message success', addImagePath);
             }
             throw new resource_exception_1.ResourceFoundException({
@@ -7002,6 +7023,7 @@ let PostController = class PostController {
         }
     }
     async getPostInClass(user, idClass, query) {
+        var _a, _b;
         try {
             const result = await this._postService.findAll({
                 class: idClass,
@@ -7015,8 +7037,17 @@ let PostController = class PostController {
                     populate: 'rmcFile rmcAssignment rmcAttendance',
                 },
             ]);
-            if (result) {
-                return new baseController_1.Ok('Get Message success', JSON.parse(JSON.stringify(result)));
+            const addImagePath = [];
+            for (const current of JSON.parse(JSON.stringify(result))) {
+                const clonePost = Object.assign({}, current);
+                if (((_a = current === null || current === void 0 ? void 0 : current.class) === null || _a === void 0 ? void 0 : _a.image) && ((_b = current === null || current === void 0 ? void 0 : current.class) === null || _b === void 0 ? void 0 : _b.image) !== '') {
+                    const image = await this._uploadService.findById(current.class.image);
+                    clonePost.class.image = image.path || '';
+                }
+                addImagePath.push(clonePost);
+            }
+            if (addImagePath) {
+                return new baseController_1.Ok('Get Message success', addImagePath);
             }
             throw new resource_exception_1.ResourceFoundException({
                 message: 'Get Message fail',

@@ -98,14 +98,18 @@ export class ClassService extends BaseService<Classes> {
       const result = [];
       for (const c of classes) {
         const obj: any = { ...c };
+
+        if (!(c.image === '')) {
+          const image = await this._uploadFileService.findById(c.image);
+          if (image) obj.image = image.path;
+        }
+
         obj.member = await this._memberClassService.getMemberByClass(obj._id);
         result.push(obj);
       }
       return result;
 
-      if (newClasses) {
-      }
-      return null;
+      
     } catch (e) {
       this._loggerService.error(
         e.message,
@@ -165,9 +169,7 @@ export class ClassService extends BaseService<Classes> {
       const memberClass = await this._memberClassService.findAll({
         user: idUser,
       });
-      console.log('memberClass', memberClass);
       const arrClass = memberClass.map((e) => e.idClass);
-      console.log('arrClass', arrClass);
       const classes = this.cvtJSON(
         await this.findAll(
           {
@@ -175,22 +177,21 @@ export class ClassService extends BaseService<Classes> {
             status: DFStatus.Active,
           },
           { skip: '0', limit: '100' },
-          'createdBy',
+          "createdBy"
         ),
       );
-      // const result = [];
-      // for (const c of classes) {
-      //   const u = await this._userService.findOne({ createdBy: c.createdBy });
-      //   const obj = { ...c };
-      //   if (!(c.image === '')) {
-      //     const image = await this._uploadFileService.findById(c.image);
-      //     if (image) obj.image = image.path;
-      //   }
 
-      //   if (u) obj.createdBy = this.cvtJSON(u);
-      //   result.push(obj);
-      // }
-      return this.cvtJSON(classes);
+      const result = [];
+      for (const c of classes) {
+        const obj = { ...c };
+        if (!(c.image === '')) {
+          const image = await this._uploadFileService.findById(c.image);
+          if (image) obj.image = image.path;
+        }
+
+        result.push(obj);
+      }
+      return this.cvtJSON(result);
     } catch (e) {
       this._loggerService.error(
         e.message,

@@ -12,6 +12,7 @@ import { User } from 'apps/client/user/entities/user.entity';
 import { UserService } from 'apps/client/user/service/user.service';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
 import { UserNotFoundException } from 'apps/share/exceptions/user-not-found.exception';
+import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
 
 @Injectable()
 export class MemberClassService extends BaseService<MemberClasses> {
@@ -20,6 +21,7 @@ export class MemberClassService extends BaseService<MemberClasses> {
     private _memberClassModel: ModelType<MemberClasses>,
     private _loggerService: LoggerService,
     private _userService: UserService,
+    private _uploadService: UpLoadFileService
   ) {
     super();
     this._model = _memberClassModel;
@@ -97,6 +99,17 @@ export class MemberClassService extends BaseService<MemberClasses> {
       };
 
       const memberClass = await this._model.find(obj).populate('user').lean();
+      const result=[]
+      for(const member of memberClass)
+      {
+        const obj:any={...member}
+        if(obj.user?.image!=='')
+        {
+          const image = await this._uploadService.findById(obj.user.image);
+          if (image) obj.user.image = image.path;
+        }
+        result.push(obj)
+      }
 
       return this.cvtJSON(memberClass);
       // }
