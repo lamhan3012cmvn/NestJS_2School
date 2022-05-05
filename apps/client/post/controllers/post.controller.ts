@@ -76,6 +76,12 @@ export class PostController {
           const image = await this._uploadService.findById(current.class.image);
           clonePost.class.image = image.path || '';
         }
+        const memmberInClass = await this._memberClass.findAllNoSkip({
+          role: 0,
+          idClass: clonePost.class._id,
+        });
+        clonePost.class.memmberInClass =
+          this._memberClass.cvtJSON(memmberInClass);
         addImagePath.push(clonePost);
       }
 
@@ -122,6 +128,12 @@ export class PostController {
           const image = await this._uploadService.findById(current.class.image);
           clonePost.class.image = image.path || '';
         }
+        const memmberInClass = await this._memberClass.findAllNoSkip({
+          role: 0,
+          idClass: clonePost.class._id,
+        });
+        clonePost.class.memmberInClass =
+          this._memberClass.cvtJSON(memmberInClass);
         addImagePath.push(clonePost);
       }
 

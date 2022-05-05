@@ -44,6 +44,7 @@ import { RMCAttendancesUserService } from '../services/rmc-attendancesUser.servi
 import { RMCFilesService } from '../services/rmc-files.service';
 import { MemberClasses } from 'apps/client/memberClass/entities/memberClass.entity';
 import { MemberClassService } from 'apps/client/memberClass/services/memberClass.service';
+import { RoadMapService } from 'apps/client/road-map/services/roadMap.service';
 
 @Controller('api/road-map-content')
 export class RoadMapContentController {
@@ -57,6 +58,7 @@ export class RoadMapContentController {
     private readonly loggerService: LoggerService,
     private readonly classService: ClassService,
     private readonly memberClassService: MemberClassService,
+    private readonly roadMapService: RoadMapService,
   ) {}
 
   @Post('assignment')
@@ -490,6 +492,106 @@ export class RoadMapContentController {
         }
       }
       return new Ok('Get RoadMap Content success', newResult);
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'Get-RoadMapController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  @Get('schedule')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async getSchedule(@Usr() user: User & { _id: string }, @Query() query: {
+    month:number,
+    year:number,
+  }) {
+    try {
+      const startTime = new Date(`${query.year}-${query.month}-01`);
+      const endTime = new Date(`${query.year}-${query.month}-30`);
+
+      const existClass = await this.memberClassService.findAllNoSkip({
+        user: user._id,
+      });
+      if (!existClass) {
+        throw new ResourceFoundException(
+          'The class you are trying to access does not exist',
+        );
+      }
+
+      const classId = existClass.map((item) => item.idClass);
+
+      const roadmaps = await this.roadMapService.findAllNoSkip({
+        classBy: { $in: classId },
+      });
+
+      const roadmapId = roadmaps.map((item) => item._id);
+
+      const rmcContent = await this.roadMapContentService.findAllNoSkip(
+        {
+          idRoadMap: { $in: roadmapId },
+        },
+        [
+          {
+            path: 'rmcAttendance',
+            match: {
+              startTime: { $gte: startTime, $lte: endTime },
+            },
+          },
+          {
+            path: 'rmcAssignment',
+            match: {
+              startTime: { $gte: startTime, $lte: endTime },
+            },
+          },
+        ],
+      );
+      const filterRMC = rmcContent.filter((item) => item.rmcAssignment||item.rmcAttendance);
+
+      // const result = await this.roadMapContentService.findAll({
+      //   idRoadMap: query.idRoadMap,
+      // });
+      // const sortResult = result.sort(
+      //   (a, b) =>
+      //     new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime(),
+      // );
+      // let resultRmc = null;
+      // const newResult = [];
+      // for (const rmc of sortResult) {
+      //   switch (rmc.type) {
+      //     case RCMTypes.ASSIGNMENT:
+      //       resultRmc = await this._rmcAssignmentService.findById(`${rmc.rmc}`);
+      //       break;
+      //     case RCMTypes.ATTENDANCE:
+      //       const isSubmit = await this._rmcAttendanceUserService.findOne(
+      //         {
+      //           user: user._id,
+      //           rmc: rmc.rmc,
+      //         },
+      //         'user',
+      //       );
+      //       resultRmc = await this._rmcAttendanceService.findById(`${rmc.rmc}`);
+      //       resultRmc = {
+      //         ...resultRmc,
+      //         isSubmit: existClass.role === 1 ? true : Boolean(isSubmit),
+      //         submit: isSubmit ? { ...isSubmit } : null,
+      //       };
+      //       break;
+      //     case RCMTypes.FILE:
+      //       resultRmc = await this._rmcFilesService.findById(`${rmc.rmc}`);
+      //       break;
+      //     default:
+      //       break;
+      //   }
+      //   if (resultRmc) {
+      //     const obj = this.classService.cvtJSON(rmc);
+      //     obj.rmc = resultRmc;
+      //     newResult.push(this.classService.cvtJSON(obj));
+      //   }
+      // }
+      return new Ok(
+        'Get RoadMap Content success',
+        this.roadMapContentService.cvtJSON(filterRMC),
+      );
     } catch (e) {
       this.loggerService.error(e.message, null, 'Get-RoadMapController');
       throw new Error2SchoolException(e.message);

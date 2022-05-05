@@ -13,7 +13,7 @@ export class MemberClasses extends BaseModel<MemberClasses> {
   user: ObjectId;
   @prop({ required: true, ref: 'Classes' })
   @Expose()
-  idClass: string;
+  idClass: ObjectId;
   @prop({ default: 0 })
   @Expose()
   role: number;

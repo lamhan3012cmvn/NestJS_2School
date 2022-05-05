@@ -7,6 +7,8 @@ import { MemberClassService } from '../memberClass/services/memberClass.service'
 import { Post } from '../post/entities/post.entity';
 import { PostModule } from '../post/post.module';
 import { PostService } from '../post/services/post.service';
+import { RoadMap } from '../road-map/entities/road-map.entity';
+import { RoadMapService } from '../road-map/services/roadMap.service';
 import { UpLoadFile } from '../up-load-file/entities/upLoadFile.entity';
 import { UpLoadFileService } from '../up-load-file/services/up-load-file.service';
 import { User, UserSchema } from '../user/entities/user.entity';
@@ -47,6 +49,10 @@ import { RoadMapContentService } from './services/roadMapContent.service';
         name: RMCFile.modelName,
         schema: RMCFile.model.schema,
       },
+      {
+        name: RoadMap.modelName,
+        schema: RoadMap.model.schema,
+      },
       { name: Classes.modelName, schema: Classes.model.schema },
       {
         name: MemberClasses.modelName,
@@ -70,6 +76,7 @@ import { RoadMapContentService } from './services/roadMapContent.service';
     MemberClassService,
     UserService,
     UpLoadFileService,
+    RoadMapService,
   ],
 })
 export class RoadMapContentModule {}

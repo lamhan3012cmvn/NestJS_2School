@@ -902,6 +902,7 @@ exports.Usr = void 0;
 const common_1 = __webpack_require__(3);
 exports.Usr = common_1.createParamDecorator((data, ctx) => {
     const request = ctx.switchToHttp().getRequest();
+    console.log('requ', request.user);
     return JSON.parse(JSON.stringify(request.user));
 });
 
@@ -2758,6 +2759,7 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
         }
     }
     async getMemberByClass(idClass, status = 1) {
+        var _a;
         try {
             const obj = {
                 idClass: idClass,
@@ -2767,7 +2769,7 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
             const result = [];
             for (const member of memberClass) {
                 const obj = Object.assign({}, member);
-                if (obj.user.image !== '') {
+                if (((_a = obj.user) === null || _a === void 0 ? void 0 : _a.image) !== '') {
                     const image = await this._uploadService.findById(obj.user.image);
                     if (image)
                         obj.user.image = image.path;
@@ -2819,7 +2821,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
+var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MemberClasses = void 0;
 const status_enum_1 = __webpack_require__(29);
@@ -2849,7 +2851,7 @@ __decorate([
 __decorate([
     typegoose_1.prop({ required: true, ref: 'Classes' }),
     class_transformer_1.Expose(),
-    __metadata("design:type", String)
+    __metadata("design:type", typeof (_b = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _b : Object)
 ], MemberClasses.prototype, "idClass", void 0);
 __decorate([
     typegoose_1.prop({ default: 0 }),
@@ -6705,6 +6707,8 @@ const memberClass_service_1 = __webpack_require__(55);
 const post_entity_1 = __webpack_require__(122);
 const post_module_1 = __webpack_require__(123);
 const post_service_1 = __webpack_require__(124);
+const road_map_entity_1 = __webpack_require__(36);
+const roadMap_service_1 = __webpack_require__(35);
 const upLoadFile_entity_1 = __webpack_require__(54);
 const up_load_file_service_1 = __webpack_require__(52);
 const user_entity_1 = __webpack_require__(39);
@@ -6747,6 +6751,10 @@ RoadMapContentModule = __decorate([
                     name: rmc_files_1.RMCFile.modelName,
                     schema: rmc_files_1.RMCFile.model.schema,
                 },
+                {
+                    name: road_map_entity_1.RoadMap.modelName,
+                    schema: road_map_entity_1.RoadMap.model.schema,
+                },
                 { name: class_entity_1.Classes.modelName, schema: class_entity_1.Classes.model.schema },
                 {
                     name: memberClass_entity_1.MemberClasses.modelName,
@@ -6769,6 +6777,7 @@ RoadMapContentModule = __decorate([
             memberClass_service_1.MemberClassService,
             user_service_1.UserService,
             up_load_file_service_1.UpLoadFileService,
+            roadMap_service_1.RoadMapService,
         ],
     })
 ], RoadMapContentModule);
@@ -7008,6 +7017,12 @@ let PostController = class PostController {
                     const image = await this._uploadService.findById(current.class.image);
                     clonePost.class.image = image.path || '';
                 }
+                const memmberInClass = await this._memberClass.findAllNoSkip({
+                    role: 0,
+                    idClass: clonePost.class._id,
+                });
+                clonePost.class.memmberInClass =
+                    this._memberClass.cvtJSON(memmberInClass);
                 addImagePath.push(clonePost);
             }
             if (addImagePath) {
@@ -7102,7 +7117,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RoadMapContentController = void 0;
 const req_dto_1 = __webpack_require__(127);
@@ -7128,8 +7143,9 @@ const rmc_attendances_service_1 = __webpack_require__(134);
 const rmc_attendancesUser_service_1 = __webpack_require__(136);
 const rmc_files_service_1 = __webpack_require__(138);
 const memberClass_service_1 = __webpack_require__(55);
+const roadMap_service_1 = __webpack_require__(35);
 let RoadMapContentController = class RoadMapContentController {
-    constructor(roadMapContentService, _rmcAssignmentService, _rmcAssignmentUserService, _rmcAttendanceService, _rmcAttendanceUserService, _rmcFilesService, loggerService, classService, memberClassService) {
+    constructor(roadMapContentService, _rmcAssignmentService, _rmcAssignmentUserService, _rmcAttendanceService, _rmcAttendanceUserService, _rmcFilesService, loggerService, classService, memberClassService, roadMapService) {
         this.roadMapContentService = roadMapContentService;
         this._rmcAssignmentService = _rmcAssignmentService;
         this._rmcAssignmentUserService = _rmcAssignmentUserService;
@@ -7139,6 +7155,7 @@ let RoadMapContentController = class RoadMapContentController {
         this.loggerService = loggerService;
         this.classService = classService;
         this.memberClassService = memberClassService;
+        this.roadMapService = roadMapService;
     }
     async createRMCAssignment(user, query, payload) {
         try {
@@ -7352,6 +7369,45 @@ let RoadMapContentController = class RoadMapContentController {
             throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
+    async getSchedule(user, query) {
+        try {
+            const startTime = new Date(`${query.year}-${query.month}-01`);
+            const endTime = new Date(`${query.year}-${query.month}-30`);
+            const existClass = await this.memberClassService.findAllNoSkip({
+                user: user._id,
+            });
+            if (!existClass) {
+                throw new resource_exception_1.ResourceFoundException('The class you are trying to access does not exist');
+            }
+            const classId = existClass.map((item) => item.idClass);
+            const roadmaps = await this.roadMapService.findAllNoSkip({
+                classBy: { $in: classId },
+            });
+            const roadmapId = roadmaps.map((item) => item._id);
+            const rmcContent = await this.roadMapContentService.findAllNoSkip({
+                idRoadMap: { $in: roadmapId },
+            }, [
+                {
+                    path: 'rmcAttendance',
+                    match: {
+                        startTime: { $gte: startTime, $lte: endTime },
+                    },
+                },
+                {
+                    path: 'rmcAssignment',
+                    match: {
+                        startTime: { $gte: startTime, $lte: endTime },
+                    },
+                },
+            ]);
+            const filterRMC = rmcContent.filter((item) => item.rmcAssignment || item.rmcAttendance);
+            return new baseController_1.Ok('Get RoadMap Content success', this.roadMapContentService.cvtJSON(filterRMC));
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'Get-RoadMapController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
 };
 __decorate([
     common_1.Post('assignment'),
@@ -7469,9 +7525,19 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], RoadMapContentController.prototype, "getRoadMapContent", null);
+__decorate([
+    common_1.Get('schedule'),
+    common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+    common_1.HttpCode(200),
+    __param(0, user_decorator_1.Usr()),
+    __param(1, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], RoadMapContentController.prototype, "getSchedule", null);
 RoadMapContentController = __decorate([
     common_1.Controller('api/road-map-content'),
-    __metadata("design:paramtypes", [typeof (_t = typeof roadMapContent_service_1.RoadMapContentService !== "undefined" && roadMapContent_service_1.RoadMapContentService) === "function" ? _t : Object, typeof (_u = typeof rmc_assignments_service_1.RMCAssignmentService !== "undefined" && rmc_assignments_service_1.RMCAssignmentService) === "function" ? _u : Object, typeof (_v = typeof rmc_assignmentsUserservice_1.RMCAssignmentUserService !== "undefined" && rmc_assignmentsUserservice_1.RMCAssignmentUserService) === "function" ? _v : Object, typeof (_w = typeof rmc_attendances_service_1.RMCAttendanceService !== "undefined" && rmc_attendances_service_1.RMCAttendanceService) === "function" ? _w : Object, typeof (_x = typeof rmc_attendancesUser_service_1.RMCAttendancesUserService !== "undefined" && rmc_attendancesUser_service_1.RMCAttendancesUserService) === "function" ? _x : Object, typeof (_y = typeof rmc_files_service_1.RMCFilesService !== "undefined" && rmc_files_service_1.RMCFilesService) === "function" ? _y : Object, typeof (_z = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _z : Object, typeof (_0 = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _0 : Object, typeof (_1 = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _1 : Object])
+    __metadata("design:paramtypes", [typeof (_u = typeof roadMapContent_service_1.RoadMapContentService !== "undefined" && roadMapContent_service_1.RoadMapContentService) === "function" ? _u : Object, typeof (_v = typeof rmc_assignments_service_1.RMCAssignmentService !== "undefined" && rmc_assignments_service_1.RMCAssignmentService) === "function" ? _v : Object, typeof (_w = typeof rmc_assignmentsUserservice_1.RMCAssignmentUserService !== "undefined" && rmc_assignmentsUserservice_1.RMCAssignmentUserService) === "function" ? _w : Object, typeof (_x = typeof rmc_attendances_service_1.RMCAttendanceService !== "undefined" && rmc_attendances_service_1.RMCAttendanceService) === "function" ? _x : Object, typeof (_y = typeof rmc_attendancesUser_service_1.RMCAttendancesUserService !== "undefined" && rmc_attendancesUser_service_1.RMCAttendancesUserService) === "function" ? _y : Object, typeof (_z = typeof rmc_files_service_1.RMCFilesService !== "undefined" && rmc_files_service_1.RMCFilesService) === "function" ? _z : Object, typeof (_0 = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _0 : Object, typeof (_1 = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _1 : Object, typeof (_2 = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _2 : Object, typeof (_3 = typeof roadMap_service_1.RoadMapService !== "undefined" && roadMap_service_1.RoadMapService) === "function" ? _3 : Object])
 ], RoadMapContentController);
 exports.RoadMapContentController = RoadMapContentController;
 
@@ -7893,7 +7959,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RMCAssignment = void 0;
 const baseModel_entity_1 = __webpack_require__(6);
@@ -7922,15 +7988,15 @@ __decorate([
 ], RMCAssignment.prototype, "description", void 0);
 __decorate([
     typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", typeof (_a = typeof Date !== "undefined" && Date) === "function" ? _a : Object)
 ], RMCAssignment.prototype, "startTime", void 0);
 __decorate([
     typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", typeof (_b = typeof Date !== "undefined" && Date) === "function" ? _b : Object)
 ], RMCAssignment.prototype, "endTime", void 0);
 __decorate([
     typegoose_1.prop({ required: true }),
-    __metadata("design:type", typeof (_a = typeof Array !== "undefined" && Array) === "function" ? _a : Object)
+    __metadata("design:type", typeof (_c = typeof Array !== "undefined" && Array) === "function" ? _c : Object)
 ], RMCAssignment.prototype, "fileExtensions", void 0);
 exports.RMCAssignment = RMCAssignment;
 
@@ -8133,6 +8199,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RMCAttendances = void 0;
 const baseModel_entity_1 = __webpack_require__(6);
@@ -8161,11 +8228,11 @@ __decorate([
 ], RMCAttendances.prototype, "description", void 0);
 __decorate([
     typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", typeof (_a = typeof Date !== "undefined" && Date) === "function" ? _a : Object)
 ], RMCAttendances.prototype, "startTime", void 0);
 __decorate([
     typegoose_1.prop({ required: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", typeof (_b = typeof Date !== "undefined" && Date) === "function" ? _b : Object)
 ], RMCAttendances.prototype, "endTime", void 0);
 exports.RMCAttendances = RMCAttendances;
 

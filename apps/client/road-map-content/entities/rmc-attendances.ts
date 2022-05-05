@@ -8,9 +8,9 @@ export class RMCAttendances extends BaseModel<RMCAttendances> {
   @prop({ required: true })
   description: string;
   @prop({ required: true })
-  startTime: string;
+  startTime: Date;
   @prop({ required: true })
-  endTime: string;
+  endTime: Date;
 
   static get model(): ModelType<RMCAttendances> {
     return new RMCAttendances().getModelForClass(RMCAttendances, {
