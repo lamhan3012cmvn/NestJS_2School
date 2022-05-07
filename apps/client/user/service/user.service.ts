@@ -88,7 +88,7 @@ export class UserService extends ResponseService {
       const obj: any = { ...payload };
       obj.displayName = payload.firstName + ' ' + payload.lastName;
       const user = await this.userModel
-        .findOneAndUpdate({ createdBy: id }, obj, { new: true })
+        .findOneAndUpdate({ _id: id }, obj, { new: true })
         .lean();
       if (user) {
         const cloneUser = JSON.parse(JSON.stringify(user));
