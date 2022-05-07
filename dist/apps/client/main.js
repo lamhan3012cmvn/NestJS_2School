@@ -7069,6 +7069,7 @@ let PostController = class PostController {
                     path: 'roadMapContent',
                     populate: 'rmcFile rmcAssignment rmcAttendance',
                 },
+                'createdBy',
             ]);
             const addImagePath = [];
             for (const current of JSON.parse(JSON.stringify(result))) {
@@ -7111,6 +7112,7 @@ let PostController = class PostController {
                     path: 'roadMapContent',
                     populate: 'rmcFile rmcAssignment rmcAttendance',
                 },
+                'createdBy',
             ]);
             const addImagePath = [];
             for (const current of JSON.parse(JSON.stringify(result))) {

@@ -48,6 +48,7 @@ export class PostController {
           path: 'roadMapContent',
           populate: 'rmcFile rmcAssignment rmcAttendance',
         },
+        'createdBy',
       ]);
       if (resultSearch) {
         const clonePost = { ...this._postService.cvtJSON(resultSearch) };
@@ -102,6 +103,7 @@ export class PostController {
             path: 'roadMapContent',
             populate: 'rmcFile rmcAssignment rmcAttendance',
           },
+          'createdBy',
         ],
       );
 
@@ -155,6 +157,7 @@ export class PostController {
             path: 'roadMapContent',
             populate: 'rmcFile rmcAssignment rmcAttendance',
           },
+          'createdBy',
         ],
       );
       const addImagePath = [];
