@@ -7014,11 +7014,35 @@ let PostController = class PostController {
         this._uploadService = _uploadService;
     }
     async create(user, payload) {
+        var _a, _b;
         try {
-            console.log('payload', payload);
             const result = await this._postService.createPost(Object.assign(Object.assign({}, payload), { class: new mongoose.Types.ObjectId(payload.classId), createdBy: new mongoose.Types.ObjectId(user._id) }));
-            if (result) {
-                return new baseController_1.Ok('Create Class success', result);
+            const resultSearch = await this._postService.findById(result._id, [
+                {
+                    path: 'class',
+                    populate: 'createdBy',
+                },
+                {
+                    path: 'roadMapContent',
+                    populate: 'rmcFile rmcAssignment rmcAttendance',
+                },
+            ]);
+            if (resultSearch) {
+                const clonePost = Object.assign({}, this._postService.cvtJSON(resultSearch));
+                if (((_a = clonePost === null || clonePost === void 0 ? void 0 : clonePost.class) === null || _a === void 0 ? void 0 : _a.image) && ((_b = clonePost === null || clonePost === void 0 ? void 0 : clonePost.class) === null || _b === void 0 ? void 0 : _b.image) !== '') {
+                    const image = await this._uploadService.findById(clonePost.class.image);
+                    clonePost.class.image = image.path || '';
+                }
+                const memmberInClass = await this._memberClass.findAllNoSkip({
+                    role: 0,
+                    idClass: clonePost.class._id,
+                });
+                clonePost.class.memmberInClass =
+                    this._memberClass.cvtJSON(memmberInClass);
+                if (clonePost) {
+                    return new baseController_1.Ok('Get Message success', clonePost);
+                }
+                throw new resource_exception_1.ResourceFoundException();
             }
             throw new resource_exception_1.ResourceFoundException();
         }
@@ -8817,9 +8841,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f;
+var _a, _b, _c, _d, _e, _f, _g;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MemberClassController = void 0;
+const up_load_file_service_1 = __webpack_require__(52);
 const common_1 = __webpack_require__(3);
 const user_decorator_1 = __webpack_require__(23);
 const jwt_auth_guard_1 = __webpack_require__(24);
@@ -8832,10 +8857,11 @@ const query_interface_1 = __webpack_require__(64);
 const logger_service_1 = __webpack_require__(12);
 const memberClass_service_1 = __webpack_require__(55);
 let MemberClassController = class MemberClassController {
-    constructor(loggerService, _memberClassService, _notificationService) {
+    constructor(loggerService, _memberClassService, _notificationService, _uploadService) {
         this.loggerService = loggerService;
         this._memberClassService = _memberClassService;
         this._notificationService = _notificationService;
+        this._uploadService = _uploadService;
     }
     async getMemberClass(user, query) {
         try {
@@ -8851,6 +8877,7 @@ let MemberClassController = class MemberClassController {
         }
     }
     async getConversation(user, query) {
+        var _a, _b;
         try {
             const result = await this._memberClassService.findAll({
                 user: user._id,
@@ -8862,8 +8889,17 @@ let MemberClassController = class MemberClassController {
                     },
                 },
             ]);
-            if (result) {
-                return new baseController_1.Ok('Get List Member Success', JSON.parse(JSON.stringify(result)));
+            const addImagePath = [];
+            for (const current of JSON.parse(JSON.stringify(result))) {
+                const clonePost = Object.assign({}, current);
+                if (((_a = current === null || current === void 0 ? void 0 : current.idClass) === null || _a === void 0 ? void 0 : _a.image) && ((_b = current === null || current === void 0 ? void 0 : current.idClass) === null || _b === void 0 ? void 0 : _b.image) !== '') {
+                    const image = await this._uploadService.findById(current.idClass.image);
+                    clonePost.idClass.image = image.path || '';
+                }
+                addImagePath.push(clonePost);
+            }
+            if (addImagePath) {
+                return new baseController_1.Ok('Get List Member Success', addImagePath);
             }
             throw new resource_exception_1.ResourceFoundException('Get List Member Fail');
         }
@@ -8922,7 +8958,7 @@ __decorate([
 ], MemberClassController.prototype, "getMemberClass_asbd", null);
 MemberClassController = __decorate([
     common_1.Controller('api/memberClass'),
-    __metadata("design:paramtypes", [typeof (_d = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _d : Object, typeof (_e = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _e : Object, typeof (_f = typeof notification_service_1.NotificationService !== "undefined" && notification_service_1.NotificationService) === "function" ? _f : Object])
+    __metadata("design:paramtypes", [typeof (_d = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _d : Object, typeof (_e = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _e : Object, typeof (_f = typeof notification_service_1.NotificationService !== "undefined" && notification_service_1.NotificationService) === "function" ? _f : Object, typeof (_g = typeof up_load_file_service_1.UpLoadFileService !== "undefined" && up_load_file_service_1.UpLoadFileService) === "function" ? _g : Object])
 ], MemberClassController);
 exports.MemberClassController = MemberClassController;
 

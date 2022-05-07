@@ -1,7 +1,9 @@
+import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { Usr } from 'apps/client/authentication/decorator/user.decorator';
 import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
 import { NotificationService } from 'apps/client/notifycation/services/notification.service';
+import { UpLoadFile } from 'apps/client/up-load-file/entities/upLoadFile.entity';
 import { User } from 'apps/client/user/entities/user.entity';
 import { Ok } from 'apps/share/controller/baseController';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
@@ -16,6 +18,7 @@ export class MemberClassController {
     private readonly loggerService: LoggerService,
     private readonly _memberClassService: MemberClassService,
     private readonly _notificationService: NotificationService,
+    private readonly _uploadService: UpLoadFileService,
   ) {}
   @Get()
   @UseGuards(JwtAuthGuard)
@@ -55,12 +58,33 @@ export class MemberClassController {
           },
         ],
       );
-      if (result) {
-        return new Ok(
-          'Get List Member Success',
-          JSON.parse(JSON.stringify(result)),
-        );
+      const addImagePath = [];
+      for (const current of JSON.parse(JSON.stringify(result as Array<any>))) {
+        const clonePost = { ...current };
+        if (current?.idClass?.image && current?.idClass?.image !== '') {
+          const image = await this._uploadService.findById(
+            current.idClass.image,
+          );
+          clonePost.idClass.image = image.path || '';
+        }
+        // const memmberInClass = await this._memberClass.findAllNoSkip({
+        //   role: 0,
+        //   idClass: clonePost.class._id,
+        // });
+        // clonePost.class.memmberInClass =
+        //   this._memberClass.cvtJSON(memmberInClass);
+        addImagePath.push(clonePost);
       }
+
+      if (addImagePath) {
+        return new Ok('Get List Member Success', addImagePath);
+      }
+      // if (result) {
+      //   return new Ok(
+      //     'Get List Member Success',
+      //     JSON.parse(JSON.stringify(result)),
+      //   );
+      // }
       throw new ResourceFoundException('Get List Member Fail');
     } catch (e) {
       this.loggerService.error(e.message, null, 'get-MemberClassController');

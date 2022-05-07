@@ -33,15 +33,43 @@ export class PostController {
   @UseGuards(JwtAuthGuard)
   async create(@Usr() user: User & { _id: string }, @Body() payload: any) {
     try {
-      console.log('payload', payload);
       const result = await this._postService.createPost({
         ...payload,
         class: new mongoose.Types.ObjectId(payload.classId),
         createdBy: new mongoose.Types.ObjectId(user._id),
       });
-      if (result) {
-        return new Ok('Create Class success', result);
+
+      const resultSearch = await this._postService.findById(result._id, [
+        {
+          path: 'class',
+          populate: 'createdBy',
+        },
+        {
+          path: 'roadMapContent',
+          populate: 'rmcFile rmcAssignment rmcAttendance',
+        },
+      ]);
+      if (resultSearch) {
+        const clonePost = { ...this._postService.cvtJSON(resultSearch) };
+        if (clonePost?.class?.image && clonePost?.class?.image !== '') {
+          const image = await this._uploadService.findById(
+            clonePost.class.image,
+          );
+          clonePost.class.image = image.path || '';
+        }
+        const memmberInClass = await this._memberClass.findAllNoSkip({
+          role: 0,
+          idClass: clonePost.class._id,
+        });
+        clonePost.class.memmberInClass =
+          this._memberClass.cvtJSON(memmberInClass);
+
+        if (clonePost) {
+          return new Ok('Get Message success', clonePost);
+        }
+        throw new ResourceFoundException();
       }
+
       throw new ResourceFoundException();
     } catch (e) {
       this._loggerService.error(e.message, null, 'create-ClassController');
