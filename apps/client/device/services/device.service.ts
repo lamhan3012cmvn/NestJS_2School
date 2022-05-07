@@ -18,19 +18,22 @@ export class DeviceService extends BaseService<Device> {
     this._model = _deviceModel;
   }
   async createDevice(payload: any) {
-    console.log(
-      `LHA:  ===> file: device.service.ts ===> line 21 ===> payload`,
-      payload,
-    );
     try {
       const device = await this.findOne({
         createdBy: payload.createdBy,
         deviceUUid: payload.deviceUUid,
       });
       if (device) {
-        device.fcmToken = payload.fcmToken;
-        await device.save();
-        return JSON.parse(JSON.stringify(device)) as Device;
+        const result = await this.findOneAndUpdate(
+          {
+            createdBy: payload.createdBy,
+            deviceUUid: payload.deviceUUid,
+          },
+          {
+            fcmToken: payload.fcmToken,
+          },
+        );
+        return JSON.parse(JSON.stringify(result)) as Device;
       } else {
         const newDevice = Device.createModel(payload);
         const result = await this.create(newDevice);

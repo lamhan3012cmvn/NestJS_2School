@@ -1858,16 +1858,19 @@ let DeviceService = class DeviceService extends baseService_service_1.BaseServic
         this._model = _deviceModel;
     }
     async createDevice(payload) {
-        console.log(`LHA:  ===> file: device.service.ts ===> line 21 ===> payload`, payload);
         try {
             const device = await this.findOne({
                 createdBy: payload.createdBy,
                 deviceUUid: payload.deviceUUid,
             });
             if (device) {
-                device.fcmToken = payload.fcmToken;
-                await device.save();
-                return JSON.parse(JSON.stringify(device));
+                const result = await this.findOneAndUpdate({
+                    createdBy: payload.createdBy,
+                    deviceUUid: payload.deviceUUid,
+                }, {
+                    fcmToken: payload.fcmToken,
+                });
+                return JSON.parse(JSON.stringify(result));
             }
             else {
                 const newDevice = device_entity_1.Device.createModel(payload);
@@ -7026,6 +7029,7 @@ let PostController = class PostController {
                     path: 'roadMapContent',
                     populate: 'rmcFile rmcAssignment rmcAttendance',
                 },
+                'createdBy',
             ]);
             if (resultSearch) {
                 const clonePost = Object.assign({}, this._postService.cvtJSON(resultSearch));
