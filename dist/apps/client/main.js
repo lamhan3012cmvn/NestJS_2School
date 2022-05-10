@@ -9728,22 +9728,16 @@ module.exports = require("@nestjs/core");
 /* 160 */
 /***/ ((module) => {
 
-module.exports = require("express-rate-limit");
-
-/***/ }),
-/* 161 */
-/***/ ((module) => {
-
 module.exports = require("helmet");
 
 /***/ }),
-/* 162 */
+/* 161 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupSwagger = void 0;
-const swagger_1 = __webpack_require__(163);
+const swagger_1 = __webpack_require__(162);
 function setupSwagger(app, config) {
     const options = new swagger_1.DocumentBuilder()
         .setTitle(config.title || 'DocumentApi')
@@ -9759,21 +9753,21 @@ exports.setupSwagger = setupSwagger;
 
 
 /***/ }),
-/* 163 */
+/* 162 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
 
 /***/ }),
-/* 164 */
+/* 163 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RedisIoAdapter = void 0;
-const platform_socket_io_1 = __webpack_require__(165);
-const redis_1 = __webpack_require__(166);
-const socket_io_redis_1 = __webpack_require__(167);
+const platform_socket_io_1 = __webpack_require__(164);
+const redis_1 = __webpack_require__(165);
+const socket_io_redis_1 = __webpack_require__(166);
 const pubClient = new redis_1.RedisClient({ host: 'localhost', port: 6379 });
 const subClient = pubClient.duplicate();
 const redisAdapter = socket_io_redis_1.createAdapter({ pubClient, subClient });
@@ -9788,19 +9782,19 @@ exports.RedisIoAdapter = RedisIoAdapter;
 
 
 /***/ }),
-/* 165 */
+/* 164 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-socket.io");
 
 /***/ }),
-/* 166 */
+/* 165 */
 /***/ ((module) => {
 
 module.exports = require("redis");
 
 /***/ }),
-/* 167 */
+/* 166 */
 /***/ ((module) => {
 
 module.exports = require("socket.io-redis");
@@ -9846,11 +9840,10 @@ const logger_service_1 = __webpack_require__(12);
 const shared_module_1 = __webpack_require__(18);
 const core_1 = __webpack_require__(159);
 const platform_express_1 = __webpack_require__(113);
-const rateLimit = __webpack_require__(160);
-const helmet = __webpack_require__(161);
+const helmet = __webpack_require__(160);
 const common_1 = __webpack_require__(3);
-const setup_1 = __webpack_require__(162);
-const RedisIoAdapter_1 = __webpack_require__(164);
+const setup_1 = __webpack_require__(161);
+const RedisIoAdapter_1 = __webpack_require__(163);
 const fire = __webpack_require__(45);
 const fs = __webpack_require__(116);
 async function bootstrap() {
@@ -9861,10 +9854,6 @@ async function bootstrap() {
         const loggerService = app.select(shared_module_1.SharedModule).get(logger_service_1.LoggerService);
         app.useLogger(loggerService);
         app.use(helmet());
-        app.use(rateLimit({
-            windowMs: 15 * 60 * 1000,
-            max: 100,
-        }));
         const reflector = app.get(core_1.Reflector);
         app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter(loggerService));
         app.useGlobalInterceptors(new common_1.ClassSerializerInterceptor(reflector));
