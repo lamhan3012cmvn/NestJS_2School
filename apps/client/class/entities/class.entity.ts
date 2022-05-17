@@ -26,7 +26,7 @@ export class Classes extends BaseModel<Classes> {
   // @prop({ default: [] })
   // @Expose()
   // member: Array<string>;
-  @prop({ default: DFStatus.Active })
+  @prop({ default: DFStatus.inActive })
   @Expose()
   status: number;
   @prop({ required: true, ref: 'User' })

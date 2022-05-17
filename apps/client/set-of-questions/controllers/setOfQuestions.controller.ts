@@ -127,13 +127,13 @@ export class SetOfQuestionsController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async createSetOfQuestionsExcelShare(
-    @Usr() user: User,
+    @Usr() user: User&{_id:string},
     @Query() query,
     @Body() payload: CreateMultiQuestion,
   ) {
     try {
       const result = await this._setOfQuestionsService.createSetOfQuestionExcel(
-        user.createdBy,
+        user._id,
         query.idSetOfQuestion,
         payload,
       );
@@ -159,13 +159,13 @@ export class SetOfQuestionsController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async updateSetOfQuestions(
-    @Usr() user: User,
+    @Usr() user:  User&{_id:string},
     @Query() query,
     @Body() payload: UpdateSetOfQuestionDto,
   ) {
     try {
       const result = await this._setOfQuestionsService.findOneAndUpdate(
-        { createBy: user.createdBy, _id: query.id },
+        { createBy: user._id, _id: query.id },
         payload,
       );
       if (result) {
@@ -189,10 +189,10 @@ export class SetOfQuestionsController {
   @Delete()
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  async changeSetOfQuestions(@Usr() user: User, @Query() query) {
+  async changeSetOfQuestions(@Usr() user: User&{_id:string}, @Query() query) {
     try {
       const result = await this._setOfQuestionsService.findOneAndUpdate(
-        { createBy: user.createdBy, _id: query.id },
+        { createBy: user._id, _id: query.id },
         { status: ~~query.status },
       );
       if (result) {
@@ -216,7 +216,7 @@ export class SetOfQuestionsController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async getSetOfQuestions(
-    @Usr() user: User,
+    @Usr() user: User&{_id:string},
     @Query() query: QueryGetSetOfQuestion,
   ) {
     try {
@@ -229,7 +229,7 @@ export class SetOfQuestionsController {
       }
 
       const result = await this._setOfQuestionsService.findAll({
-        createBy: user.createdBy,
+        createBy: user._id,
         classBy: query.classId,
         status: query.status,
       });

@@ -35,11 +35,16 @@ const notification_module_1 = __webpack_require__(148);
 const quizClass_module_1 = __webpack_require__(150);
 const quizClassScore_module_1 = __webpack_require__(152);
 const message_module_1 = __webpack_require__(154);
+const serve_static_1 = __webpack_require__(158);
+const path_1 = __webpack_require__(115);
 let ClientModule = class ClientModule {
 };
 ClientModule = __decorate([
     common_1.Module({
         imports: [
+            serve_static_1.ServeStaticModule.forRoot({
+                rootPath: path_1.join(__dirname, '../../../', '/public'),
+            }),
             shared_module_1.SharedModule,
             terminus_1.TerminusModule,
             mongoose_1.MongooseModule.forRootAsync(setup_1.setupMongoDb('MONGODB_URI')),
@@ -788,6 +793,7 @@ let QuestionController = class QuestionController {
                 createBy: user._id,
                 idSetOfQuestions: query.idSetOfQuestions,
             });
+            console.log("result", result);
             const sortData = result.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
             if (sortData) {
                 return new baseController_1.Ok('Create Question success', this.questionService.cvtJSON(sortData));
@@ -2127,9 +2133,7 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
     async findAllClasses(user, query = { skip: '0', limit: '15' }, host) {
         try {
             const classMember = await this._memberClassService.getClassByUserJoined(user._id);
-            console.log(`LHA:  ===> file: class.service.ts ===> line 84 ===> classMember`, classMember);
             const newClasses = await this.findAll({ $or: [{ createdBy: user.createdBy }, { _id: { $in: classMember } }] }, query, 'createdBy');
-            console.log(`LHA:  ===> file: class.service.ts ===> line 89 ===> newClasses`, newClasses);
             const classes = this.cvtJSON(newClasses);
             const result = [];
             for (const c of classes) {
@@ -2140,6 +2144,27 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
                         obj.image = image.path;
                 }
                 obj.member = await this._memberClassService.getMemberByClass(obj._id);
+                result.push(obj);
+            }
+            return result;
+        }
+        catch (e) {
+            this._loggerService.error(e.message, null, 'FIND_ALL_CLASSES-ClassesService');
+            return null;
+        }
+    }
+    async findAllAdminClasses(filter, query = { skip: '0', limit: '15' }) {
+        try {
+            const newClasses = await this.findAll({}, query, 'createdBy');
+            const classes = this.cvtJSON(newClasses);
+            const result = [];
+            for (const c of classes) {
+                const obj = Object.assign({}, c);
+                if (!(c.image === '')) {
+                    const image = await this._uploadFileService.findById(c.image);
+                    if (image)
+                        obj.image = image.path;
+                }
                 result.push(obj);
             }
             return result;
@@ -2344,7 +2369,7 @@ __decorate([
     __metadata("design:type", String)
 ], Classes.prototype, "blurHash", void 0);
 __decorate([
-    typegoose_1.prop({ default: status_enum_1.DFStatus.Active }),
+    typegoose_1.prop({ default: status_enum_1.DFStatus.inActive }),
     class_transformer_1.Expose(),
     __metadata("design:type", Number)
 ], Classes.prototype, "status", void 0);
@@ -2747,10 +2772,11 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
     async leaveClass(idUser, idClass) {
         try {
             const obj = {
-                idUser: idUser,
+                user: idUser,
                 idClass: idClass,
             };
             const classes = await this._model.findOneAndRemove(obj);
+            console.log("classes", classes);
             if (classes) {
                 return true;
             }
@@ -2982,6 +3008,22 @@ let ClassController = class ClassController extends baseController_1.BaseControl
             throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
+    async findAllAdmin() {
+        try {
+            const result = await this.classService.findAllAdminClasses({}, {
+                limit: '15',
+                skip: '0',
+            });
+            if (result) {
+                return new baseController_1.Ok('Get Class success', result);
+            }
+            throw new resource_exception_1.ResourceFoundException();
+        }
+        catch (e) {
+            this.loggerService.error(e.message, null, 'create-ClassController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
     async getMemberClass(query) {
         try {
             const result = await this.classService.findAllMemberClass(query.idClass);
@@ -3012,6 +3054,23 @@ let ClassController = class ClassController extends baseController_1.BaseControl
             throw new errors_exception_1.Error2SchoolException(e.message);
         }
     }
+    async changeStatusClassAdmin(query) {
+        try {
+            console.log("query", query);
+            const result = await this.classService.update(query.id, {
+                status: status_enum_1.DFStatus[status_enum_1.DFStatus[(query === null || query === void 0 ? void 0 : query.status) || 0]],
+            });
+            if (result) {
+                return new baseController_1.Ok('Get Class success', this.classService.cvtJSON(result));
+            }
+            throw new resource_exception_1.ResourceFoundException('Change Status False');
+        }
+        catch (e) {
+            console.log(e);
+            this.loggerService.error(e.message, null, 'changeStatus-ClassController');
+            throw new errors_exception_1.Error2SchoolException(e.message);
+        }
+    }
     async joinMemberClass(user, payload) {
         try {
             const result = await this.classService.joinMemberClass(user._id, payload.idClass);
@@ -3028,7 +3087,7 @@ let ClassController = class ClassController extends baseController_1.BaseControl
     }
     async leaveClass(user, payload) {
         try {
-            const result = await this.classService.leaveMemberClass(user.createdBy, payload.idClass);
+            const result = await this.classService.leaveMemberClass(user._id, payload.idClass);
             if (result) {
                 return new baseController_1.Ok('Leave Class success', this.classService.cvtJSON(result));
             }
@@ -3096,6 +3155,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ClassController.prototype, "findAll", null);
 __decorate([
+    common_1.Get('admin'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ClassController.prototype, "findAllAdmin", null);
+__decorate([
     common_1.Get('members'),
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, common_1.Query()),
@@ -3112,6 +3177,13 @@ __decorate([
     __metadata("design:paramtypes", [typeof (_g = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _g : Object, Object]),
     __metadata("design:returntype", Promise)
 ], ClassController.prototype, "changeStatusClass", null);
+__decorate([
+    common_1.Get('changeStatus/admin'),
+    __param(0, common_1.Query()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ClassController.prototype, "changeStatusClassAdmin", null);
 __decorate([
     common_1.Post('joinMember'),
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
@@ -4234,7 +4306,6 @@ const setOfQuestions_service_1 = __webpack_require__(84);
 const baseController_1 = __webpack_require__(31);
 const resource_exception_1 = __webpack_require__(26);
 const errors_exception_1 = __webpack_require__(30);
-const user_entity_1 = __webpack_require__(39);
 const req_dto_1 = __webpack_require__(86);
 const req_dto_2 = __webpack_require__(87);
 const query_dto_1 = __webpack_require__(88);
@@ -4287,7 +4358,7 @@ let SetOfQuestionsController = class SetOfQuestionsController {
     }
     async createSetOfQuestionsExcelShare(user, query, payload) {
         try {
-            const result = await this._setOfQuestionsService.createSetOfQuestionExcel(user.createdBy, query.idSetOfQuestion, payload);
+            const result = await this._setOfQuestionsService.createSetOfQuestionExcel(user._id, query.idSetOfQuestion, payload);
             if (result) {
                 return new baseController_1.Ok('Create SetOfQuestions success', result);
             }
@@ -4300,7 +4371,7 @@ let SetOfQuestionsController = class SetOfQuestionsController {
     }
     async updateSetOfQuestions(user, query, payload) {
         try {
-            const result = await this._setOfQuestionsService.findOneAndUpdate({ createBy: user.createdBy, _id: query.id }, payload);
+            const result = await this._setOfQuestionsService.findOneAndUpdate({ createBy: user._id, _id: query.id }, payload);
             if (result) {
                 return new baseController_1.Ok('Update SetOfQuestions success', this._setOfQuestionsService.cvtJSON(result));
             }
@@ -4314,7 +4385,7 @@ let SetOfQuestionsController = class SetOfQuestionsController {
     }
     async changeSetOfQuestions(user, query) {
         try {
-            const result = await this._setOfQuestionsService.findOneAndUpdate({ createBy: user.createdBy, _id: query.id }, { status: ~~query.status });
+            const result = await this._setOfQuestionsService.findOneAndUpdate({ createBy: user._id, _id: query.id }, { status: ~~query.status });
             if (result) {
                 return new baseController_1.Ok('Delete SetOfQuestions success', this._setOfQuestionsService.cvtJSON(result));
             }
@@ -4335,7 +4406,7 @@ let SetOfQuestionsController = class SetOfQuestionsController {
                 });
             }
             const result = await this._setOfQuestionsService.findAll({
-                createBy: user.createdBy,
+                createBy: user._id,
                 classBy: query.classId,
                 status: query.status,
             });
@@ -4411,7 +4482,7 @@ __decorate([
     __param(1, common_1.Query()),
     __param(2, common_1.Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_g = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _g : Object, Object, typeof (_h = typeof req_dto_3.CreateMultiQuestion !== "undefined" && req_dto_3.CreateMultiQuestion) === "function" ? _h : Object]),
+    __metadata("design:paramtypes", [Object, Object, typeof (_h = typeof req_dto_3.CreateMultiQuestion !== "undefined" && req_dto_3.CreateMultiQuestion) === "function" ? _h : Object]),
     __metadata("design:returntype", Promise)
 ], SetOfQuestionsController.prototype, "createSetOfQuestionsExcelShare", null);
 __decorate([
@@ -4422,7 +4493,7 @@ __decorate([
     __param(1, common_1.Query()),
     __param(2, common_1.Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_j = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _j : Object, Object, typeof (_k = typeof req_dto_2.UpdateSetOfQuestionDto !== "undefined" && req_dto_2.UpdateSetOfQuestionDto) === "function" ? _k : Object]),
+    __metadata("design:paramtypes", [Object, Object, typeof (_k = typeof req_dto_2.UpdateSetOfQuestionDto !== "undefined" && req_dto_2.UpdateSetOfQuestionDto) === "function" ? _k : Object]),
     __metadata("design:returntype", Promise)
 ], SetOfQuestionsController.prototype, "updateSetOfQuestions", null);
 __decorate([
@@ -4432,7 +4503,7 @@ __decorate([
     __param(0, user_decorator_1.Usr()),
     __param(1, common_1.Query()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_l = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _l : Object, Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], SetOfQuestionsController.prototype, "changeSetOfQuestions", null);
 __decorate([
@@ -4442,7 +4513,7 @@ __decorate([
     __param(0, user_decorator_1.Usr()),
     __param(1, common_1.Query()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_m = typeof user_entity_1.User !== "undefined" && user_entity_1.User) === "function" ? _m : Object, typeof (_o = typeof query_dto_1.QueryGetSetOfQuestion !== "undefined" && query_dto_1.QueryGetSetOfQuestion) === "function" ? _o : Object]),
+    __metadata("design:paramtypes", [Object, typeof (_o = typeof query_dto_1.QueryGetSetOfQuestion !== "undefined" && query_dto_1.QueryGetSetOfQuestion) === "function" ? _o : Object]),
     __metadata("design:returntype", Promise)
 ], SetOfQuestionsController.prototype, "getSetOfQuestions", null);
 __decorate([
@@ -9657,6 +9728,12 @@ exports.Message = Message;
 
 /***/ }),
 /* 158 */
+/***/ ((module) => {
+
+module.exports = require("@nestjs/serve-static");
+
+/***/ }),
+/* 159 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9719,25 +9796,25 @@ exports.HttpExceptionFilter = HttpExceptionFilter;
 
 
 /***/ }),
-/* 159 */
+/* 160 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
 
 /***/ }),
-/* 160 */
+/* 161 */
 /***/ ((module) => {
 
 module.exports = require("helmet");
 
 /***/ }),
-/* 161 */
+/* 162 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupSwagger = void 0;
-const swagger_1 = __webpack_require__(162);
+const swagger_1 = __webpack_require__(163);
 function setupSwagger(app, config) {
     const options = new swagger_1.DocumentBuilder()
         .setTitle(config.title || 'DocumentApi')
@@ -9753,21 +9830,21 @@ exports.setupSwagger = setupSwagger;
 
 
 /***/ }),
-/* 162 */
+/* 163 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
 
 /***/ }),
-/* 163 */
+/* 164 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RedisIoAdapter = void 0;
-const platform_socket_io_1 = __webpack_require__(164);
-const redis_1 = __webpack_require__(165);
-const socket_io_redis_1 = __webpack_require__(166);
+const platform_socket_io_1 = __webpack_require__(165);
+const redis_1 = __webpack_require__(166);
+const socket_io_redis_1 = __webpack_require__(167);
 const pubClient = new redis_1.RedisClient({ host: 'localhost', port: 6379 });
 const subClient = pubClient.duplicate();
 const redisAdapter = socket_io_redis_1.createAdapter({ pubClient, subClient });
@@ -9782,19 +9859,19 @@ exports.RedisIoAdapter = RedisIoAdapter;
 
 
 /***/ }),
-/* 164 */
+/* 165 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-socket.io");
 
 /***/ }),
-/* 165 */
+/* 166 */
 /***/ ((module) => {
 
 module.exports = require("redis");
 
 /***/ }),
-/* 166 */
+/* 167 */
 /***/ ((module) => {
 
 module.exports = require("socket.io-redis");
@@ -9834,16 +9911,16 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const client_module_1 = __webpack_require__(1);
-const http_exception_filter_1 = __webpack_require__(158);
+const http_exception_filter_1 = __webpack_require__(159);
 const config_service_1 = __webpack_require__(14);
 const logger_service_1 = __webpack_require__(12);
 const shared_module_1 = __webpack_require__(18);
-const core_1 = __webpack_require__(159);
+const core_1 = __webpack_require__(160);
 const platform_express_1 = __webpack_require__(113);
-const helmet = __webpack_require__(160);
+const helmet = __webpack_require__(161);
 const common_1 = __webpack_require__(3);
-const setup_1 = __webpack_require__(161);
-const RedisIoAdapter_1 = __webpack_require__(163);
+const setup_1 = __webpack_require__(162);
+const RedisIoAdapter_1 = __webpack_require__(164);
 const fire = __webpack_require__(45);
 const fs = __webpack_require__(116);
 async function bootstrap() {

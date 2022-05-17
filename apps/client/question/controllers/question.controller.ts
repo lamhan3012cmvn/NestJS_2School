@@ -92,6 +92,7 @@ export class QuestionController {
         createBy: user._id,
         idSetOfQuestions: query.idSetOfQuestions,
       });
+      console.log("result",result)
       const sortData = result.sort(
         (a, b) =>
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),

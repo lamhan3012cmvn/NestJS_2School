@@ -81,18 +81,10 @@ export class ClassService extends BaseService<Classes> {
       const classMember = await this._memberClassService.getClassByUserJoined(
         user._id,
       );
-      console.log(
-        `LHA:  ===> file: class.service.ts ===> line 84 ===> classMember`,
-        classMember,
-      );
       const newClasses = await this.findAll(
         { $or: [{ createdBy: user.createdBy }, { _id: { $in: classMember } }] },
         query,
         'createdBy',
-      );
-      console.log(
-        `LHA:  ===> file: class.service.ts ===> line 89 ===> newClasses`,
-        newClasses,
       );
       const classes = this.cvtJSON(newClasses) as Classes[];
       const result = [];
@@ -109,7 +101,46 @@ export class ClassService extends BaseService<Classes> {
       }
       return result;
 
-      
+
+    } catch (e) {
+      this._loggerService.error(
+        e.message,
+        null,
+        'FIND_ALL_CLASSES-ClassesService',
+      );
+      return null;
+    }
+  }
+
+  async findAllAdminClasses(
+    filter: any,
+    query: IQueryFind = { skip: '0', limit: '15' },
+  ): Promise<Array<Classes>> {
+    try {
+      // const classMember = await this._memberClassService.getClassByUserJoined(
+      //   user._id,
+      // );
+      const newClasses = await this.findAll(
+        {},
+        query,
+        'createdBy',
+      );
+      const classes = this.cvtJSON(newClasses) as Classes[];
+      const result = [];
+      for (const c of classes) {
+        const obj: any = { ...c };
+
+        if (!(c.image === '')) {
+          const image = await this._uploadFileService.findById(c.image);
+          if (image) obj.image = image.path;
+        }
+
+        // obj.member = await this._memberClassService.getMemberByClass(obj._id);
+        result.push(obj);
+      }
+      return result;
+
+
     } catch (e) {
       this._loggerService.error(
         e.message,

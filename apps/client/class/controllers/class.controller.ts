@@ -140,6 +140,27 @@ export class ClassController extends BaseController {
     }
   }
 
+  @Get('admin')
+  // @UseGuards(JwtAuthGuard)
+  async findAllAdmin() {
+    try {
+      const result = await this.classService.findAllAdminClasses(
+        {},
+        {
+          limit: '15',
+          skip: '0',
+        },
+      );
+      if (result) {
+        return new Ok('Get Class success', result);
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'create-ClassController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
   @Get('members')
   @UseGuards(JwtAuthGuard)
   async getMemberClass(@Query() query: { idClass: string }) {
@@ -160,6 +181,25 @@ export class ClassController extends BaseController {
   @UseGuards(JwtAuthGuard)
   async changeStatusClass(@Usr() user: User, @Query() query) {
     try {
+      const result = await this.classService.update(query.id, {
+        status: DFStatus[DFStatus[query?.status || 0]],
+      });
+      if (result) {
+        return new Ok('Get Class success', this.classService.cvtJSON(result));
+      }
+      throw new ResourceFoundException('Change Status False');
+    } catch (e) {
+      console.log(e);
+      this.loggerService.error(e.message, null, 'changeStatus-ClassController');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  @Get('changeStatus/admin')
+  // @UseGuards(JwtAuthGuard)
+  async changeStatusClassAdmin(@Query() query) {
+    try {
+      console.log("query",query)
       const result = await this.classService.update(query.id, {
         status: DFStatus[DFStatus[query?.status || 0]],
       });
@@ -200,7 +240,7 @@ export class ClassController extends BaseController {
   async leaveClass(@Usr() user: ISchemaUser, @Query() payload: JoinClassQuery) {
     try {
       const result: boolean = await this.classService.leaveMemberClass(
-        user.createdBy,
+        user._id,
         payload.idClass,
       );
       if (result) {

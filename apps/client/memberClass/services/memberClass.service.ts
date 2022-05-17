@@ -73,11 +73,12 @@ export class MemberClassService extends BaseService<MemberClasses> {
   async leaveClass(idUser: string, idClass: string) {
     try {
       const obj: any = {
-        idUser: idUser,
+        user: idUser,
         idClass: idClass,
       };
 
       const classes = await this._model.findOneAndRemove(obj);
+      console.log("classes",classes)
       if (classes) {
         return true;
       }
