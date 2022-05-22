@@ -38,6 +38,7 @@ import { Classes } from '../class/entities/class.entity';
 import { MessageModule } from './message/message.module';
 import { MessageSocket } from './message/message.socket';
 import { MessageService } from './message/message.service';
+import { Admin, AdminSchema } from '../admin/entities/admin.entity';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { MessageService } from './message/message.service';
       },
       { name: Auth.name, schema: AuthSchema },
       { name: User.name, schema: UserSchema },
+      { name: Admin.name, schema: AdminSchema },
       { name: UpLoadFile.modelName, schema: UpLoadFile.model.schema },
       { name: Device.modelName, schema: Device.model.schema },
       { name: MemberClasses.modelName, schema: MemberClasses.model.schema },

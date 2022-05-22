@@ -26,7 +26,22 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     payload: any,
     done: (error: Error, user: any | false) => any,
   ) {
-    const user = await this.authService.validateUser({ id: payload.data });
+    console.log("payload.data",payload.data)
+    const role=payload.data.role
+    if(role===0)
+    {
+      const user = await this.authService.validateUser({ id: payload.data.id });
+      if(!!user)
+        done(null, {...user,...payload.data,role:0});
+      done(new UnauthorizedException(), false);
+    }
+    if(role===1)
+    {
+      const user = await this.authService.validateAdmin({ id: payload.data.id });
+      if(!!user)
+        done(null, {...user,...payload.data,role:1});
+      done(new UnauthorizedException(), false);
+    }
     // if (user) {
     //   if (!(user.image === '')) {
     //     const image = await this.uploadFileService.findById(user.image);
@@ -36,7 +51,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     //     }
     //   }
     // }
-    done(null, user);
     return done(new UnauthorizedException(), false);
   }
 }

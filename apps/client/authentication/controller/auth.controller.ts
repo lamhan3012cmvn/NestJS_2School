@@ -46,12 +46,53 @@ export class AuthController {
     }
   }
 
+  @Post('/login-admin')
+  @HttpCode(200)
+  @Header('Content-Type', 'application/json')
+  async loginAdmin(@Body() payload: LoginAuthenticationDto) {
+    try {
+      const result: ILoginSuccessAuthDto =
+        await this.authenticationService.loginAdmin(
+          payload.username,
+          payload.password,
+        );
+      if (result) {
+        return new Ok('Login Success', result);
+      }
+      throw new UnauthorizedException('Login False');
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'LOGIN-Controller');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
   @Post('/register')
   @Header('Content-Type', 'application/json')
   @HttpCode(200)
   async register(@Body() payload: RegisterAuthenticationDto) {
     try {
       const result: IAuth = await this.authenticationService.register(
+        payload.username,
+        payload.password,
+        payload.firstName,
+        payload.lastName,
+      );
+      if (result) {
+        return new Ok('Register Success', result);
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'REGISTER-Controller');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  @Post('/registerAdmin')
+  @Header('Content-Type', 'application/json')
+  @HttpCode(200)
+  async registerAdmin(@Body() payload: any) {
+    try {
+      const result: IAuth = await this.authenticationService.registerAdmin(
         payload.username,
         payload.password,
         payload.firstName,

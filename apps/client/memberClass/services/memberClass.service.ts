@@ -132,7 +132,7 @@ export class MemberClassService extends BaseService<MemberClasses> {
         role: 0,
       };
 
-      const memberClass = await this._model.find(obj).select('idUser').lean();
+      const memberClass = await this._model.find(obj).select('user').lean();
 
       return this.cvtJSON(memberClass);
     } catch (e) {

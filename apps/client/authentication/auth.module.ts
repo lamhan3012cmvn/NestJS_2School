@@ -12,12 +12,14 @@ import { Auth, AuthSchema } from './entities/auth.entity';
 import { AuthController } from './controller/auth.controller';
 import { LoggerService } from '../../share/services/logger.service';
 import { User, UserSchema } from '../user/entities/user.entity';
+import { Admin, AdminSchema } from '../admin/entities/admin.entity';
 import { PassportModule } from '@nestjs/passport';
 import { UpLoadFile } from '../up-load-file/entities/upLoadFile.entity';
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Auth.name, schema: AuthSchema },
+      { name: Admin.name, schema: AdminSchema },
       { name: User.name, schema: UserSchema },
       { name: UpLoadFile.modelName, schema: UpLoadFile.model.schema },
     ]),

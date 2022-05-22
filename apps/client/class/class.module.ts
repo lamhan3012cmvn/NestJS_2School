@@ -12,15 +12,20 @@ import { MemberClassService } from '../memberClass/services/memberClass.service'
 import { MemberClasses } from '../memberClass/entities/memberClass.entity';
 import { UpLoadFile } from '../up-load-file/entities/upLoadFile.entity';
 import { UpLoadFileService } from '../up-load-file/services/up-load-file.service';
+import { TransactionModule } from '../transaction/transaction.module';
+import { TransactionService } from '../transaction/services/transaction.service';
+import { Transaction } from '../transaction/entities/transaction.entity';
 
 @Module({
   imports: [
     UserModule,
+    TransactionModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: MemberClasses.name, schema: MemberClasses.model.schema },
       { name: Classes.modelName, schema: Classes.model.schema },
       { name: UpLoadFile.modelName, schema: UpLoadFile.model.schema },
+      { name: Transaction.modelName, schema: Transaction.model.schema },
     ]),
   ],
   controllers: [ClassController],
@@ -30,6 +35,7 @@ import { UpLoadFileService } from '../up-load-file/services/up-load-file.service
     MemberClassService,
     UserService,
     UpLoadFileService,
+    TransactionService
   ],
   exports: [ClassService],
 })

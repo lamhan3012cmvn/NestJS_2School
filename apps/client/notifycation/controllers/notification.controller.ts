@@ -22,10 +22,11 @@ export class NotificationController {
   ) {}
   @Get()
   @UseGuards(JwtAuthGuard)
-  async getNotification(@Usr() user: User) {
+  async getNotification(@Usr() user: User&{_id:string}) {
     try {
+      console.log("result", user._id)
       const result = await this._notificationService.getNotification(
-        user.createdBy,
+        user._id,
       );
       return new Ok('Get list notification', result);
     } catch (e) {
@@ -36,10 +37,10 @@ export class NotificationController {
 
   @Get('quantity')
   @UseGuards(JwtAuthGuard)
-  async getNotificationQuantity(@Usr() user: User) {
+  async getNotificationQuantity(@Usr() user:  User&{_id:string}) {
     try {
       const result = await this._notificationService.getNotificationCount(
-        user.createdBy,
+        user._id,
       );
       return new Ok('Get list quantity', {
         quantity: result,
@@ -52,11 +53,11 @@ export class NotificationController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  async seenNotification(@Usr() user: User, @Query() query: { id: string }) {
+  async seenNotification(@Usr() user:  User&{_id:string}, @Query() query: { id: string }) {
     try {
       const result = await this._notificationService.findOneAndUpdate(
         {
-          idUser: user.createdBy,
+          idUser: user._id,
           _id: query.id,
           isSeen: false,
         },

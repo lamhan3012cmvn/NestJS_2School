@@ -8,6 +8,7 @@ import { ResponseService } from '../../../share/services/respone.service';
 import { JwtService } from '@nestjs/jwt';
 import { Auth, IAuth } from '../entities/auth.entity';
 import { User } from 'apps/client/user/entities/user.entity';
+import {Admin} from 'apps/client/admin/entities/admin.entity'
 import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
 @Injectable()
 export class AuthService extends ResponseService {
@@ -16,6 +17,8 @@ export class AuthService extends ResponseService {
     private accountModel: Model<Auth>,
     @InjectModel(User.name)
     private userModel: Model<User>,
+    @InjectModel(Admin.name)
+    private adminModel: Model<Admin>,
     private configService: ConfigService,
     private loggerService: LoggerService,
     private jwtService: JwtService,
@@ -37,6 +40,18 @@ export class AuthService extends ResponseService {
     }
     return newUser;
   }
+  
+  async validateAdmin(payload: any): Promise<User> {
+    const user = await this.adminModel.findOne({ createdBy: payload.id }).lean();
+    const newUser = { ...user };
+    if (newUser.image !== '') {
+      const result = await this.upLoadFileService.findById(newUser.image);
+      if (result) {
+        newUser.image = result.path;
+      }
+    }
+    return newUser;
+  }
 
   async login(username: string, password: string): Promise<any> {
     try {
@@ -45,7 +60,38 @@ export class AuthService extends ResponseService {
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
           const token = this.jwtService.sign({
-            data: user._id,
+            data: {
+              id:user._id,
+              role:0
+            },
+          });
+          return { token };
+        }
+        return null;
+      }
+      return null;
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'LOGIN-Service');
+      return null;
+    }
+  }
+
+  async loginAdmin(username: string, password: string): Promise<any> {
+    try {
+      const AccountAdmin={
+        username:"admin@gmail.com",
+        password:"admin123cmvn"
+      }
+
+      const user = await this.accountModel.findOne({ username: username,role:1 });
+      if (user) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+          const token = this.jwtService.sign({
+            data:{
+              id:user._id,
+              role:1
+            },
           });
           return { token };
         }
@@ -87,6 +133,38 @@ export class AuthService extends ResponseService {
       return null;
     }
   }
+
+  async registerAdmin(
+    username: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+  ): Promise<any> {
+    try {
+      const newPassword = await this.genPassword(password);
+      const newAccount = new this.accountModel({
+        username,
+        password: newPassword,
+        role: 1
+      });
+      await newAccount.save();
+      const newUser = new this.adminModel({
+        firstName,
+        lastName,
+        displayName: `${firstName} ${lastName}`,
+        createdBy: newAccount._id,
+      });
+      await newUser.save();
+      const token = this.jwtService.sign({
+        data: newAccount._id,
+      });
+      return { token };
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'REGISTER-Service');
+      return null;
+    }
+  }
+
   async forgotPassword(username: string, password: string): Promise<Auth> {
     try {
       const _password = await this.genPassword(password);

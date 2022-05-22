@@ -35,17 +35,17 @@ export class UpLoadFileController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './uploads',
+        destination: './public/uploads',
         filename: (req, file, cb) => {
           const randomName = Array(32)
             .fill(null)
             .map(() => Math.round(Math.random() * 16).toString(16))
             .join('');
           //Calling the callback passing the random name generated with the original extension name
-          if (!fs.existsSync('./uploads')) {
-            fs.mkdirSync('./uploads');
+          if (!fs.existsSync('./public/uploads')) {
+            fs.mkdirSync('./public/uploads');
           }
-          const path = `./uploads/${randomName}`;
+          const path = `./public/uploads/${randomName}`;
 
           const parseFile = parse(file.originalname);
           if (!fs.existsSync(path)) {

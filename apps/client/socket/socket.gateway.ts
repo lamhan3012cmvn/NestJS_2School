@@ -63,9 +63,6 @@ export class AppGateway
       description: string;
     },
   ): Promise<void> {
-    console.log('client.user', client.user);
-    console.log('Count', this.count);
-    console.log('arrayQuestion', payload?.arrayQuestion);
     let questions = [];
     if (payload?.arrayQuestion && payload.arrayQuestion.length > 0) {
       questions = await this._questionService.findAll({
@@ -117,7 +114,7 @@ export class AppGateway
       const currentClass = await this._classService.findById(payload.idClass);
       const listNotify = listMember.map((e: any) => {
         return {
-          idUser: e.idUser,
+          idUser: e.user,
           title: payload.title,
           description: payload.description,
           typeNotify: 'quiz',
@@ -416,7 +413,7 @@ export class AppGateway
     },
   ): Promise<void> {
     const obj = Object.assign({}, payload, {
-      createdBy: client.user.createdBy,
+      createdBy: client.user._id,
     });
     await this._deviceService.createDevice(obj);
   }
@@ -437,10 +434,6 @@ export class AppGateway
       idRoom: payload.idRoom,
       host: client.id,
     });
-    console.log(
-      `LHA:  ===> file: socket.gateway.ts ===> line 389 ===> host`,
-      host,
-    );
     if (host) return;
     const question = await this._questionService.findById(payload.idQuestion);
     console.log(
@@ -479,10 +472,6 @@ export class AppGateway
           socketId: client.id,
         });
       // this.server.emit(SOCKET_EVENT.ANSWER_THE_QUESTION_SSC, payload);
-      console.log(
-        `LHA:  ===> file: socket.gateway.ts ===> line 419 ===> newUserScore`,
-        newUserScore,
-      );
     }
   }
 
