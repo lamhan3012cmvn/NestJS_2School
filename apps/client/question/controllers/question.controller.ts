@@ -11,6 +11,7 @@ import {
   Header,
   UseGuards,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
 import { User } from 'apps/client/user/entities/user.entity';
@@ -21,22 +22,57 @@ import { Ok } from 'apps/share/controller/baseController';
 import { LoggerService } from 'apps/share/services/logger.service';
 import { query } from 'winston';
 import { CreateQuestionDto } from '../dto/CreateQuestion/res.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import * as fs from 'fs';
+import * as FileType from 'file-type';
+import { parse } from 'path';
+import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
 
 @Controller('api/question')
 export class QuestionController {
   constructor(
     private readonly questionService: QuestionService,
+    private readonly upLoadFileService: UpLoadFileService,
     private readonly loggerService: LoggerService,
   ) {}
   @Post()
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './public/uploads',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          //Calling the callback passing the random name generated with the original extension name
+          if (!fs.existsSync('./public/uploads')) {
+            fs.mkdirSync('./public/uploads');
+          }
+          const path = `./public/uploads/${randomName}`;
+
+          const parseFile = parse(file.originalname);
+          if (!fs.existsSync(path)) {
+            fs.mkdirSync(path);
+          }
+          cb(null, `${randomName}/${parseFile.name}${parseFile.ext}`);
+        },
+      }),
+    }),
+  )
   @Header('Content-Type', 'application/json')
   async createQuestion(
     @Usr() user: User & { _id: string },
     @Body() payload: CreateQuestionDto,
   ) {
     try {
+
+      
+      throw new ResourceFoundException();
+
       const result = await this.questionService.createQuestion(
         user._id,
         payload,
