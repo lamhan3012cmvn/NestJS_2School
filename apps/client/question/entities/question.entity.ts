@@ -3,6 +3,8 @@ import { schemaOptions } from './../../../share/mongodb/baseModel.entity';
 import { Expose } from 'class-transformer';
 import { ModelType, InstanceType, prop } from 'typegoose';
 import { DFStatus } from 'apps/share/enums/status.enum';
+import { ObjectId } from 'mongoose';
+
 export class Question extends BaseModel<Question> {
   @prop({ default: '' })
   @Expose()
@@ -28,6 +30,12 @@ export class Question extends BaseModel<Question> {
   @prop({})
   @Expose()
   createBy: string;
+  @prop({ default: null, ref: 'UpLoadFile' })
+  @Expose()
+  banner: ObjectId;
+  @prop({ default: null })
+  @Expose()
+  blurHash: string;
 
   static get model(): ModelType<Question> {
     return new Question().getModelForClass(Question, {

@@ -12,6 +12,7 @@ import {
   UseGuards,
   Query,
   UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
 import { User } from 'apps/client/user/entities/user.entity';
@@ -28,6 +29,8 @@ import * as fs from 'fs';
 import * as FileType from 'file-type';
 import { parse } from 'path';
 import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
+import { encodeImageToBlurhash } from 'apps/share/helpers/blurHash';
+import * as mongoose from 'mongoose';
 
 @Controller('api/question')
 export class QuestionController {
@@ -40,7 +43,7 @@ export class QuestionController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(
-    FileInterceptor('file', {
+    FileInterceptor('banner', {
       storage: diskStorage({
         destination: './public/uploads',
         filename: (req, file, cb) => {
@@ -63,20 +66,37 @@ export class QuestionController {
       }),
     }),
   )
-  @Header('Content-Type', 'application/json')
   async createQuestion(
     @Usr() user: User & { _id: string },
-    @Body() payload: CreateQuestionDto,
+    @Body() payload: any,
+    @UploadedFile() file: Express.Multer.File,
   ) {
     try {
+      let singleFile = null;
+      let blurHash = null;
+      if (file) {
+        const parseFile = parse(file.originalname);
 
-      
-      throw new ResourceFoundException();
+        singleFile = await this.upLoadFileService.createUploadFile(
+          parseFile.name,
+          file.path,
+        );
+        blurHash = await encodeImageToBlurhash(file.path);
+        console.log('singleFile', singleFile);
+      }
+      // throw new ResourceFoundException();
 
-      const result = await this.questionService.createQuestion(
-        user._id,
-        payload,
-      );
+      const result = await this.questionService.createQuestion(user._id, {
+        ...payload,
+        answers: Array.isArray(payload.answers)
+          ? payload.answers
+          : payload.answers.split(','),
+        correct: Array.isArray(payload.correct)
+          ? payload.correct
+          : payload.correct.split(','),
+        banner: singleFile ? new mongoose.Types.ObjectId(singleFile.id) : null,
+        blurHash: blurHash,
+      });
       if (result) {
         return new Ok('Create Question success', result);
       }
@@ -124,11 +144,14 @@ export class QuestionController {
     @Query() query,
   ) {
     try {
-      const result = await this.questionService.findAll({
-        createBy: user._id,
-        idSetOfQuestions: query.idSetOfQuestions,
-      });
-      console.log("result",result)
+      const result = await this.questionService.findAll(
+        {
+          createBy: user._id,
+          idSetOfQuestions: query.idSetOfQuestions,
+        },
+        { limit: query?.limit || 16, skip: query?.skip || 0 },
+        'banner',
+      );
       const sortData = result.sort(
         (a, b) =>
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
