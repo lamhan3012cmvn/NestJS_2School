@@ -262,7 +262,7 @@ export class ClassController extends BaseController {
   }
   @Delete('leaveClass')
   @UseGuards(JwtAuthGuard)
-  async leaveClass(@Usr() user: ISchemaUser, @Query() payload: JoinClassQuery) {
+  async leaveClass(@Usr() user: ISchemaUser, @Query() payload: any) {
     try {
       const result: boolean = await this.classService.leaveMemberClass(
         user._id,

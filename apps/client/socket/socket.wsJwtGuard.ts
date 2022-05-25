@@ -18,10 +18,11 @@ export class WsJwtGuard implements CanActivate {
     try {
       const client: Socket = context.switchToWs().getClient<Socket>();
       const authToken: any = client.handshake?.headers?.authorization;
-      const encodeJWT = await this.jwt.verifyAsync(authToken);
+      const encodeJWT:any = await this.jwt.verifyAsync(authToken);
       const user: User = await this.authService.validateUser({
-        id: encodeJWT.data,
+        id: encodeJWT.data.id,
       });
+      console.log("user",user)
       context.switchToHttp().getRequest().user = user;
 
       return Boolean(user);

@@ -22,23 +22,23 @@ const question_module_1 = __webpack_require__(21);
 const roadMap_module_1 = __webpack_require__(45);
 const device_module_1 = __webpack_require__(54);
 const class_module_1 = __webpack_require__(59);
-const auth_module_1 = __webpack_require__(80);
+const auth_module_1 = __webpack_require__(79);
 const mongoose_1 = __webpack_require__(4);
-const setup_1 = __webpack_require__(95);
-const user_module_1 = __webpack_require__(73);
-const set_of_questions_module_1 = __webpack_require__(96);
-const socket_module_1 = __webpack_require__(105);
+const setup_1 = __webpack_require__(94);
+const user_module_1 = __webpack_require__(72);
+const set_of_questions_module_1 = __webpack_require__(95);
+const socket_module_1 = __webpack_require__(104);
 const up_load_file_module_1 = __webpack_require__(42);
-const roadMapContent_module_1 = __webpack_require__(125);
-const memberClass_module_1 = __webpack_require__(150);
-const notification_module_1 = __webpack_require__(152);
-const quizClass_module_1 = __webpack_require__(154);
-const quizClassScore_module_1 = __webpack_require__(156);
-const message_module_1 = __webpack_require__(158);
-const serve_static_1 = __webpack_require__(162);
+const roadMapContent_module_1 = __webpack_require__(124);
+const memberClass_module_1 = __webpack_require__(149);
+const notification_module_1 = __webpack_require__(151);
+const quizClass_module_1 = __webpack_require__(153);
+const quizClassScore_module_1 = __webpack_require__(155);
+const message_module_1 = __webpack_require__(157);
+const serve_static_1 = __webpack_require__(161);
 const path_1 = __webpack_require__(35);
-const transaction_module_1 = __webpack_require__(78);
-const admin_module_1 = __webpack_require__(163);
+const transaction_module_1 = __webpack_require__(77);
+const admin_module_1 = __webpack_require__(162);
 let ClientModule = class ClientModule {
 };
 ClientModule = __decorate([
@@ -2407,15 +2407,15 @@ const class_controller_1 = __webpack_require__(66);
 const mongoose_1 = __webpack_require__(4);
 const class_entity_1 = __webpack_require__(61);
 const user_service_1 = __webpack_require__(62);
-const user_module_1 = __webpack_require__(73);
+const user_module_1 = __webpack_require__(72);
 const user_entity_1 = __webpack_require__(51);
 const memberClass_service_1 = __webpack_require__(64);
 const memberClass_entity_1 = __webpack_require__(65);
 const upLoadFile_entity_1 = __webpack_require__(38);
 const up_load_file_service_1 = __webpack_require__(36);
-const transaction_module_1 = __webpack_require__(78);
-const transaction_service_1 = __webpack_require__(71);
-const transaction_entity_1 = __webpack_require__(72);
+const transaction_module_1 = __webpack_require__(77);
+const transaction_service_1 = __webpack_require__(70);
+const transaction_entity_1 = __webpack_require__(71);
 let ClassModule = class ClassModule {
 };
 ClassModule = __decorate([
@@ -3175,7 +3175,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassController = void 0;
 const common_1 = __webpack_require__(3);
@@ -3190,10 +3190,9 @@ const errors_exception_1 = __webpack_require__(30);
 const resource_exception_1 = __webpack_require__(26);
 const logger_service_1 = __webpack_require__(12);
 const create_class_dto_1 = __webpack_require__(68);
-const query_dto_1 = __webpack_require__(69);
-const req_dto_1 = __webpack_require__(70);
+const req_dto_1 = __webpack_require__(69);
 const class_service_1 = __webpack_require__(60);
-const transaction_service_1 = __webpack_require__(71);
+const transaction_service_1 = __webpack_require__(70);
 const mongoose = __webpack_require__(11);
 let ClassController = class ClassController extends baseController_1.BaseController {
     constructor(loggerService, classService, uploadService, transactionService) {
@@ -3485,7 +3484,7 @@ __decorate([
     __param(0, user_decorator_1.Usr()),
     __param(1, common_1.Query()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_j = typeof user_entity_1.ISchemaUser !== "undefined" && user_entity_1.ISchemaUser) === "function" ? _j : Object, typeof (_k = typeof query_dto_1.JoinClassQuery !== "undefined" && query_dto_1.JoinClassQuery) === "function" ? _k : Object]),
+    __metadata("design:paramtypes", [typeof (_j = typeof user_entity_1.ISchemaUser !== "undefined" && user_entity_1.ISchemaUser) === "function" ? _j : Object, Object]),
     __metadata("design:returntype", Promise)
 ], ClassController.prototype, "leaveClass", null);
 __decorate([
@@ -3493,12 +3492,12 @@ __decorate([
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, user_decorator_1.Usr()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_l = typeof user_entity_1.ISchemaUser !== "undefined" && user_entity_1.ISchemaUser) === "function" ? _l : Object]),
+    __metadata("design:paramtypes", [typeof (_k = typeof user_entity_1.ISchemaUser !== "undefined" && user_entity_1.ISchemaUser) === "function" ? _k : Object]),
     __metadata("design:returntype", Promise)
 ], ClassController.prototype, "recommendClasses", null);
 ClassController = __decorate([
     common_1.Controller('api/classes'),
-    __metadata("design:paramtypes", [typeof (_m = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _m : Object, typeof (_o = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _o : Object, typeof (_p = typeof up_load_file_service_1.UpLoadFileService !== "undefined" && up_load_file_service_1.UpLoadFileService) === "function" ? _p : Object, typeof (_q = typeof transaction_service_1.TransactionService !== "undefined" && transaction_service_1.TransactionService) === "function" ? _q : Object])
+    __metadata("design:paramtypes", [typeof (_l = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _l : Object, typeof (_m = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _m : Object, typeof (_o = typeof up_load_file_service_1.UpLoadFileService !== "undefined" && up_load_file_service_1.UpLoadFileService) === "function" ? _o : Object, typeof (_p = typeof transaction_service_1.TransactionService !== "undefined" && transaction_service_1.TransactionService) === "function" ? _p : Object])
 ], ClassController);
 exports.ClassController = ClassController;
 
@@ -3573,41 +3572,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.JoinClassQuery = void 0;
-const class_validator_1 = __webpack_require__(50);
-class JoinClassQuery {
-}
-__decorate([
-    class_validator_1.IsNotEmpty(),
-    class_validator_1.IsString(),
-    __metadata("design:type", String)
-], JoinClassQuery.prototype, "idClass", void 0);
-__decorate([
-    class_validator_1.IsString(),
-    __metadata("design:type", String)
-], JoinClassQuery.prototype, "content", void 0);
-__decorate([
-    class_validator_1.IsString(),
-    __metadata("design:type", String)
-], JoinClassQuery.prototype, "amount", void 0);
-exports.JoinClassQuery = JoinClassQuery;
-
-
-/***/ }),
-/* 70 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpdateImageDto = void 0;
 const class_validator_1 = __webpack_require__(50);
 class UpdateImageDto {
@@ -3626,7 +3590,7 @@ exports.UpdateImageDto = UpdateImageDto;
 
 
 /***/ }),
-/* 71 */
+/* 70 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -3650,7 +3614,7 @@ const mongoose_1 = __webpack_require__(4);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
-const transaction_entity_1 = __webpack_require__(72);
+const transaction_entity_1 = __webpack_require__(71);
 let TransactionService = class TransactionService extends baseService_service_1.BaseService {
     constructor(_transactionModel, _loggerService) {
         super();
@@ -3681,7 +3645,7 @@ exports.TransactionService = TransactionService;
 
 
 /***/ }),
-/* 72 */
+/* 71 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -3765,7 +3729,7 @@ exports.Transaction = Transaction;
 
 
 /***/ }),
-/* 73 */
+/* 72 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -3780,7 +3744,7 @@ exports.UserModule = void 0;
 const up_load_file_service_1 = __webpack_require__(36);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
-const user_controller_1 = __webpack_require__(74);
+const user_controller_1 = __webpack_require__(73);
 const user_entity_1 = __webpack_require__(51);
 const user_service_1 = __webpack_require__(62);
 const logger_service_1 = __webpack_require__(12);
@@ -3804,7 +3768,7 @@ exports.UserModule = UserModule;
 
 
 /***/ }),
-/* 74 */
+/* 73 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -3829,10 +3793,10 @@ const jwt_auth_guard_1 = __webpack_require__(24);
 const errors_exception_1 = __webpack_require__(30);
 const resource_exception_1 = __webpack_require__(26);
 const baseController_1 = __webpack_require__(31);
-const query_interface_1 = __webpack_require__(75);
+const query_interface_1 = __webpack_require__(74);
 const logger_service_1 = __webpack_require__(12);
-const res_dto_1 = __webpack_require__(76);
-const res_dto_2 = __webpack_require__(77);
+const res_dto_1 = __webpack_require__(75);
+const res_dto_2 = __webpack_require__(76);
 const user_service_1 = __webpack_require__(62);
 let UserController = class UserController extends baseController_1.BaseController {
     constructor(userService, loggerService) {
@@ -3930,7 +3894,7 @@ exports.UserController = UserController;
 
 
 /***/ }),
-/* 75 */
+/* 74 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -3938,7 +3902,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 
 /***/ }),
-/* 76 */
+/* 75 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -3970,7 +3934,7 @@ exports.UpdateAvatarDto = UpdateAvatarDto;
 
 
 /***/ }),
-/* 77 */
+/* 76 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4013,7 +3977,7 @@ exports.UpdateUserDto = UpdateUserDto;
 
 
 /***/ }),
-/* 78 */
+/* 77 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4028,9 +3992,9 @@ exports.TransactionModule = void 0;
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const shared_module_1 = __webpack_require__(18);
-const transaction_controller_1 = __webpack_require__(79);
-const transaction_entity_1 = __webpack_require__(72);
-const transaction_service_1 = __webpack_require__(71);
+const transaction_controller_1 = __webpack_require__(78);
+const transaction_entity_1 = __webpack_require__(71);
+const transaction_service_1 = __webpack_require__(70);
 let TransactionModule = class TransactionModule {
 };
 TransactionModule = __decorate([
@@ -4052,7 +4016,7 @@ exports.TransactionModule = TransactionModule;
 
 
 /***/ }),
-/* 79 */
+/* 78 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4079,7 +4043,7 @@ const baseController_1 = __webpack_require__(31);
 const errors_exception_1 = __webpack_require__(30);
 const resource_exception_1 = __webpack_require__(26);
 const logger_service_1 = __webpack_require__(12);
-const transaction_service_1 = __webpack_require__(71);
+const transaction_service_1 = __webpack_require__(70);
 let TransactionController = class TransactionController {
     constructor(_transactionService, loggerService) {
         this._transactionService = _transactionService;
@@ -4120,7 +4084,7 @@ exports.TransactionController = TransactionController;
 
 
 /***/ }),
-/* 80 */
+/* 79 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4133,20 +4097,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthModule = void 0;
 const up_load_file_service_1 = __webpack_require__(36);
-const auth_service_1 = __webpack_require__(81);
+const auth_service_1 = __webpack_require__(80);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
-const local_strategy_1 = __webpack_require__(86);
-const configService_module_1 = __webpack_require__(89);
+const local_strategy_1 = __webpack_require__(85);
+const configService_module_1 = __webpack_require__(88);
 const config_service_1 = __webpack_require__(14);
-const setupJwt_1 = __webpack_require__(90);
-const jwt_1 = __webpack_require__(83);
-const jwt_strategy_1 = __webpack_require__(91);
-const auth_entity_1 = __webpack_require__(84);
-const auth_controller_1 = __webpack_require__(92);
+const setupJwt_1 = __webpack_require__(89);
+const jwt_1 = __webpack_require__(82);
+const jwt_strategy_1 = __webpack_require__(90);
+const auth_entity_1 = __webpack_require__(83);
+const auth_controller_1 = __webpack_require__(91);
 const logger_service_1 = __webpack_require__(12);
 const user_entity_1 = __webpack_require__(51);
-const admin_entity_1 = __webpack_require__(85);
+const admin_entity_1 = __webpack_require__(84);
 const upLoadFile_entity_1 = __webpack_require__(38);
 let AuthModule = class AuthModule {
 };
@@ -4177,7 +4141,7 @@ exports.AuthModule = AuthModule;
 
 
 /***/ }),
-/* 81 */
+/* 80 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4199,14 +4163,14 @@ exports.AuthService = void 0;
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const mongoose_2 = __webpack_require__(11);
-const bcrypt = __webpack_require__(82);
+const bcrypt = __webpack_require__(81);
 const config_service_1 = __webpack_require__(14);
 const logger_service_1 = __webpack_require__(12);
 const respone_service_1 = __webpack_require__(63);
-const jwt_1 = __webpack_require__(83);
-const auth_entity_1 = __webpack_require__(84);
+const jwt_1 = __webpack_require__(82);
+const auth_entity_1 = __webpack_require__(83);
 const user_entity_1 = __webpack_require__(51);
-const admin_entity_1 = __webpack_require__(85);
+const admin_entity_1 = __webpack_require__(84);
 const up_load_file_service_1 = __webpack_require__(36);
 let AuthService = class AuthService extends respone_service_1.ResponseService {
     constructor(accountModel, userModel, adminModel, configService, loggerService, jwtService, upLoadFileService) {
@@ -4394,19 +4358,19 @@ exports.AuthService = AuthService;
 
 
 /***/ }),
-/* 82 */
+/* 81 */
 /***/ ((module) => {
 
 module.exports = require("bcrypt");
 
 /***/ }),
-/* 83 */
+/* 82 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/jwt");
 
 /***/ }),
-/* 84 */
+/* 83 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4448,7 +4412,7 @@ exports.AuthSchema = mongoose_1.SchemaFactory.createForClass(Auth);
 
 
 /***/ }),
-/* 85 */
+/* 84 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4510,7 +4474,7 @@ exports.AdminSchema = mongoose_1.SchemaFactory.createForClass(Admin);
 
 
 /***/ }),
-/* 86 */
+/* 85 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4526,11 +4490,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LocalStrategy = void 0;
-const passport_jwt_1 = __webpack_require__(87);
-const passport_local_1 = __webpack_require__(88);
+const passport_jwt_1 = __webpack_require__(86);
+const passport_local_1 = __webpack_require__(87);
 const passport_1 = __webpack_require__(25);
 const common_1 = __webpack_require__(3);
-const auth_service_1 = __webpack_require__(81);
+const auth_service_1 = __webpack_require__(80);
 let LocalStrategy = class LocalStrategy extends passport_1.PassportStrategy(passport_local_1.Strategy) {
     constructor(authService) {
         super({
@@ -4555,19 +4519,19 @@ exports.LocalStrategy = LocalStrategy;
 
 
 /***/ }),
-/* 87 */
+/* 86 */
 /***/ ((module) => {
 
 module.exports = require("passport-jwt");
 
 /***/ }),
-/* 88 */
+/* 87 */
 /***/ ((module) => {
 
 module.exports = require("passport-local");
 
 /***/ }),
-/* 89 */
+/* 88 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4599,13 +4563,13 @@ exports.ConfigModule = ConfigModule;
 
 
 /***/ }),
-/* 90 */
+/* 89 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupJWT = void 0;
-const configService_module_1 = __webpack_require__(89);
+const configService_module_1 = __webpack_require__(88);
 const config_service_1 = __webpack_require__(14);
 function setupJWT(jwtSecret) {
     return {
@@ -4621,7 +4585,7 @@ exports.setupJWT = setupJWT;
 
 
 /***/ }),
-/* 91 */
+/* 90 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4637,11 +4601,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtStrategy = void 0;
-const passport_jwt_1 = __webpack_require__(87);
+const passport_jwt_1 = __webpack_require__(86);
 const passport_1 = __webpack_require__(25);
 const common_1 = __webpack_require__(3);
 const config_service_1 = __webpack_require__(14);
-const auth_service_1 = __webpack_require__(81);
+const auth_service_1 = __webpack_require__(80);
 const up_load_file_service_1 = __webpack_require__(36);
 let JwtStrategy = class JwtStrategy extends passport_1.PassportStrategy(passport_jwt_1.Strategy) {
     constructor(configService, authService, uploadFileService) {
@@ -4681,7 +4645,7 @@ exports.JwtStrategy = JwtStrategy;
 
 
 /***/ }),
-/* 92 */
+/* 91 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4701,12 +4665,12 @@ var _a, _b, _c, _d, _e, _f;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthController = void 0;
 const common_1 = __webpack_require__(3);
-const req_dto_1 = __webpack_require__(93);
-const req_dto_2 = __webpack_require__(94);
+const req_dto_1 = __webpack_require__(92);
+const req_dto_2 = __webpack_require__(93);
 const logger_service_1 = __webpack_require__(12);
 const baseController_1 = __webpack_require__(31);
 const jwt_auth_guard_1 = __webpack_require__(24);
-const auth_service_1 = __webpack_require__(81);
+const auth_service_1 = __webpack_require__(80);
 const resource_exception_1 = __webpack_require__(26);
 const errors_exception_1 = __webpack_require__(30);
 let AuthController = class AuthController {
@@ -4855,7 +4819,7 @@ exports.AuthController = AuthController;
 
 
 /***/ }),
-/* 93 */
+/* 92 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4887,7 +4851,7 @@ exports.LoginAuthenticationDto = LoginAuthenticationDto;
 
 
 /***/ }),
-/* 94 */
+/* 93 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4929,13 +4893,13 @@ exports.RegisterAuthenticationDto = RegisterAuthenticationDto;
 
 
 /***/ }),
-/* 95 */
+/* 94 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupMongoDb = void 0;
-const configService_module_1 = __webpack_require__(89);
+const configService_module_1 = __webpack_require__(88);
 const config_service_1 = __webpack_require__(14);
 function setupMongoDb(mongoUri) {
     return {
@@ -4954,7 +4918,7 @@ exports.setupMongoDb = setupMongoDb;
 
 
 /***/ }),
-/* 96 */
+/* 95 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4979,9 +4943,9 @@ const upLoadFile_entity_1 = __webpack_require__(38);
 const up_load_file_service_1 = __webpack_require__(36);
 const user_entity_1 = __webpack_require__(51);
 const user_service_1 = __webpack_require__(62);
-const setOfQuestions_controller_1 = __webpack_require__(97);
-const setOfQuestions_entity_1 = __webpack_require__(99);
-const setOfQuestions_service_1 = __webpack_require__(98);
+const setOfQuestions_controller_1 = __webpack_require__(96);
+const setOfQuestions_entity_1 = __webpack_require__(98);
+const setOfQuestions_service_1 = __webpack_require__(97);
 let SetOfQuestionsModule = class SetOfQuestionsModule {
 };
 SetOfQuestionsModule = __decorate([
@@ -5012,7 +4976,7 @@ exports.SetOfQuestionsModule = SetOfQuestionsModule;
 
 
 /***/ }),
-/* 97 */
+/* 96 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5036,15 +5000,15 @@ const user_decorator_1 = __webpack_require__(23);
 const common_1 = __webpack_require__(3);
 const jwt_auth_guard_1 = __webpack_require__(24);
 const logger_service_1 = __webpack_require__(12);
-const setOfQuestions_service_1 = __webpack_require__(98);
+const setOfQuestions_service_1 = __webpack_require__(97);
 const baseController_1 = __webpack_require__(31);
 const resource_exception_1 = __webpack_require__(26);
 const errors_exception_1 = __webpack_require__(30);
-const req_dto_1 = __webpack_require__(100);
-const req_dto_2 = __webpack_require__(101);
-const query_dto_1 = __webpack_require__(102);
-const req_dto_3 = __webpack_require__(103);
-const req_dto_4 = __webpack_require__(104);
+const req_dto_1 = __webpack_require__(99);
+const req_dto_2 = __webpack_require__(100);
+const query_dto_1 = __webpack_require__(101);
+const req_dto_3 = __webpack_require__(102);
+const req_dto_4 = __webpack_require__(103);
 let SetOfQuestionsController = class SetOfQuestionsController {
     constructor(_setOfQuestionsService, _classesService, loggerService) {
         this._setOfQuestionsService = _setOfQuestionsService;
@@ -5267,7 +5231,7 @@ exports.SetOfQuestionsController = SetOfQuestionsController;
 
 
 /***/ }),
-/* 98 */
+/* 97 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5293,7 +5257,7 @@ const errors_exception_1 = __webpack_require__(30);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
-const setOfQuestions_entity_1 = __webpack_require__(99);
+const setOfQuestions_entity_1 = __webpack_require__(98);
 let SetOfQuestionsService = class SetOfQuestionsService extends baseService_service_1.BaseService {
     constructor(_setOfQuestionsModel, _questionsService, _loggerService) {
         super();
@@ -5346,7 +5310,7 @@ exports.SetOfQuestionsService = SetOfQuestionsService;
 
 
 /***/ }),
-/* 99 */
+/* 98 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5418,7 +5382,7 @@ exports.SetOfQuestion = SetOfQuestion;
 
 
 /***/ }),
-/* 100 */
+/* 99 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5455,7 +5419,7 @@ exports.CreateSetOfQuestionDto = CreateSetOfQuestionDto;
 
 
 /***/ }),
-/* 101 */
+/* 100 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5487,7 +5451,7 @@ exports.UpdateSetOfQuestionDto = UpdateSetOfQuestionDto;
 
 
 /***/ }),
-/* 102 */
+/* 101 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5519,7 +5483,7 @@ exports.QueryGetSetOfQuestion = QueryGetSetOfQuestion;
 
 
 /***/ }),
-/* 103 */
+/* 102 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5598,7 +5562,7 @@ exports.CreateMultiQuestion = CreateMultiQuestion;
 
 
 /***/ }),
-/* 104 */
+/* 103 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5630,7 +5594,7 @@ exports.CreateSetOfQuestionShareDto = CreateSetOfQuestionShareDto;
 
 
 /***/ }),
-/* 105 */
+/* 104 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5642,46 +5606,46 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SocketModule = void 0;
-const auth_service_1 = __webpack_require__(81);
+const auth_service_1 = __webpack_require__(80);
 const user_entity_1 = __webpack_require__(51);
-const setOfQuestions_entity_1 = __webpack_require__(99);
-const setOfQuestions_service_1 = __webpack_require__(98);
+const setOfQuestions_entity_1 = __webpack_require__(98);
+const setOfQuestions_service_1 = __webpack_require__(97);
 const common_1 = __webpack_require__(3);
-const socket_gateway_1 = __webpack_require__(106);
+const socket_gateway_1 = __webpack_require__(105);
 const mongoose_1 = __webpack_require__(4);
 const question_entity_1 = __webpack_require__(28);
 const question_service_1 = __webpack_require__(27);
-const userSocket_service_1 = __webpack_require__(112);
-const userSocket_entity_1 = __webpack_require__(113);
+const userSocket_service_1 = __webpack_require__(111);
+const userSocket_entity_1 = __webpack_require__(112);
 const userScoreQuizSocket_entity_1 = __webpack_require__(5);
 const userScoreQuizSocket_service_1 = __webpack_require__(9);
-const userHostSocket_service_1 = __webpack_require__(110);
-const userHostSocket_entity_1 = __webpack_require__(111);
+const userHostSocket_service_1 = __webpack_require__(109);
+const userHostSocket_entity_1 = __webpack_require__(110);
 const user_service_1 = __webpack_require__(62);
 const user_entity_2 = __webpack_require__(51);
 const upLoadFile_entity_1 = __webpack_require__(38);
 const logger_service_1 = __webpack_require__(12);
 const up_load_file_service_1 = __webpack_require__(36);
-const socket_wsJwtGuard_1 = __webpack_require__(115);
-const auth_entity_1 = __webpack_require__(84);
-const configService_module_1 = __webpack_require__(89);
-const jwt_1 = __webpack_require__(83);
-const setupJwt_1 = __webpack_require__(90);
+const socket_wsJwtGuard_1 = __webpack_require__(114);
+const auth_entity_1 = __webpack_require__(83);
+const configService_module_1 = __webpack_require__(88);
+const jwt_1 = __webpack_require__(82);
+const setupJwt_1 = __webpack_require__(89);
 const device_service_1 = __webpack_require__(56);
 const device_entity_1 = __webpack_require__(55);
 const memberClass_service_1 = __webpack_require__(64);
-const notification_service_1 = __webpack_require__(116);
+const notification_service_1 = __webpack_require__(115);
 const memberClass_entity_1 = __webpack_require__(65);
-const notification_entity_1 = __webpack_require__(117);
-const quizClass_entity_1 = __webpack_require__(119);
-const quizClassScore_entity_1 = __webpack_require__(121);
-const quizClassScore_service_1 = __webpack_require__(120);
-const quizClass_service_1 = __webpack_require__(118);
+const notification_entity_1 = __webpack_require__(116);
+const quizClass_entity_1 = __webpack_require__(118);
+const quizClassScore_entity_1 = __webpack_require__(120);
+const quizClassScore_service_1 = __webpack_require__(119);
+const quizClass_service_1 = __webpack_require__(117);
 const class_service_1 = __webpack_require__(60);
 const class_entity_1 = __webpack_require__(61);
-const message_socket_1 = __webpack_require__(122);
-const message_service_1 = __webpack_require__(124);
-const admin_entity_1 = __webpack_require__(85);
+const message_socket_1 = __webpack_require__(121);
+const message_service_1 = __webpack_require__(123);
+const admin_entity_1 = __webpack_require__(84);
 let SocketModule = class SocketModule {
 };
 SocketModule = __decorate([
@@ -5750,7 +5714,7 @@ exports.SocketModule = SocketModule;
 
 
 /***/ }),
-/* 106 */
+/* 105 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5763,26 +5727,26 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppGateway = void 0;
 const class_service_1 = __webpack_require__(60);
-const socket_events_1 = __webpack_require__(107);
-const websockets_1 = __webpack_require__(108);
+const socket_events_1 = __webpack_require__(106);
+const websockets_1 = __webpack_require__(107);
 const common_1 = __webpack_require__(3);
-const socket_io_1 = __webpack_require__(109);
-const setOfQuestions_service_1 = __webpack_require__(98);
+const socket_io_1 = __webpack_require__(108);
+const setOfQuestions_service_1 = __webpack_require__(97);
 const question_service_1 = __webpack_require__(27);
-const userHostSocket_service_1 = __webpack_require__(110);
+const userHostSocket_service_1 = __webpack_require__(109);
 const userScoreQuizSocket_service_1 = __webpack_require__(9);
-const userSocket_service_1 = __webpack_require__(112);
-const random_1 = __webpack_require__(114);
-const socket_wsJwtGuard_1 = __webpack_require__(115);
+const userSocket_service_1 = __webpack_require__(111);
+const random_1 = __webpack_require__(113);
+const socket_wsJwtGuard_1 = __webpack_require__(114);
 const device_service_1 = __webpack_require__(56);
 const memberClass_service_1 = __webpack_require__(64);
-const notification_service_1 = __webpack_require__(116);
-const quizClass_service_1 = __webpack_require__(118);
-const quizClassScore_service_1 = __webpack_require__(120);
+const notification_service_1 = __webpack_require__(115);
+const quizClass_service_1 = __webpack_require__(117);
+const quizClassScore_service_1 = __webpack_require__(119);
 let AppGateway = class AppGateway {
     constructor(_classService, _questionService, _quizClassService, _quizClassScoreService, _userHostSocketService, _userScoreQuizSocketService, _userMemberSocketService, _setOfQuestionsService, _deviceService, _memberClassService, _notificationService) {
         this._classService = _classService;
@@ -5799,7 +5763,11 @@ let AppGateway = class AppGateway {
         this.logger = new common_1.Logger('AppGateway');
         this.count = 0;
     }
+    async handleCreateRoom2(client, payload) {
+        console.log("asdsa", payload);
+    }
     async handleCreateRoom(client, payload) {
+        console.log("payload 2", client.user);
         let questions = [];
         if ((payload === null || payload === void 0 ? void 0 : payload.arrayQuestion) && payload.arrayQuestion.length > 0) {
             questions = await this._questionService.findAll({
@@ -5814,6 +5782,7 @@ let AppGateway = class AppGateway {
                 createBy: client.user._id,
             });
         }
+        console.log("questions", questions);
         if (questions.length <= 0) {
             this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_SSC, {
                 msg: 'Dont find questions or not the owner of the room',
@@ -5854,6 +5823,7 @@ let AppGateway = class AppGateway {
                 };
             });
             this._notificationService.createNotification(listNotify, idRoom);
+            console.log("Create Room Quiz Success");
             this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_SSC, {
                 msg: 'Create Room Quiz Success',
                 idRoom: idRoom,
@@ -5862,6 +5832,7 @@ let AppGateway = class AppGateway {
             return;
         }
         else {
+            console.log("Create Room Quiz Fail");
             this.server.to(client.id).emit(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_SSC, {
                 msg: 'Create Room Quiz Fail',
                 idRoom: null,
@@ -6181,45 +6152,51 @@ __decorate([
     __metadata("design:type", typeof (_a = typeof socket_io_1.Server !== "undefined" && socket_io_1.Server) === "function" ? _a : Object)
 ], AppGateway.prototype, "server", void 0);
 __decorate([
+    websockets_1.SubscribeMessage("test"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", typeof (_b = typeof Promise !== "undefined" && Promise) === "function" ? _b : Object)
+], AppGateway.prototype, "handleCreateRoom2", null);
+__decorate([
     common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.CREATE_QUIZ_CSS),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", typeof (_b = typeof Promise !== "undefined" && Promise) === "function" ? _b : Object)
+    __metadata("design:returntype", typeof (_c = typeof Promise !== "undefined" && Promise) === "function" ? _c : Object)
 ], AppGateway.prototype, "handleCreateRoom", null);
 __decorate([
     common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.JOIN_ROOM_CSS),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", typeof (_c = typeof Promise !== "undefined" && Promise) === "function" ? _c : Object)
+    __metadata("design:returntype", typeof (_d = typeof Promise !== "undefined" && Promise) === "function" ? _d : Object)
 ], AppGateway.prototype, "handleJoinRoom", null);
 __decorate([
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.START_QUIZ_CSS),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_d = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _d : Object, Object]),
-    __metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
+    __metadata("design:paramtypes", [typeof (_e = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _e : Object, Object]),
+    __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
 ], AppGateway.prototype, "handleStartQuiz", null);
 __decorate([
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.LEAVE_ROOM_CSS),
     common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
+    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
 ], AppGateway.prototype, "handleLeaveRoom", null);
 __decorate([
     common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.SEND_FCM_TOKEN_CSS),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
+    __metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
 ], AppGateway.prototype, "handleSaveDevice", null);
 __decorate([
     common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     websockets_1.SubscribeMessage(socket_events_1.SOCKET_EVENT.ANSWER_THE_QUESTION_CSS),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
+    __metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
 ], AppGateway.prototype, "handleAnswerTheQuestion", null);
 __decorate([
     common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
@@ -6230,18 +6207,18 @@ __decorate([
 __decorate([
     common_1.UseGuards(socket_wsJwtGuard_1.WsJwtGuard),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_j = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _j : Object, Object]),
+    __metadata("design:paramtypes", [typeof (_k = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _k : Object, Object]),
     __metadata("design:returntype", void 0)
 ], AppGateway.prototype, "handleConnection", null);
 AppGateway = __decorate([
     websockets_1.WebSocketGateway({ cors: true }),
-    __metadata("design:paramtypes", [typeof (_k = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _k : Object, typeof (_l = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _l : Object, typeof (_m = typeof quizClass_service_1.QuizClassService !== "undefined" && quizClass_service_1.QuizClassService) === "function" ? _m : Object, typeof (_o = typeof quizClassScore_service_1.QuizClassScoreService !== "undefined" && quizClassScore_service_1.QuizClassScoreService) === "function" ? _o : Object, typeof (_p = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _p : Object, typeof (_q = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _q : Object, typeof (_r = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _r : Object, typeof (_s = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _s : Object, typeof (_t = typeof device_service_1.DeviceService !== "undefined" && device_service_1.DeviceService) === "function" ? _t : Object, typeof (_u = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _u : Object, typeof (_v = typeof notification_service_1.NotificationService !== "undefined" && notification_service_1.NotificationService) === "function" ? _v : Object])
+    __metadata("design:paramtypes", [typeof (_l = typeof class_service_1.ClassService !== "undefined" && class_service_1.ClassService) === "function" ? _l : Object, typeof (_m = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _m : Object, typeof (_o = typeof quizClass_service_1.QuizClassService !== "undefined" && quizClass_service_1.QuizClassService) === "function" ? _o : Object, typeof (_p = typeof quizClassScore_service_1.QuizClassScoreService !== "undefined" && quizClassScore_service_1.QuizClassScoreService) === "function" ? _p : Object, typeof (_q = typeof userHostSocket_service_1.UserHostSocketService !== "undefined" && userHostSocket_service_1.UserHostSocketService) === "function" ? _q : Object, typeof (_r = typeof userScoreQuizSocket_service_1.UserScoreQuizSocketService !== "undefined" && userScoreQuizSocket_service_1.UserScoreQuizSocketService) === "function" ? _r : Object, typeof (_s = typeof userSocket_service_1.UserMemberSocketService !== "undefined" && userSocket_service_1.UserMemberSocketService) === "function" ? _s : Object, typeof (_t = typeof setOfQuestions_service_1.SetOfQuestionsService !== "undefined" && setOfQuestions_service_1.SetOfQuestionsService) === "function" ? _t : Object, typeof (_u = typeof device_service_1.DeviceService !== "undefined" && device_service_1.DeviceService) === "function" ? _u : Object, typeof (_v = typeof memberClass_service_1.MemberClassService !== "undefined" && memberClass_service_1.MemberClassService) === "function" ? _v : Object, typeof (_w = typeof notification_service_1.NotificationService !== "undefined" && notification_service_1.NotificationService) === "function" ? _w : Object])
 ], AppGateway);
 exports.AppGateway = AppGateway;
 
 
 /***/ }),
-/* 107 */
+/* 106 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -6268,19 +6245,19 @@ var SOCKET_EVENT;
 
 
 /***/ }),
-/* 108 */
+/* 107 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/websockets");
 
 /***/ }),
-/* 109 */
+/* 108 */
 /***/ ((module) => {
 
 module.exports = require("socket.io");
 
 /***/ }),
-/* 110 */
+/* 109 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6304,7 +6281,7 @@ const mongoose_1 = __webpack_require__(4);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
-const userHostSocket_entity_1 = __webpack_require__(111);
+const userHostSocket_entity_1 = __webpack_require__(110);
 let UserHostSocketService = class UserHostSocketService extends baseService_service_1.BaseService {
     constructor(_userHostSocket, _loggerService) {
         super();
@@ -6352,7 +6329,7 @@ exports.UserHostSocketService = UserHostSocketService;
 
 
 /***/ }),
-/* 111 */
+/* 110 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6442,7 +6419,7 @@ exports.UserHostSocket = UserHostSocket;
 
 
 /***/ }),
-/* 112 */
+/* 111 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6466,7 +6443,7 @@ const mongoose_1 = __webpack_require__(4);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
-const userSocket_entity_1 = __webpack_require__(113);
+const userSocket_entity_1 = __webpack_require__(112);
 let UserMemberSocketService = class UserMemberSocketService extends baseService_service_1.BaseService {
     constructor(_userMemberSocket, _loggerService) {
         super();
@@ -6531,7 +6508,7 @@ exports.UserMemberSocketService = UserMemberSocketService;
 
 
 /***/ }),
-/* 113 */
+/* 112 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6592,7 +6569,7 @@ exports.UserMemberSocket = UserMemberSocket;
 
 
 /***/ }),
-/* 114 */
+/* 113 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -6603,7 +6580,7 @@ exports.RandomFunc = RandomFunc;
 
 
 /***/ }),
-/* 115 */
+/* 114 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6620,9 +6597,9 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WsJwtGuard = void 0;
 const common_1 = __webpack_require__(3);
-const jwt_1 = __webpack_require__(83);
-const websockets_1 = __webpack_require__(108);
-const auth_service_1 = __webpack_require__(81);
+const jwt_1 = __webpack_require__(82);
+const websockets_1 = __webpack_require__(107);
+const auth_service_1 = __webpack_require__(80);
 let WsJwtGuard = class WsJwtGuard {
     constructor(authService, jwt) {
         this.authService = authService;
@@ -6635,8 +6612,9 @@ let WsJwtGuard = class WsJwtGuard {
             const authToken = (_b = (_a = client.handshake) === null || _a === void 0 ? void 0 : _a.headers) === null || _b === void 0 ? void 0 : _b.authorization;
             const encodeJWT = await this.jwt.verifyAsync(authToken);
             const user = await this.authService.validateUser({
-                id: encodeJWT.data,
+                id: encodeJWT.data.id,
             });
+            console.log("user", user);
             context.switchToHttp().getRequest().user = user;
             return Boolean(user);
         }
@@ -6653,7 +6631,7 @@ exports.WsJwtGuard = WsJwtGuard;
 
 
 /***/ }),
-/* 116 */
+/* 115 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6679,7 +6657,7 @@ const up_load_file_service_1 = __webpack_require__(36);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
-const notification_entity_1 = __webpack_require__(117);
+const notification_entity_1 = __webpack_require__(116);
 let NotificationService = class NotificationService extends baseService_service_1.BaseService {
     constructor(_notificationModel, _loggerService, _deviceService, _uploadFileService) {
         super();
@@ -6743,7 +6721,7 @@ exports.NotificationService = NotificationService;
 
 
 /***/ }),
-/* 117 */
+/* 116 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6814,7 +6792,7 @@ exports.Notification = Notification;
 
 
 /***/ }),
-/* 118 */
+/* 117 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6838,7 +6816,7 @@ const mongoose_1 = __webpack_require__(4);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
-const quizClass_entity_1 = __webpack_require__(119);
+const quizClass_entity_1 = __webpack_require__(118);
 let QuizClassService = class QuizClassService extends baseService_service_1.BaseService {
     constructor(_quizClassModel, _loggerService) {
         super();
@@ -6887,7 +6865,7 @@ exports.QuizClassService = QuizClassService;
 
 
 /***/ }),
-/* 119 */
+/* 118 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6951,7 +6929,7 @@ exports.QuizClass = QuizClass;
 
 
 /***/ }),
-/* 120 */
+/* 119 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6976,7 +6954,7 @@ const user_service_1 = __webpack_require__(62);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
-const quizClassScore_entity_1 = __webpack_require__(121);
+const quizClassScore_entity_1 = __webpack_require__(120);
 let QuizClassScoreService = class QuizClassScoreService extends baseService_service_1.BaseService {
     constructor(_quizClassScoreModel, _userService, _loggerService) {
         super();
@@ -7031,7 +7009,7 @@ exports.QuizClassScoreService = QuizClassScoreService;
 
 
 /***/ }),
-/* 121 */
+/* 120 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7078,7 +7056,7 @@ exports.QuizClassScore = QuizClassScore;
 
 
 /***/ }),
-/* 122 */
+/* 121 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7095,10 +7073,10 @@ var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MessageSocket = void 0;
 const common_1 = __webpack_require__(3);
-const websockets_1 = __webpack_require__(108);
-const socket_io_1 = __webpack_require__(109);
-const message_event_1 = __webpack_require__(123);
-const message_service_1 = __webpack_require__(124);
+const websockets_1 = __webpack_require__(107);
+const socket_io_1 = __webpack_require__(108);
+const message_event_1 = __webpack_require__(122);
+const message_service_1 = __webpack_require__(123);
 let MessageSocket = class MessageSocket {
     constructor(_messageService) {
         this._messageService = _messageService;
@@ -7174,7 +7152,7 @@ exports.MessageSocket = MessageSocket;
 
 
 /***/ }),
-/* 123 */
+/* 122 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -7192,7 +7170,7 @@ var MESSAGE_EVENT;
 
 
 /***/ }),
-/* 124 */
+/* 123 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7233,7 +7211,7 @@ exports.MessageService = MessageService;
 
 
 /***/ }),
-/* 125 */
+/* 124 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7251,9 +7229,9 @@ const class_module_1 = __webpack_require__(59);
 const class_entity_1 = __webpack_require__(61);
 const memberClass_entity_1 = __webpack_require__(65);
 const memberClass_service_1 = __webpack_require__(64);
-const post_entity_1 = __webpack_require__(126);
-const post_module_1 = __webpack_require__(127);
-const post_service_1 = __webpack_require__(128);
+const post_entity_1 = __webpack_require__(125);
+const post_module_1 = __webpack_require__(126);
+const post_service_1 = __webpack_require__(127);
 const road_map_entity_1 = __webpack_require__(47);
 const roadMap_service_1 = __webpack_require__(46);
 const upLoadFile_entity_1 = __webpack_require__(38);
@@ -7261,19 +7239,19 @@ const up_load_file_service_1 = __webpack_require__(36);
 const user_entity_1 = __webpack_require__(51);
 const user_service_1 = __webpack_require__(62);
 const logger_service_1 = __webpack_require__(12);
-const roadMapContent_controller_1 = __webpack_require__(130);
-const rmc_assignments_1 = __webpack_require__(135);
-const rmc_assignmentsUser_1 = __webpack_require__(137);
-const rmc_attendances_1 = __webpack_require__(139);
-const rmc_attendancesUser_1 = __webpack_require__(141);
-const rmc_files_1 = __webpack_require__(143);
-const roadMapContent_entity_1 = __webpack_require__(133);
-const rmc_assignments_service_1 = __webpack_require__(134);
-const rmc_assignmentsUserservice_1 = __webpack_require__(136);
-const rmc_attendances_service_1 = __webpack_require__(138);
-const rmc_attendancesUser_service_1 = __webpack_require__(140);
-const rmc_files_service_1 = __webpack_require__(142);
-const roadMapContent_service_1 = __webpack_require__(132);
+const roadMapContent_controller_1 = __webpack_require__(129);
+const rmc_assignments_1 = __webpack_require__(134);
+const rmc_assignmentsUser_1 = __webpack_require__(136);
+const rmc_attendances_1 = __webpack_require__(138);
+const rmc_attendancesUser_1 = __webpack_require__(140);
+const rmc_files_1 = __webpack_require__(142);
+const roadMapContent_entity_1 = __webpack_require__(132);
+const rmc_assignments_service_1 = __webpack_require__(133);
+const rmc_assignmentsUserservice_1 = __webpack_require__(135);
+const rmc_attendances_service_1 = __webpack_require__(137);
+const rmc_attendancesUser_service_1 = __webpack_require__(139);
+const rmc_files_service_1 = __webpack_require__(141);
+const roadMapContent_service_1 = __webpack_require__(131);
 let RoadMapContentModule = class RoadMapContentModule {
 };
 RoadMapContentModule = __decorate([
@@ -7332,7 +7310,7 @@ exports.RoadMapContentModule = RoadMapContentModule;
 
 
 /***/ }),
-/* 126 */
+/* 125 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7398,7 +7376,7 @@ exports.Post = Post;
 
 
 /***/ }),
-/* 127 */
+/* 126 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7410,10 +7388,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PostModule = void 0;
-const post_entity_1 = __webpack_require__(126);
+const post_entity_1 = __webpack_require__(125);
 const common_1 = __webpack_require__(3);
-const post_service_1 = __webpack_require__(128);
-const post_controller_1 = __webpack_require__(129);
+const post_service_1 = __webpack_require__(127);
+const post_controller_1 = __webpack_require__(128);
 const mongoose_1 = __webpack_require__(4);
 const memberClass_service_1 = __webpack_require__(64);
 const user_service_1 = __webpack_require__(62);
@@ -7448,7 +7426,7 @@ exports.PostModule = PostModule;
 
 
 /***/ }),
-/* 128 */
+/* 127 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7472,7 +7450,7 @@ const mongoose_1 = __webpack_require__(4);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
-const post_entity_1 = __webpack_require__(126);
+const post_entity_1 = __webpack_require__(125);
 let PostService = class PostService extends baseService_service_1.BaseService {
     constructor(_postModel, _loggerService) {
         super();
@@ -7522,7 +7500,7 @@ exports.PostService = PostService;
 
 
 /***/ }),
-/* 129 */
+/* 128 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7548,8 +7526,8 @@ const up_load_file_service_1 = __webpack_require__(36);
 const baseController_1 = __webpack_require__(31);
 const errors_exception_1 = __webpack_require__(30);
 const resource_exception_1 = __webpack_require__(26);
-const query_interface_1 = __webpack_require__(75);
-const post_service_1 = __webpack_require__(128);
+const query_interface_1 = __webpack_require__(74);
+const post_service_1 = __webpack_require__(127);
 const logger_service_1 = __webpack_require__(12);
 const memberClass_service_1 = __webpack_require__(64);
 const mongoose = __webpack_require__(11);
@@ -7726,7 +7704,7 @@ exports.PostController = PostController;
 
 
 /***/ }),
-/* 130 */
+/* 129 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -7745,28 +7723,28 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RoadMapContentController = void 0;
-const req_dto_1 = __webpack_require__(131);
+const req_dto_1 = __webpack_require__(130);
 const user_decorator_1 = __webpack_require__(23);
 const common_1 = __webpack_require__(3);
 const jwt_auth_guard_1 = __webpack_require__(24);
 const logger_service_1 = __webpack_require__(12);
-const roadMapContent_service_1 = __webpack_require__(132);
+const roadMapContent_service_1 = __webpack_require__(131);
 const user_entity_1 = __webpack_require__(51);
 const resource_exception_1 = __webpack_require__(26);
 const baseController_1 = __webpack_require__(31);
 const errors_exception_1 = __webpack_require__(30);
-const req_dto_2 = __webpack_require__(144);
-const req_dto_3 = __webpack_require__(145);
-const req_dto_4 = __webpack_require__(146);
-const enum_1 = __webpack_require__(147);
+const req_dto_2 = __webpack_require__(143);
+const req_dto_3 = __webpack_require__(144);
+const req_dto_4 = __webpack_require__(145);
+const enum_1 = __webpack_require__(146);
 const class_service_1 = __webpack_require__(60);
-const req_dto_5 = __webpack_require__(148);
-const req_dto_6 = __webpack_require__(149);
-const rmc_assignments_service_1 = __webpack_require__(134);
-const rmc_assignmentsUserservice_1 = __webpack_require__(136);
-const rmc_attendances_service_1 = __webpack_require__(138);
-const rmc_attendancesUser_service_1 = __webpack_require__(140);
-const rmc_files_service_1 = __webpack_require__(142);
+const req_dto_5 = __webpack_require__(147);
+const req_dto_6 = __webpack_require__(148);
+const rmc_assignments_service_1 = __webpack_require__(133);
+const rmc_assignmentsUserservice_1 = __webpack_require__(135);
+const rmc_attendances_service_1 = __webpack_require__(137);
+const rmc_attendancesUser_service_1 = __webpack_require__(139);
+const rmc_files_service_1 = __webpack_require__(141);
 const memberClass_service_1 = __webpack_require__(64);
 const roadMap_service_1 = __webpack_require__(46);
 let RoadMapContentController = class RoadMapContentController {
@@ -8168,7 +8146,7 @@ exports.RoadMapContentController = RoadMapContentController;
 
 
 /***/ }),
-/* 131 */
+/* 130 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8200,7 +8178,7 @@ exports.UserRMCAttendanceDto = UserRMCAttendanceDto;
 
 
 /***/ }),
-/* 132 */
+/* 131 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8226,13 +8204,13 @@ const baseService_service_1 = __webpack_require__(10);
 const mongoose = __webpack_require__(11);
 const typegoose_1 = __webpack_require__(7);
 const logger_service_1 = __webpack_require__(12);
-const post_service_1 = __webpack_require__(128);
-const roadMapContent_entity_1 = __webpack_require__(133);
-const rmc_assignments_service_1 = __webpack_require__(134);
-const rmc_assignmentsUserservice_1 = __webpack_require__(136);
-const rmc_attendances_service_1 = __webpack_require__(138);
-const rmc_attendancesUser_service_1 = __webpack_require__(140);
-const rmc_files_service_1 = __webpack_require__(142);
+const post_service_1 = __webpack_require__(127);
+const roadMapContent_entity_1 = __webpack_require__(132);
+const rmc_assignments_service_1 = __webpack_require__(133);
+const rmc_assignmentsUserservice_1 = __webpack_require__(135);
+const rmc_attendances_service_1 = __webpack_require__(137);
+const rmc_attendancesUser_service_1 = __webpack_require__(139);
+const rmc_files_service_1 = __webpack_require__(141);
 let RoadMapContentService = class RoadMapContentService extends baseService_service_1.BaseService {
     constructor(_setOfQuestionsModel, _loggerService, _rmcAssignmentService, _rmcAssignmentUserService, _rmcAttendanceService, _rmcAttendanceUserService, _rmcFilesService, _postService) {
         super();
@@ -8426,7 +8404,7 @@ exports.RoadMapContentService = RoadMapContentService;
 
 
 /***/ }),
-/* 133 */
+/* 132 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8500,7 +8478,7 @@ exports.RoadMapContent = RoadMapContent;
 
 
 /***/ }),
-/* 134 */
+/* 133 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8524,7 +8502,7 @@ const baseService_service_1 = __webpack_require__(10);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const typegoose_1 = __webpack_require__(7);
-const rmc_assignments_1 = __webpack_require__(135);
+const rmc_assignments_1 = __webpack_require__(134);
 let RMCAssignmentService = class RMCAssignmentService extends baseService_service_1.BaseService {
     constructor(_RMCAssignmentModel, _loggerService) {
         super();
@@ -8571,7 +8549,7 @@ exports.RMCAssignmentService = RMCAssignmentService;
 
 
 /***/ }),
-/* 135 */
+/* 134 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8627,7 +8605,7 @@ exports.RMCAssignment = RMCAssignment;
 
 
 /***/ }),
-/* 136 */
+/* 135 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8651,7 +8629,7 @@ const baseService_service_1 = __webpack_require__(10);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const typegoose_1 = __webpack_require__(7);
-const rmc_assignmentsUser_1 = __webpack_require__(137);
+const rmc_assignmentsUser_1 = __webpack_require__(136);
 let RMCAssignmentUserService = class RMCAssignmentUserService extends baseService_service_1.BaseService {
     constructor(_RMCAssignmentUserModel, _loggerService) {
         super();
@@ -8688,7 +8666,7 @@ exports.RMCAssignmentUserService = RMCAssignmentUserService;
 
 
 /***/ }),
-/* 137 */
+/* 136 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8740,7 +8718,7 @@ exports.RMCAssignmentUser = RMCAssignmentUser;
 
 
 /***/ }),
-/* 138 */
+/* 137 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8764,7 +8742,7 @@ const baseService_service_1 = __webpack_require__(10);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const typegoose_1 = __webpack_require__(7);
-const rmc_attendances_1 = __webpack_require__(139);
+const rmc_attendances_1 = __webpack_require__(138);
 let RMCAttendanceService = class RMCAttendanceService extends baseService_service_1.BaseService {
     constructor(_RMCAttendancesModel, _loggerService) {
         super();
@@ -8811,7 +8789,7 @@ exports.RMCAttendanceService = RMCAttendanceService;
 
 
 /***/ }),
-/* 139 */
+/* 138 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8863,7 +8841,7 @@ exports.RMCAttendances = RMCAttendances;
 
 
 /***/ }),
-/* 140 */
+/* 139 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8887,7 +8865,7 @@ const baseService_service_1 = __webpack_require__(10);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const typegoose_1 = __webpack_require__(7);
-const rmc_attendancesUser_1 = __webpack_require__(141);
+const rmc_attendancesUser_1 = __webpack_require__(140);
 const mongoose = __webpack_require__(11);
 let RMCAttendancesUserService = class RMCAttendancesUserService extends baseService_service_1.BaseService {
     constructor(_RMCAttendancesUserModel, _loggerService) {
@@ -8925,7 +8903,7 @@ exports.RMCAttendancesUserService = RMCAttendancesUserService;
 
 
 /***/ }),
-/* 141 */
+/* 140 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -8977,7 +8955,7 @@ exports.RMCAttendancesUser = RMCAttendancesUser;
 
 
 /***/ }),
-/* 142 */
+/* 141 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9001,7 +8979,7 @@ const baseService_service_1 = __webpack_require__(10);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const typegoose_1 = __webpack_require__(7);
-const rmc_files_1 = __webpack_require__(143);
+const rmc_files_1 = __webpack_require__(142);
 let RMCFilesService = class RMCFilesService extends baseService_service_1.BaseService {
     constructor(_rmcFileModel, _loggerService) {
         super();
@@ -9035,7 +9013,7 @@ exports.RMCFilesService = RMCFilesService;
 
 
 /***/ }),
-/* 143 */
+/* 142 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9078,7 +9056,7 @@ exports.RMCFile = RMCFile;
 
 
 /***/ }),
-/* 144 */
+/* 143 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9129,7 +9107,7 @@ exports.CreateRMCAssignmentDto = CreateRMCAssignmentDto;
 
 
 /***/ }),
-/* 145 */
+/* 144 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9171,7 +9149,7 @@ exports.CreateRMCAttendanceDto = CreateRMCAttendanceDto;
 
 
 /***/ }),
-/* 146 */
+/* 145 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9203,7 +9181,7 @@ exports.CreateRMCFileDto = CreateRMCFileDto;
 
 
 /***/ }),
-/* 147 */
+/* 146 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -9218,7 +9196,7 @@ var RCMTypes;
 
 
 /***/ }),
-/* 148 */
+/* 147 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9269,7 +9247,7 @@ exports.UpdateRMCAssignmentDto = UpdateRMCAssignmentDto;
 
 
 /***/ }),
-/* 149 */
+/* 148 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9311,7 +9289,7 @@ exports.UpdateRMCAttendanceDto = UpdateRMCAttendanceDto;
 
 
 /***/ }),
-/* 150 */
+/* 149 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9325,8 +9303,8 @@ var MemberClassModule_1;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MemberClassModule = void 0;
 const device_service_1 = __webpack_require__(56);
-const notification_service_1 = __webpack_require__(116);
-const notification_entity_1 = __webpack_require__(117);
+const notification_service_1 = __webpack_require__(115);
+const notification_entity_1 = __webpack_require__(116);
 const up_load_file_service_1 = __webpack_require__(36);
 const user_entity_1 = __webpack_require__(51);
 const user_service_1 = __webpack_require__(62);
@@ -9335,8 +9313,8 @@ const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const memberClass_entity_1 = __webpack_require__(65);
 const memberClass_service_1 = __webpack_require__(64);
-const memberClass_controller_1 = __webpack_require__(151);
-const user_module_1 = __webpack_require__(73);
+const memberClass_controller_1 = __webpack_require__(150);
+const user_module_1 = __webpack_require__(72);
 const user_entity_2 = __webpack_require__(51);
 const upLoadFile_entity_1 = __webpack_require__(38);
 const device_module_1 = __webpack_require__(54);
@@ -9375,7 +9353,7 @@ exports.MemberClassModule = MemberClassModule;
 
 
 /***/ }),
-/* 151 */
+/* 150 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9398,12 +9376,12 @@ const up_load_file_service_1 = __webpack_require__(36);
 const common_1 = __webpack_require__(3);
 const user_decorator_1 = __webpack_require__(23);
 const jwt_auth_guard_1 = __webpack_require__(24);
-const notification_service_1 = __webpack_require__(116);
+const notification_service_1 = __webpack_require__(115);
 const user_entity_1 = __webpack_require__(51);
 const baseController_1 = __webpack_require__(31);
 const errors_exception_1 = __webpack_require__(30);
 const resource_exception_1 = __webpack_require__(26);
-const query_interface_1 = __webpack_require__(75);
+const query_interface_1 = __webpack_require__(74);
 const logger_service_1 = __webpack_require__(12);
 const memberClass_service_1 = __webpack_require__(64);
 let MemberClassController = class MemberClassController {
@@ -9514,7 +9492,7 @@ exports.MemberClassController = MemberClassController;
 
 
 /***/ }),
-/* 152 */
+/* 151 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9532,9 +9510,9 @@ const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const logger_service_1 = __webpack_require__(12);
 const device_service_1 = __webpack_require__(56);
-const notification_controller_1 = __webpack_require__(153);
-const notification_entity_1 = __webpack_require__(117);
-const notification_service_1 = __webpack_require__(116);
+const notification_controller_1 = __webpack_require__(152);
+const notification_entity_1 = __webpack_require__(116);
+const notification_service_1 = __webpack_require__(115);
 const device_entity_1 = __webpack_require__(55);
 const upLoadFile_entity_1 = __webpack_require__(38);
 let NotificationModule = class NotificationModule {
@@ -9563,7 +9541,7 @@ exports.NotificationModule = NotificationModule;
 
 
 /***/ }),
-/* 153 */
+/* 152 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9587,7 +9565,7 @@ const jwt_auth_guard_1 = __webpack_require__(24);
 const common_1 = __webpack_require__(3);
 const logger_service_1 = __webpack_require__(12);
 const errors_exception_1 = __webpack_require__(30);
-const notification_service_1 = __webpack_require__(116);
+const notification_service_1 = __webpack_require__(115);
 const baseController_1 = __webpack_require__(31);
 let NotificationController = class NotificationController {
     constructor(loggerService, _notificationService) {
@@ -9672,7 +9650,7 @@ exports.NotificationController = NotificationController;
 
 
 /***/ }),
-/* 154 */
+/* 153 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9684,11 +9662,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.QuizClassModule = void 0;
-const quizClass_controller_1 = __webpack_require__(155);
+const quizClass_controller_1 = __webpack_require__(154);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
-const quizClass_entity_1 = __webpack_require__(119);
-const quizClass_service_1 = __webpack_require__(118);
+const quizClass_entity_1 = __webpack_require__(118);
+const quizClass_service_1 = __webpack_require__(117);
 let QuizClassModule = class QuizClassModule {
 };
 QuizClassModule = __decorate([
@@ -9710,7 +9688,7 @@ exports.QuizClassModule = QuizClassModule;
 
 
 /***/ }),
-/* 155 */
+/* 154 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9736,7 +9714,7 @@ const baseController_1 = __webpack_require__(31);
 const errors_exception_1 = __webpack_require__(30);
 const logger_service_1 = __webpack_require__(12);
 const user_decorator_1 = __webpack_require__(23);
-const quizClass_service_1 = __webpack_require__(118);
+const quizClass_service_1 = __webpack_require__(117);
 let QuizClassController = class QuizClassController {
     constructor(_quizClassService, loggerService) {
         this._quizClassService = _quizClassService;
@@ -9773,7 +9751,7 @@ exports.QuizClassController = QuizClassController;
 
 
 /***/ }),
-/* 156 */
+/* 155 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9785,15 +9763,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.QuizClassScoreModule = void 0;
-const quizClassScore_controller_1 = __webpack_require__(157);
+const quizClassScore_controller_1 = __webpack_require__(156);
 const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const upLoadFile_entity_1 = __webpack_require__(38);
 const up_load_file_service_1 = __webpack_require__(36);
 const user_entity_1 = __webpack_require__(51);
 const user_service_1 = __webpack_require__(62);
-const quizClassScore_entity_1 = __webpack_require__(121);
-const quizClassScore_service_1 = __webpack_require__(120);
+const quizClassScore_entity_1 = __webpack_require__(120);
+const quizClassScore_service_1 = __webpack_require__(119);
 let QuizClassScoreModule = class QuizClassScoreModule {
 };
 QuizClassScoreModule = __decorate([
@@ -9816,7 +9794,7 @@ exports.QuizClassScoreModule = QuizClassScoreModule;
 
 
 /***/ }),
-/* 157 */
+/* 156 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9842,7 +9820,7 @@ const baseController_1 = __webpack_require__(31);
 const errors_exception_1 = __webpack_require__(30);
 const logger_service_1 = __webpack_require__(12);
 const user_decorator_1 = __webpack_require__(23);
-const quizClassScore_service_1 = __webpack_require__(120);
+const quizClassScore_service_1 = __webpack_require__(119);
 let QuizClassScoreController = class QuizClassScoreController {
     constructor(_quizClassScoreService, loggerService) {
         this._quizClassScoreService = _quizClassScoreService;
@@ -9879,7 +9857,7 @@ exports.QuizClassScoreController = QuizClassScoreController;
 
 
 /***/ }),
-/* 158 */
+/* 157 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9904,10 +9882,10 @@ const upLoadFile_entity_1 = __webpack_require__(38);
 const up_load_file_service_1 = __webpack_require__(36);
 const user_entity_1 = __webpack_require__(51);
 const user_service_1 = __webpack_require__(62);
-const user_module_1 = __webpack_require__(73);
-const message_controller_1 = __webpack_require__(159);
-const message_entity_1 = __webpack_require__(161);
-const message_service_1 = __webpack_require__(160);
+const user_module_1 = __webpack_require__(72);
+const message_controller_1 = __webpack_require__(158);
+const message_entity_1 = __webpack_require__(160);
+const message_service_1 = __webpack_require__(159);
 let MessageModule = class MessageModule {
 };
 MessageModule = __decorate([
@@ -9939,7 +9917,7 @@ exports.MessageModule = MessageModule;
 
 
 /***/ }),
-/* 159 */
+/* 158 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -9965,9 +9943,9 @@ const user_entity_1 = __webpack_require__(51);
 const baseController_1 = __webpack_require__(31);
 const errors_exception_1 = __webpack_require__(30);
 const resource_exception_1 = __webpack_require__(26);
-const query_interface_1 = __webpack_require__(75);
+const query_interface_1 = __webpack_require__(74);
 const logger_service_1 = __webpack_require__(12);
-const message_service_1 = __webpack_require__(160);
+const message_service_1 = __webpack_require__(159);
 let MessageController = class MessageController {
     constructor(_messageService, loggerService) {
         this._messageService = _messageService;
@@ -10055,7 +10033,7 @@ exports.MessageController = MessageController;
 
 
 /***/ }),
-/* 160 */
+/* 159 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -10080,7 +10058,7 @@ const class_service_1 = __webpack_require__(60);
 const baseService_service_1 = __webpack_require__(10);
 const logger_service_1 = __webpack_require__(12);
 const typegoose_1 = __webpack_require__(7);
-const message_entity_1 = __webpack_require__(161);
+const message_entity_1 = __webpack_require__(160);
 let MessageService = class MessageService extends baseService_service_1.BaseService {
     constructor(_messageModel, _loggerService, _classService) {
         super();
@@ -10119,7 +10097,7 @@ exports.MessageService = MessageService;
 
 
 /***/ }),
-/* 161 */
+/* 160 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -10200,13 +10178,13 @@ exports.Message = Message;
 
 
 /***/ }),
-/* 162 */
+/* 161 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/serve-static");
 
 /***/ }),
-/* 163 */
+/* 162 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -10223,9 +10201,9 @@ const mongoose_1 = __webpack_require__(4);
 const logger_service_1 = __webpack_require__(12);
 const upLoadFile_entity_1 = __webpack_require__(38);
 const up_load_file_service_1 = __webpack_require__(36);
-const admin_controller_1 = __webpack_require__(164);
-const admin_entity_1 = __webpack_require__(85);
-const admin_service_1 = __webpack_require__(169);
+const admin_controller_1 = __webpack_require__(163);
+const admin_entity_1 = __webpack_require__(84);
+const admin_service_1 = __webpack_require__(168);
 let AdminModule = class AdminModule {
 };
 AdminModule = __decorate([
@@ -10245,7 +10223,7 @@ exports.AdminModule = AdminModule;
 
 
 /***/ }),
-/* 164 */
+/* 163 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -10265,15 +10243,15 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AdminController = void 0;
 const common_1 = __webpack_require__(3);
-const roles_decorator_1 = __webpack_require__(165);
+const roles_decorator_1 = __webpack_require__(164);
 const user_decorator_1 = __webpack_require__(23);
 const jwt_auth_guard_1 = __webpack_require__(24);
-const role_enum_1 = __webpack_require__(166);
-const roles_guard_1 = __webpack_require__(167);
+const role_enum_1 = __webpack_require__(165);
+const roles_guard_1 = __webpack_require__(166);
 const errors_exception_1 = __webpack_require__(30);
 const baseController_1 = __webpack_require__(31);
 const logger_service_1 = __webpack_require__(12);
-const admin_service_1 = __webpack_require__(169);
+const admin_service_1 = __webpack_require__(168);
 let AdminController = class AdminController extends baseController_1.BaseController {
     constructor(userService, loggerService) {
         super();
@@ -10328,7 +10306,7 @@ exports.AdminController = AdminController;
 
 
 /***/ }),
-/* 165 */
+/* 164 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -10344,7 +10322,7 @@ exports.Roles = Roles;
 
 
 /***/ }),
-/* 166 */
+/* 165 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -10358,7 +10336,7 @@ var Role;
 
 
 /***/ }),
-/* 167 */
+/* 166 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -10375,8 +10353,8 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RolesGuard = void 0;
 const common_1 = __webpack_require__(3);
-const core_1 = __webpack_require__(168);
-const roles_decorator_1 = __webpack_require__(165);
+const core_1 = __webpack_require__(167);
+const roles_decorator_1 = __webpack_require__(164);
 let RolesGuard = class RolesGuard {
     constructor(reflector) {
         this.reflector = reflector;
@@ -10401,13 +10379,13 @@ exports.RolesGuard = RolesGuard;
 
 
 /***/ }),
-/* 168 */
+/* 167 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
 
 /***/ }),
-/* 169 */
+/* 168 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -10431,7 +10409,7 @@ const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const respone_service_1 = __webpack_require__(63);
 const mongoose_2 = __webpack_require__(11);
-const admin_entity_1 = __webpack_require__(85);
+const admin_entity_1 = __webpack_require__(84);
 const up_load_file_service_1 = __webpack_require__(36);
 let AdminService = class AdminService extends respone_service_1.ResponseService {
     constructor(userModel, loggerService, uploadService) {
@@ -10499,7 +10477,7 @@ exports.AdminService = AdminService;
 
 
 /***/ }),
-/* 170 */
+/* 169 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -10562,19 +10540,19 @@ exports.HttpExceptionFilter = HttpExceptionFilter;
 
 
 /***/ }),
-/* 171 */
+/* 170 */
 /***/ ((module) => {
 
 module.exports = require("helmet");
 
 /***/ }),
-/* 172 */
+/* 171 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupSwagger = void 0;
-const swagger_1 = __webpack_require__(173);
+const swagger_1 = __webpack_require__(172);
 function setupSwagger(app, config) {
     const options = new swagger_1.DocumentBuilder()
         .setTitle(config.title || 'DocumentApi')
@@ -10590,21 +10568,21 @@ exports.setupSwagger = setupSwagger;
 
 
 /***/ }),
-/* 173 */
+/* 172 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
 
 /***/ }),
-/* 174 */
+/* 173 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RedisIoAdapter = void 0;
-const platform_socket_io_1 = __webpack_require__(175);
-const redis_1 = __webpack_require__(176);
-const socket_io_redis_1 = __webpack_require__(177);
+const platform_socket_io_1 = __webpack_require__(174);
+const redis_1 = __webpack_require__(175);
+const socket_io_redis_1 = __webpack_require__(176);
 const pubClient = new redis_1.RedisClient({ host: 'localhost', port: 6379 });
 const subClient = pubClient.duplicate();
 const redisAdapter = socket_io_redis_1.createAdapter({ pubClient, subClient });
@@ -10619,19 +10597,19 @@ exports.RedisIoAdapter = RedisIoAdapter;
 
 
 /***/ }),
-/* 175 */
+/* 174 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-socket.io");
 
 /***/ }),
-/* 176 */
+/* 175 */
 /***/ ((module) => {
 
 module.exports = require("redis");
 
 /***/ }),
-/* 177 */
+/* 176 */
 /***/ ((module) => {
 
 module.exports = require("socket.io-redis");
@@ -10671,16 +10649,16 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const client_module_1 = __webpack_require__(1);
-const http_exception_filter_1 = __webpack_require__(170);
+const http_exception_filter_1 = __webpack_require__(169);
 const config_service_1 = __webpack_require__(14);
 const logger_service_1 = __webpack_require__(12);
 const shared_module_1 = __webpack_require__(18);
-const core_1 = __webpack_require__(168);
+const core_1 = __webpack_require__(167);
 const platform_express_1 = __webpack_require__(32);
-const helmet = __webpack_require__(171);
+const helmet = __webpack_require__(170);
 const common_1 = __webpack_require__(3);
-const setup_1 = __webpack_require__(172);
-const RedisIoAdapter_1 = __webpack_require__(174);
+const setup_1 = __webpack_require__(171);
+const RedisIoAdapter_1 = __webpack_require__(173);
 const fire = __webpack_require__(57);
 const fs = __webpack_require__(34);
 async function bootstrap() {

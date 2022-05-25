@@ -51,6 +51,22 @@ export class AppGateway
   private logger: Logger = new Logger('AppGateway');
   private count = 0;
 
+
+  @SubscribeMessage("test")
+  private async handleCreateRoom2(
+    client: typeSocket,
+    payload: {
+      idSetOfQuestions: string;
+      arrayQuestion?: string[];
+      idClass: string;
+      title: string;
+      description: string;
+    },
+  ): Promise<void> {
+
+    console.log("asdsa",payload)
+  }
+
   @UseGuards(WsJwtGuard)
   @SubscribeMessage(SOCKET_EVENT.CREATE_QUIZ_CSS)
   private async handleCreateRoom(
@@ -63,6 +79,7 @@ export class AppGateway
       description: string;
     },
   ): Promise<void> {
+    console.log("payload 2",client.user)
     let questions = [];
     if (payload?.arrayQuestion && payload.arrayQuestion.length > 0) {
       questions = await this._questionService.findAll({
@@ -76,6 +93,8 @@ export class AppGateway
         createBy: client.user._id,
       });
     }
+
+    console.log("questions",questions)
 
     if (questions.length <= 0) {
       this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
@@ -123,6 +142,7 @@ export class AppGateway
         };
       });
       this._notificationService.createNotification(listNotify, idRoom);
+      console.log("Create Room Quiz Success")
 
       this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
         msg: 'Create Room Quiz Success',
@@ -131,6 +151,7 @@ export class AppGateway
       });
       return;
     } else {
+      console.log("Create Room Quiz Fail")
       this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
         msg: 'Create Room Quiz Fail',
         idRoom: null,
