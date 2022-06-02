@@ -26,20 +26,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     payload: any,
     done: (error: Error, user: any | false) => any,
   ) {
-    console.log("payload.data",payload.data)
-    const role=payload.data.role
-    if(role===0)
-    {
+    const role = payload.data.role;
+    if (role === 0) {
       const user = await this.authService.validateUser({ id: payload.data.id });
-      if(!!user)
-        done(null, {...user,...payload.data,role:0});
+      console.log({ user });
+      if (!!user) done(null, { ...user, ...payload.data, role: 0 });
       done(new UnauthorizedException(), false);
     }
-    if(role===1)
-    {
-      const user = await this.authService.validateAdmin({ id: payload.data.id });
-      if(!!user)
-        done(null, {...user,...payload.data,role:1});
+    if (role === 1) {
+      const user = await this.authService.validateAdmin({
+        id: payload.data.id,
+      });
+      if (!!user) done(null, { ...user, ...payload.data, role: 1 });
       done(new UnauthorizedException(), false);
     }
     // if (user) {

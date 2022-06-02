@@ -23,7 +23,11 @@ export class QuestionService extends BaseService<Question> {
 
       const newQuestions = await this.create(model);
       if (newQuestions) {
-        return this.cvtJSON(newQuestions) as Question;
+        const findQuestion = await this.findById(
+          newQuestions._id,
+          'banner audio',
+        );
+        return this.cvtJSON(findQuestion) as Question;
       }
       return null;
     } catch (e) {

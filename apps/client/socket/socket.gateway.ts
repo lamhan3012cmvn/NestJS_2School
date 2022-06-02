@@ -27,6 +27,8 @@ import { Notification } from '../notifycation/entities/notification.entity';
 import { NotificationService } from '../notifycation/services/notification.service';
 import { QuizClassService } from '../quizClass/services/quizClass.service';
 import { QuizClassScoreService } from '../quizClassScore/services/quizClassScore.service';
+import { Question } from '../question/entities/question.entity';
+import { TYPE_QUESTION } from '../question/enum';
 
 type typeSocket = Socket & { user: any };
 @WebSocketGateway({ cors: true })
@@ -51,22 +53,6 @@ export class AppGateway
   private logger: Logger = new Logger('AppGateway');
   private count = 0;
 
-
-  @SubscribeMessage("test")
-  private async handleCreateRoom2(
-    client: typeSocket,
-    payload: {
-      idSetOfQuestions: string;
-      arrayQuestion?: string[];
-      idClass: string;
-      title: string;
-      description: string;
-    },
-  ): Promise<void> {
-
-    console.log("asdsa",payload)
-  }
-
   @UseGuards(WsJwtGuard)
   @SubscribeMessage(SOCKET_EVENT.CREATE_QUIZ_CSS)
   private async handleCreateRoom(
@@ -79,7 +65,6 @@ export class AppGateway
       description: string;
     },
   ): Promise<void> {
-    console.log("payload 2",client.user)
     let questions = [];
     if (payload?.arrayQuestion && payload.arrayQuestion.length > 0) {
       questions = await this._questionService.findAll({
@@ -93,8 +78,6 @@ export class AppGateway
         createBy: client.user._id,
       });
     }
-
-    console.log("questions",questions)
 
     if (questions.length <= 0) {
       this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
@@ -142,7 +125,6 @@ export class AppGateway
         };
       });
       this._notificationService.createNotification(listNotify, idRoom);
-      console.log("Create Room Quiz Success")
 
       this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
         msg: 'Create Room Quiz Success',
@@ -151,7 +133,6 @@ export class AppGateway
       });
       return;
     } else {
-      console.log("Create Room Quiz Fail")
       this.server.to(client.id).emit(SOCKET_EVENT.CREATE_QUIZ_SSC, {
         msg: 'Create Room Quiz Fail',
         idRoom: null,
@@ -167,7 +148,6 @@ export class AppGateway
     client: typeSocket,
     payload: { idRoom: string },
   ): Promise<void> {
-    console.log('Member', client.id);
     const host = await this._userHostSocketService.findOne({
       idRoom: payload.idRoom,
     });
@@ -181,25 +161,16 @@ export class AppGateway
       });
 
       if (newMember) {
-        console.log('Join room nek', this.count);
         this.count++;
 
         const listMember = await this._userMemberSocketService.findAll({
           idRoom: payload.idRoom,
         });
-        console.log(
-          `LHA:  ===> file: socket.gateway.ts ===> line 155 ===> listMember`,
-          listMember.length,
-        );
-
-        console.log('Send list member to client');
         this.server.to(client.id).emit(SOCKET_EVENT.JOIN_ROOM_NEW_SSC, {
           msg: 'Join Room Quiz Success User',
           users: listMember.map((e) => e.user),
           success: true,
         });
-        // const abc=this.
-        console.log('Send room member to client');
         //send nhung nguoi da join room
 
         client.to(host.idRoom).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
@@ -208,9 +179,6 @@ export class AppGateway
           success: true,
         });
         client.join(payload.idRoom);
-
-        console.log('Count', this.count);
-
         return;
       }
       this.server.to(client.id).emit(SOCKET_EVENT.JOIN_ROOM_SSC, {
@@ -251,7 +219,6 @@ export class AppGateway
         { play: true, currentQuestion: 0 },
       );
       if (startGame) {
-        console.log('run start');
         this.server.in(host.idRoom).emit(SOCKET_EVENT.START_QUIZ_SSC, {
           msg: 'Start Game Success',
           data: startGame,
@@ -287,10 +254,7 @@ export class AppGateway
       userId: client.user.createdBy,
       idRoom: payload.idRoom,
     });
-    console.log(
-      `LHA:  ===> file: socket.gateway.ts ===> line 255 ===> member`,
-      member,
-    );
+
     if (member) {
       client.leave(member.idRoom);
 
@@ -300,10 +264,6 @@ export class AppGateway
           idRoom: payload.idRoom,
         });
       if (removeUserMember) {
-        console.log(
-          `LHA:  ===> file: socket.gateway.ts ===> line 268 ===> removeUserMember`,
-          removeUserMember,
-        );
         this.server.in(payload.idRoom).emit(SOCKET_EVENT.LEAVE_ROOM_SSC, {
           msg: 'Leave Room Success',
           data: { idUser: client.user },
@@ -327,8 +287,46 @@ export class AppGateway
     }
   }
 
+  // private  calcPointWithQuestion(question:Question,answer:string|Array<string>):number{
+  //   let defaulScore=0
+  //   switch (question.typeQuestion)
+  //   {
+  //     case TYPE_QUESTION.MULTI_CHOOSE:
+  //       if(Array.isArray(answer))
+  //       {
+  //         const arrayAnswerMatch=answer.reduce((pre,current,index)=>{
+  //           const findIndexAnswer= question.answers.findIndex(val=>val===current)
+  //           if(findIndexAnswer === -1)
+  //           {
+  //             return [...pre,findIndexAnswer]
+  //           }
+  //           return pre
+  //         },[])
+
+  //         const count:number= arrayAnswerMatch.reduce((pre,current)=>{
+  //           const matchCorrect =question.correct.findIndex((e) => e === current);
+  //           if (matchCorrect !== -1) {
+  //             return pre+1
+  //           }
+  //           return pre
+  //         },0)
+
+  //         return parseFloat((count/question.correct.length).toFixed(2))*question.score
+  //       }
+  //       return defaulScore;
+  //     case TYPE_QUESTION.CHOOSE:
+  //       const matchAnswerSchoose=answer === question.answers?.[question.correct?.[0]]
+  //       if(matchAnswerSchoose) return question.score
+  //       return defaulScore;
+  //     case TYPE_QUESTION.BOOLEAN:
+  //       const matchAnswerBoolean=answer === question.answers?.[question.correct?.[0]]
+  //       if(matchAnswerBoolean) return question.score
+  //       return defaulScore;
+  //     default: return defaulScore
+  //   }
+  // }
+
   private async handleNotifyEndQuiz(host: UserHostSocket): Promise<void> {
-    console.log('Run end Notify End Quiz');
     // this.server.in(host.idRoom).emit(SOCKET_EVENT.END_QUIZ_SSC, {
     //   msg: 'End Quiz',
     //   success: true,
@@ -356,10 +354,7 @@ export class AppGateway
           listQuizClassScore.push(resultSaveQuizClass);
         }
       }
-      console.log(
-        `LHA:  ===> file: socket.gateway.ts ===> line 292 ===> listQuizClassScore`,
-        listQuizClassScore,
-      );
+
       this.server
         .in(host.idRoom)
         .emit(SOCKET_EVENT.STATISTICAL_ROOM_FINAL_SSC, {
@@ -409,6 +404,7 @@ export class AppGateway
     );
     const result: Record<string, number> = listScoreStatist.reduce((t, v) => {
       if (t[v.answer]) {
+        // userId
         t[v.answer] = t[v.answer] + 1;
       } else {
         t[v.answer] = 1;
@@ -450,37 +446,39 @@ export class AppGateway
       idQuestion: string;
     },
   ): Promise<void> {
-    console.log('ANSWER_THE_QUESTION_CSS', payload);
     const host = await this._userHostSocketService.findOne({
       idRoom: payload.idRoom,
       host: client.id,
     });
     if (host) return;
     const question = await this._questionService.findById(payload.idQuestion);
-    console.log(
-      `LHA:  ===> file: socket.gateway.ts ===> line 392 ===> question`,
-      question,
-    );
+
     if (question) {
       const user = await this._userMemberSocketService.findOne({
         idRoom: payload.idRoom,
         userId: client.user.createdBy,
       });
-      console.log(
-        `LHA:  ===> file: socket.gateway.ts ===> line 404 ===> user`,
-        user,
-      );
+
       if (!user) {
         return;
       }
 
+      // let score = this.calcPointWithQuestion(question,payload.answer);
+      console.log(
+        'payload.answer',
+        payload.answer,
+        question.answers,
+        question.correct,
+      );
       let score = 0;
       if (payload.answer && question.answers.includes(payload.answer)) {
         const iz = question.answers.findIndex((e) => e === payload.answer);
         if (iz !== -1) {
-          const correct = question.correct.findIndex((e) => e === iz);
+          const correct = question.correct.findIndex((e) => ~~e === iz);
           if (correct !== -1) {
-            score = question.score;
+            if (question.typeQuestion === TYPE_QUESTION.MULTI_CHOOSE) {
+              score = Math.floor(question.score / question.correct.length);
+            } else score = question.score;
           }
         }
       }
@@ -501,6 +499,7 @@ export class AppGateway
   private async handleTakeTheQuestion(host: UserHostSocket): Promise<void> {
     const currentQuestion = await this._questionService.findById(
       host.questions[host.currentQuestion],
+      'banner audio',
     );
     if (currentQuestion) {
       const payload = {
@@ -509,13 +508,14 @@ export class AppGateway
         answers: currentQuestion.answers,
         duration: currentQuestion.duration,
         idRoom: host.idRoom,
+        banner: currentQuestion.banner,
+        typeQuestion: currentQuestion.typeQuestion,
         indexQuestion: `${host.currentQuestion + 1}/${host.questions.length}`,
       };
       const nextGame = await this._userHostSocketService.findOneAndUpdate(
         { _id: host._id },
         { currentQuestion: host.currentQuestion + 1 },
       );
-      console.log('host.currentQuestion', host.currentQuestion);
       if (nextGame) {
         this.server.in(host.idRoom).emit(SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
           msg: 'Take Question Success',
@@ -528,19 +528,12 @@ export class AppGateway
             idRoom: host.idRoom,
             idQuestion: currentQuestion._id,
           });
-          console.log(
-            `LHA:  ===> file: socket.gateway.ts ===> line 453 ===> userAnswer`,
-            userAnswer,
-          );
+
           const userDontAnswer = await this._userMemberSocketService.findAll({
             userId: { $nin: userAnswer.map((e) => e.userId) },
             idRoom: host.idRoom,
             isHost: false,
           });
-          console.log(
-            `LHA:  ===> file: socket.gateway.ts ===> line 461 ===> userDontAnswer`,
-            userDontAnswer,
-          );
 
           // const payload = {
           //   idRoom: host.idRoom,

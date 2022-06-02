@@ -78,7 +78,6 @@ export class MemberClassService extends BaseService<MemberClasses> {
       };
 
       const classes = await this._model.findOneAndRemove(obj);
-      console.log("classes",classes)
       if (classes) {
         return true;
       }

@@ -15,6 +15,17 @@ export class Question extends BaseModel<Question> {
   @prop({ default: [] })
   @Expose()
   correct: Array<number>;
+  /*
+   * 1 multi choose
+   * 2 choose
+   * 3 true/false
+   * 4 select missing words
+   * 5 audio
+   * 6 dag and drop
+   */
+  @prop({ default: 2 })
+  @Expose()
+  typeQuestion: number;
   @prop({ default: DFStatus.Active })
   @Expose()
   status: number;

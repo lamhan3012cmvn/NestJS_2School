@@ -29,7 +29,6 @@ export class MessageSocket implements OnGatewayInit {
       idMessage: string;
     },
   ): Promise<void> {
-    console.log('SEEN_MESSAGE_CSS', payload);
     const result = await this._messageService.getMessageDetail(
       payload.idMessage,
     );
@@ -56,7 +55,6 @@ export class MessageSocket implements OnGatewayInit {
       idConversation: string;
     },
   ): Promise<void> {
-    console.log('JOIN_CONVERSATION_SSC', payload);
     client.join(payload.idConversation);
     client.to(client.id).emit(MESSAGE_EVENT.JOIN_CONVERSATION_SSC, {
       message: 'join room success',
@@ -71,7 +69,6 @@ export class MessageSocket implements OnGatewayInit {
       idConversation: string;
     },
   ): Promise<void> {
-    console.log('LEAVE_CONVERSATION_SSC', payload);
     client.leave(payload.idConversation);
     client.to(client.id).emit(MESSAGE_EVENT.LEAVE_CONVERSATION_SSC, {
       message: 'leave room success',

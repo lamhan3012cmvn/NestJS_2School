@@ -13,7 +13,6 @@ export class Auth {
   verify: boolean;
   @Prop({ default: 0 })
   role: number;
-  
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);

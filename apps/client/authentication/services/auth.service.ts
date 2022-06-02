@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { AnyObject, Model } from 'mongoose';
+import { Admin } from 'apps/client/admin/entities/admin.entity';
+import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
+import { ISchemaUser, User } from 'apps/client/user/entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { Model } from 'mongoose';
 import { ConfigService } from '../../../share/services/config.service';
 import { LoggerService } from '../../../share/services/logger.service';
 import { ResponseService } from '../../../share/services/respone.service';
-import { JwtService } from '@nestjs/jwt';
-import { Auth, IAuth } from '../entities/auth.entity';
-import { User } from 'apps/client/user/entities/user.entity';
-import {Admin} from 'apps/client/admin/entities/admin.entity'
-import { UpLoadFileService } from 'apps/client/up-load-file/services/up-load-file.service';
+import { Auth } from '../entities/auth.entity';
 @Injectable()
 export class AuthService extends ResponseService {
   constructor(
@@ -40,9 +40,11 @@ export class AuthService extends ResponseService {
     }
     return newUser;
   }
-  
+
   async validateAdmin(payload: any): Promise<User> {
-    const user = await this.adminModel.findOne({ createdBy: payload.id }).lean();
+    const user = await this.adminModel
+      .findOne({ createdBy: payload.id })
+      .lean();
     const newUser = { ...user };
     if (newUser.image !== '') {
       const result = await this.upLoadFileService.findById(newUser.image);
@@ -61,8 +63,8 @@ export class AuthService extends ResponseService {
         if (isMatch) {
           const token = this.jwtService.sign({
             data: {
-              id:user._id,
-              role:0
+              id: user._id,
+              role: 0,
             },
           });
           return { token };
@@ -78,19 +80,22 @@ export class AuthService extends ResponseService {
 
   async loginAdmin(username: string, password: string): Promise<any> {
     try {
-      const AccountAdmin={
-        username:"admin@gmail.com",
-        password:"admin123cmvn"
-      }
+      const AccountAdmin = {
+        username: 'admin@gmail.com',
+        password: 'admin123cmvn',
+      };
 
-      const user = await this.accountModel.findOne({ username: username,role:1 });
+      const user = await this.accountModel.findOne({
+        username: username,
+        role: 1,
+      });
       if (user) {
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
           const token = this.jwtService.sign({
-            data:{
-              id:user._id,
-              role:1
+            data: {
+              id: user._id,
+              role: 1,
             },
           });
           return { token };
@@ -145,7 +150,7 @@ export class AuthService extends ResponseService {
       const newAccount = new this.accountModel({
         username,
         password: newPassword,
-        role: 1
+        role: 1,
       });
       await newAccount.save();
       const newUser = new this.adminModel({
@@ -204,5 +209,31 @@ export class AuthService extends ResponseService {
   async findAllUser() {
     const result = await this.accountModel.find().lean();
     return this.ResponseServiceSuccess(result);
+  }
+
+  async deleteAccount(user: ISchemaUser) {
+    console.log(
+      `LHA:  ===> file: auth.service.ts ===> line 215 ===> user`,
+      user,
+    );
+    try {
+      const deleteAccount = await this.accountModel.findByIdAndDelete(
+        user.createdBy,
+      );
+      const deleteUser = await this.userModel.findByIdAndDelete(user._id);
+      console.log(
+        `LHA:  ===> file: auth.service.ts ===> line 217 ===> deleteUser`,
+        deleteUser,
+      );
+
+      console.log(
+        `LHA:  ===> file: auth.service.ts ===> line 219 ===> deleteAccount`,
+        deleteAccount,
+      );
+      return true;
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'DELETE-ACCOUNT-Service');
+      return null;
+    }
   }
 }

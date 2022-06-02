@@ -31,7 +31,6 @@ export class MessageController {
     @Body() createMessage: any,
   ) {
     try {
-      console.log(user);
       const result = await this._messageService.createMessage({
         ...createMessage,
         sender: user._id,
@@ -81,15 +80,7 @@ export class MessageController {
     @Param('idMess') idMess: string,
   ) {
     try {
-      console.log(
-        `LHA:  ===> file: message.controller.ts ===> line 84 ===> idMess`,
-        idMess,
-      );
       const result = await this._messageService.findById(idMess, 'sender');
-      console.log(
-        `LHA:  ===> file: message.controller.ts ===> line 86 ===> result`,
-        result,
-      );
       if (result) {
         return new Ok(
           'Get Message success',

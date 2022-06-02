@@ -17,22 +17,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  // async validate(
-  //   payload: LoginAuthenticationDto,
-  // ): Promise<ILoginSuccessAuthDto> {
-  //   const user = await this.authService.login(
-  //     payload.username,
-  //     payload.password,
-  //   );
-  //   console.log(
-  //     `LHA:  ===> file: authentication.local.strategy.ts ===> line 18 ===> user`,
-  //     user,
-  //   );
-  //   if (!user) {
-  //     throw new UnauthorizedException();
-  //   }
-  //   return user;
-  // }
   async validate(
     payload: any,
     done: (error: Error, user: User | false) => any,

@@ -30,7 +30,6 @@ export class AdminController extends BaseController {
   @HttpCode(200)
   async getInfoAdmin(@Usr() user) {
     try {
-      console.log("role role",user)
       return user;
     } catch (e) {
       this.loggerService.error(e.message, null, 'findById-UserController');
@@ -42,7 +41,6 @@ export class AdminController extends BaseController {
   @HttpCode(200)
   async createAccountAdmin(@Body() payload:any) {
     try {
-      console.log("payload",payload)
       const result= await this.userService.create(payload)
       return new Ok('Get User Success', result);
     } catch (e) {

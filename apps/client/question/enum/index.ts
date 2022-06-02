@@ -1,0 +1,5 @@
+export enum TYPE_QUESTION{
+  MULTI_CHOOSE=1,
+  CHOOSE=2,
+  BOOLEAN=3
+}

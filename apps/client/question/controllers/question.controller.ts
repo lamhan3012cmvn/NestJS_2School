@@ -146,6 +146,7 @@ export class QuestionController {
       const result = await this.questionService.findOneAndUpdate(
         { createBy: user._id, _id: query.id },
         payload,
+        'banner',
       );
       if (result) {
         return new Ok(

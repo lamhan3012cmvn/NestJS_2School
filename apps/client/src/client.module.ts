@@ -20,10 +20,9 @@ import { QuizClassModule } from '../quizClass/quizClass.module';
 import { QuizClassScoreModule } from '../quizClassScore/quizClassScore.module';
 import { MessageModule } from '../message/message.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { TransactionModule } from '../transaction/transaction.module';
 import { AdminModule } from '../admin/admin.module';
-// console.log("join(__dirname, '..', 'client')",join(__dirname, '..', 'client'))
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -50,7 +49,7 @@ import { AdminModule } from '../admin/admin.module';
     QuizClassScoreModule,
     TransactionModule,
     MessageModule,
-    AdminModule
+    AdminModule,
   ],
 })
 export class ClientModule {}

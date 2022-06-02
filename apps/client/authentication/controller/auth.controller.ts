@@ -7,6 +7,7 @@ import {
   UseGuards,
   HttpCode,
   UnauthorizedException,
+  Delete,
 } from '@nestjs/common';
 import { LoginAuthenticationDto } from '../dto/login/req.dto';
 import { LocalStrategy } from '../strategy/local.strategy';
@@ -19,6 +20,8 @@ import { AuthService } from '../services/auth.service';
 import { Auth, IAuth } from '../entities/auth.entity';
 import { ResourceFoundException } from 'apps/share/exceptions/resource.exception';
 import { Error2SchoolException } from 'apps/share/exceptions/errors.exception';
+import { Usr } from '../decorator/user.decorator';
+import { ISchemaUser } from 'apps/client/user/entities/user.entity';
 @Controller('api/authentication')
 export class AuthController {
   constructor(
@@ -136,6 +139,23 @@ export class AuthController {
       const result = await this.authenticationService.findAllUser();
       if (result) {
         return new Ok('Register Success', result);
+      }
+      throw new ResourceFoundException();
+    } catch (e) {
+      this.loggerService.error(e.message, null, 'REGISTER-Controller');
+      throw new Error2SchoolException(e.message);
+    }
+  }
+
+  @Delete()
+  @HttpCode(200)
+  @Header('Content-Type', 'application/json')
+  @UseGuards(JwtAuthGuard)
+  async deleteAccount(@Usr() user: ISchemaUser) {
+    try {
+      const result = await this.authenticationService.deleteAccount(user);
+      if (result) {
+        return new Ok('delete success Success', result);
       }
       throw new ResourceFoundException();
     } catch (e) {
