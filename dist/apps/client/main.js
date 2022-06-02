@@ -749,7 +749,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+var _a, _b, _c, _d, _e, _f, _g, _h;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.QuestionController = void 0;
 const user_decorator_1 = __webpack_require__(23);
@@ -773,25 +773,31 @@ let QuestionController = class QuestionController {
         this.upLoadFileService = upLoadFileService;
         this.loggerService = loggerService;
     }
-    async createQuestion(user, payload, file) {
+    async createQuestion(user, payload, files) {
+        var _a, _b, _c, _d;
         try {
-            let singleFile = null;
+            let singleBanner = null;
+            let singleAudio = null;
             let blurHash = null;
-            if (file) {
-                const parseFile = path_1.parse(file.originalname);
-                singleFile = await this.upLoadFileService.createUploadFile(parseFile.name, file.path);
-                blurHash = await blurHash_1.encodeImageToBlurhash(file.path);
-                console.log('singleFile', singleFile);
+            if (((_a = files === null || files === void 0 ? void 0 : files.banner) === null || _a === void 0 ? void 0 : _a.length) > 0) {
+                const parseFile = path_1.parse(files.banner[0].originalname);
+                singleBanner = await this.upLoadFileService.createUploadFile(parseFile.name, files.banner[0].path);
+                blurHash = await blurHash_1.encodeImageToBlurhash(files.banner[0].path);
+            }
+            if (((_b = files === null || files === void 0 ? void 0 : files.audio) === null || _b === void 0 ? void 0 : _b.length) > 0) {
+                const parseFile = path_1.parse(files.audio[0].originalname);
+                singleAudio = await this.upLoadFileService.createUploadFile(parseFile.name, files.audio[0].path);
             }
             const result = await this.questionService.createQuestion(user._id, Object.assign(Object.assign({}, payload), { answers: Array.isArray(payload.answers)
                     ? payload.answers
-                    : payload.answers.split(','), correct: Array.isArray(payload.correct)
+                    : (_c = payload.answers) === null || _c === void 0 ? void 0 : _c.split(','), correct: Array.isArray(payload.correct)
                     ? payload.correct
-                    : payload.correct.split(','), banner: singleFile ? new mongoose.Types.ObjectId(singleFile.id) : null, blurHash: blurHash }));
+                    : (_d = payload.correct) === null || _d === void 0 ? void 0 : _d.split(','), banner: singleBanner
+                    ? new mongoose.Types.ObjectId(singleBanner.id)
+                    : null, audio: singleAudio ? new mongoose.Types.ObjectId(singleAudio.id) : null, blurHash: blurHash }));
             if (result) {
                 return new baseController_1.Ok('Create Question success', result);
             }
-            throw new resource_exception_1.ResourceFoundException();
         }
         catch (e) {
             console.log(e);
@@ -863,7 +869,10 @@ __decorate([
     common_1.Post(),
     common_1.HttpCode(200),
     common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
-    common_1.UseInterceptors(platform_express_1.FileInterceptor('banner', {
+    common_1.UseInterceptors(platform_express_1.FileFieldsInterceptor([
+        { name: 'audio', maxCount: 1 },
+        { name: 'banner', maxCount: 1 },
+    ], {
         storage: multer_1.diskStorage({
             destination: './public/uploads',
             filename: (req, file, cb) => {
@@ -885,9 +894,9 @@ __decorate([
     })),
     __param(0, user_decorator_1.Usr()),
     __param(1, common_1.Body()),
-    __param(2, common_1.UploadedFile()),
+    __param(2, common_1.UploadedFiles()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object, typeof (_c = typeof Express !== "undefined" && (_b = Express.Multer) !== void 0 && _b.File) === "function" ? _c : Object]),
+    __metadata("design:paramtypes", [Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], QuestionController.prototype, "createQuestion", null);
 __decorate([
@@ -937,7 +946,7 @@ __decorate([
 ], QuestionController.prototype, "changeStatusQuestion", null);
 QuestionController = __decorate([
     common_1.Controller('api/question'),
-    __metadata("design:paramtypes", [typeof (_h = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _h : Object, typeof (_j = typeof up_load_file_service_1.UpLoadFileService !== "undefined" && up_load_file_service_1.UpLoadFileService) === "function" ? _j : Object, typeof (_k = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _k : Object])
+    __metadata("design:paramtypes", [typeof (_f = typeof question_service_1.QuestionService !== "undefined" && question_service_1.QuestionService) === "function" ? _f : Object, typeof (_g = typeof up_load_file_service_1.UpLoadFileService !== "undefined" && up_load_file_service_1.UpLoadFileService) === "function" ? _g : Object, typeof (_h = typeof logger_service_1.LoggerService !== "undefined" && logger_service_1.LoggerService) === "function" ? _h : Object])
 ], QuestionController);
 exports.QuestionController = QuestionController;
 
@@ -1110,7 +1119,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c;
+var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Question = void 0;
 const baseModel_entity_1 = __webpack_require__(6);
@@ -1177,6 +1186,11 @@ __decorate([
     class_transformer_1.Expose(),
     __metadata("design:type", typeof (_c = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _c : Object)
 ], Question.prototype, "banner", void 0);
+__decorate([
+    typegoose_1.prop({ default: null, ref: 'UpLoadFile' }),
+    class_transformer_1.Expose(),
+    __metadata("design:type", typeof (_d = typeof mongoose_1.ObjectId !== "undefined" && mongoose_1.ObjectId) === "function" ? _d : Object)
+], Question.prototype, "audio", void 0);
 __decorate([
     typegoose_1.prop({ default: null }),
     class_transformer_1.Expose(),
@@ -3320,7 +3334,7 @@ let ClassController = class ClassController extends baseController_1.BaseControl
     }
     async changeStatusClassAdmin(query) {
         try {
-            console.log("query", query);
+            console.log('query', query);
             const result = await this.classService.update(query.id, {
                 status: status_enum_1.DFStatus[status_enum_1.DFStatus[(query === null || query === void 0 ? void 0 : query.status) || 0]],
             });
@@ -3358,8 +3372,11 @@ let ClassController = class ClassController extends baseController_1.BaseControl
                 };
                 const transactionSenderPromise = this.transactionService.createTransaction(objSender);
                 const transactionReceiver = this.transactionService.createTransaction(objReceiver);
-                const createTransaction = await Promise.all([transactionSenderPromise, transactionReceiver]);
-                console.log("createTransaction", createTransaction);
+                const createTransaction = await Promise.all([
+                    transactionSenderPromise,
+                    transactionReceiver,
+                ]);
+                console.log('createTransaction', createTransaction);
                 return new baseController_1.Ok('Join Class success', this.classService.cvtJSON(result));
             }
             throw new resource_exception_1.ResourceFoundException();

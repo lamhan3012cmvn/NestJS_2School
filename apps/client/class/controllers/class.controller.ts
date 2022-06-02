@@ -22,7 +22,7 @@ import { CreateClassDto } from '../dto/createClass/create-class.dto';
 import { JoinClassQuery } from '../dto/joinClass/query.dto';
 import { UpdateImageDto } from '../dto/updateImage/req,dto';
 import { ClassService } from '../services/class.service';
-import {TransactionService} from 'apps/client/transaction/services/transaction.service'
+import { TransactionService } from 'apps/client/transaction/services/transaction.service';
 import * as mongoose from 'mongoose';
 
 @Controller('api/classes')
@@ -201,7 +201,7 @@ export class ClassController extends BaseController {
   // @UseGuards(JwtAuthGuard)
   async changeStatusClassAdmin(@Query() query) {
     try {
-      console.log("query",query)
+      console.log('query', query);
       const result = await this.classService.update(query.id, {
         status: DFStatus[DFStatus[query?.status || 0]],
       });
@@ -218,39 +218,41 @@ export class ClassController extends BaseController {
 
   @Post('joinMember')
   @UseGuards(JwtAuthGuard)
-  async joinMemberClass(
-    @Usr() user: ISchemaUser,
-    @Body() payload: any,
-  ) {
+  async joinMemberClass(@Usr() user: ISchemaUser, @Body() payload: any) {
     try {
       const result = await this.classService.joinMemberClass(
         user._id,
         payload.idClass,
       );
       if (result) {
-        const currentClass=await this.classService.findById(payload.idClass)
-        const objSender={
+        const currentClass = await this.classService.findById(payload.idClass);
+        const objSender = {
           class: new mongoose.Types.ObjectId(currentClass._id),
           sender: new mongoose.Types.ObjectId(user._id),
           receiver: currentClass.createdBy,
-          senderPhone:payload?.senderPhone||null,
-          content: payload?.content||null,
+          senderPhone: payload?.senderPhone || null,
+          content: payload?.content || null,
           systemContent: `${user.displayName} đã thanh toán khóa học ${currentClass.name}`,
-          amount: payload?.amount||null,
-        }
+          amount: payload?.amount || null,
+        };
 
-        const objReceiver={
+        const objReceiver = {
           class: new mongoose.Types.ObjectId(currentClass._id),
           receiver: currentClass.createdBy,
-          content: payload?.content||null,
+          content: payload?.content || null,
           systemContent: `${user.displayName} thanh toán khóa học ${currentClass.name} của mình.`,
-          amount: payload?.amount||null,
-        }
-        const transactionSenderPromise=this.transactionService.createTransaction(objSender)
-        const transactionReceiver=this.transactionService.createTransaction(objReceiver)
+          amount: payload?.amount || null,
+        };
+        const transactionSenderPromise =
+          this.transactionService.createTransaction(objSender);
+        const transactionReceiver =
+          this.transactionService.createTransaction(objReceiver);
 
-        const createTransaction=await Promise.all([transactionSenderPromise,transactionReceiver])
-        console.log("createTransaction",createTransaction)
+        const createTransaction = await Promise.all([
+          transactionSenderPromise,
+          transactionReceiver,
+        ]);
+        console.log('createTransaction', createTransaction);
         return new Ok('Join Class success', this.classService.cvtJSON(result));
       }
       throw new ResourceFoundException();

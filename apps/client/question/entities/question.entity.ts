@@ -33,6 +33,9 @@ export class Question extends BaseModel<Question> {
   @prop({ default: null, ref: 'UpLoadFile' })
   @Expose()
   banner: ObjectId;
+  @prop({ default: null, ref: 'UpLoadFile' })
+  @Expose()
+  audio: ObjectId;
   @prop({ default: null })
   @Expose()
   blurHash: string;

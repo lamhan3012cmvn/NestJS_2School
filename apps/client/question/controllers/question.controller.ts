@@ -13,6 +13,7 @@ import {
   Query,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'apps/client/authentication/guard/jwt-auth.guard';
 import { User } from 'apps/client/user/entities/user.entity';
@@ -23,7 +24,10 @@ import { Ok } from 'apps/share/controller/baseController';
 import { LoggerService } from 'apps/share/services/logger.service';
 import { query } from 'winston';
 import { CreateQuestionDto } from '../dto/CreateQuestion/res.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as fs from 'fs';
 import * as FileType from 'file-type';
@@ -43,64 +47,85 @@ export class QuestionController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(
-    FileInterceptor('banner', {
-      storage: diskStorage({
-        destination: './public/uploads',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          //Calling the callback passing the random name generated with the original extension name
-          if (!fs.existsSync('./public/uploads')) {
-            fs.mkdirSync('./public/uploads');
-          }
-          const path = `./public/uploads/${randomName}`;
+    FileFieldsInterceptor(
+      [
+        { name: 'audio', maxCount: 1 },
+        { name: 'banner', maxCount: 1 },
+      ],
+      {
+        storage: diskStorage({
+          destination: './public/uploads',
+          filename: (req, file, cb) => {
+            const randomName = Array(32)
+              .fill(null)
+              .map(() => Math.round(Math.random() * 16).toString(16))
+              .join('');
+            //Calling the callback passing the random name generated with the original extension name
+            if (!fs.existsSync('./public/uploads')) {
+              fs.mkdirSync('./public/uploads');
+            }
+            const path = `./public/uploads/${randomName}`;
 
-          const parseFile = parse(file.originalname);
-          if (!fs.existsSync(path)) {
-            fs.mkdirSync(path);
-          }
-          cb(null, `${randomName}/${parseFile.name}${parseFile.ext}`);
-        },
-      }),
-    }),
+            const parseFile = parse(file.originalname);
+            if (!fs.existsSync(path)) {
+              fs.mkdirSync(path);
+            }
+            cb(null, `${randomName}/${parseFile.name}${parseFile.ext}`);
+          },
+        }),
+      },
+    ),
   )
+
+  // },
   async createQuestion(
     @Usr() user: User & { _id: string },
     @Body() payload: any,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles()
+    files: { banner?: Express.Multer.File[]; audio?: Express.Multer.File[] },
   ) {
     try {
-      let singleFile = null;
+      let singleBanner = null;
+      let singleAudio = null;
       let blurHash = null;
-      if (file) {
-        const parseFile = parse(file.originalname);
+      if (files?.banner?.length > 0) {
+        const parseFile = parse(files.banner[0].originalname);
 
-        singleFile = await this.upLoadFileService.createUploadFile(
+        singleBanner = await this.upLoadFileService.createUploadFile(
           parseFile.name,
-          file.path,
+          files.banner[0].path,
         );
-        blurHash = await encodeImageToBlurhash(file.path);
-        console.log('singleFile', singleFile);
+        blurHash = await encodeImageToBlurhash(files.banner[0].path);
       }
-      // throw new ResourceFoundException();
+
+      if (files?.audio?.length > 0) {
+        const parseFile = parse(files.audio[0].originalname);
+
+        singleAudio = await this.upLoadFileService.createUploadFile(
+          parseFile.name,
+          files.audio[0].path,
+        );
+      }
 
       const result = await this.questionService.createQuestion(user._id, {
         ...payload,
         answers: Array.isArray(payload.answers)
           ? payload.answers
-          : payload.answers.split(','),
+          : payload.answers?.split(','),
         correct: Array.isArray(payload.correct)
           ? payload.correct
-          : payload.correct.split(','),
-        banner: singleFile ? new mongoose.Types.ObjectId(singleFile.id) : null,
+          : payload.correct?.split(','),
+        banner: singleBanner
+          ? new mongoose.Types.ObjectId(singleBanner.id)
+          : null,
+        audio: singleAudio ? new mongoose.Types.ObjectId(singleAudio.id) : null,
         blurHash: blurHash,
       });
+
       if (result) {
         return new Ok('Create Question success', result);
       }
-      throw new ResourceFoundException();
+      // throw new ResourceFoundException();
     } catch (e) {
       console.log(e);
       this.loggerService.error(e.message, null, 'create-QuestionController');
