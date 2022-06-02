@@ -20,15 +20,12 @@ import { QuizClassModule } from '../quizClass/quizClass.module';
 import { QuizClassScoreModule } from '../quizClassScore/quizClassScore.module';
 import { MessageModule } from '../message/message.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { TransactionModule } from '../transaction/transaction.module';
 import { AdminModule } from '../admin/admin.module';
-// console.log("join(__dirname, '..', 'client')",join(__dirname, '..', 'client'))
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '../../../', '/public'),
     }),
     SharedModule,
     TerminusModule,

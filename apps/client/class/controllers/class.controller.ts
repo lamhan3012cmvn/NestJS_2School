@@ -100,7 +100,6 @@ export class ClassController extends BaseController {
     @Body() updateClassDto: UpdateImageDto,
   ) {
     try {
-      console.log('run hre');
       const result = await this.classService.findOneAndUpdate(
         { createdBy: user._id, _id: query.id },
         updateClassDto,
@@ -201,7 +200,6 @@ export class ClassController extends BaseController {
   // @UseGuards(JwtAuthGuard)
   async changeStatusClassAdmin(@Query() query) {
     try {
-      console.log("query",query)
       const result = await this.classService.update(query.id, {
         status: DFStatus[DFStatus[query?.status || 0]],
       });
@@ -250,7 +248,6 @@ export class ClassController extends BaseController {
         const transactionReceiver=this.transactionService.createTransaction(objReceiver)
 
         const createTransaction=await Promise.all([transactionSenderPromise,transactionReceiver])
-        console.log("createTransaction",createTransaction)
         return new Ok('Join Class success', this.classService.cvtJSON(result));
       }
       throw new ResourceFoundException();

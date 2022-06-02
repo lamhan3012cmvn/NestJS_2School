@@ -82,7 +82,6 @@ export class QuestionController {
           file.path,
         );
         blurHash = await encodeImageToBlurhash(file.path);
-        console.log('singleFile', singleFile);
       }
       // throw new ResourceFoundException();
 
@@ -121,6 +120,7 @@ export class QuestionController {
       const result = await this.questionService.findOneAndUpdate(
         { createBy: user._id, _id: query.id },
         payload,
+        "banner"
       );
       if (result) {
         return new Ok(

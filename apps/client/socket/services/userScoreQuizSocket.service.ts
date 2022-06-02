@@ -48,10 +48,7 @@ export class UserScoreQuizSocketService extends BaseService<UserScoreQuizSocket>
           },
         },
       ]);
-      console.log(
-        `LHA:  ===> file: userScoreQuizSocket.service.ts ===> line 51 ===> score`,
-        score,
-      );
+
       return this.cvtJSON(score) as any[];
     } catch (e) {
       this._loggerService.error(e.message, null, 'FIND-UserHostSocketService');
@@ -64,10 +61,7 @@ export class UserScoreQuizSocketService extends BaseService<UserScoreQuizSocket>
         userId: id,
         idRoom: idRoom,
       });
-      console.log(
-        `LHA:  ===> file: userScoreQuizSocket.service.ts ===> line 65 ===> reuslt`,
-        reuslt,
-      );
+
       return {
         success: true,
       };

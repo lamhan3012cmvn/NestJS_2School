@@ -22,7 +22,6 @@ export class WsJwtGuard implements CanActivate {
       const user: User = await this.authService.validateUser({
         id: encodeJWT.data.id,
       });
-      console.log("user",user)
       context.switchToHttp().getRequest().user = user;
 
       return Boolean(user);

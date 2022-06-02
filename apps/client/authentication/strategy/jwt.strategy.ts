@@ -26,7 +26,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     payload: any,
     done: (error: Error, user: any | false) => any,
   ) {
-    console.log("payload.data",payload.data)
     const role=payload.data.role
     if(role===0)
     {

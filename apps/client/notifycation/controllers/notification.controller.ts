@@ -24,7 +24,6 @@ export class NotificationController {
   @UseGuards(JwtAuthGuard)
   async getNotification(@Usr() user: User&{_id:string}) {
     try {
-      console.log("result", user._id)
       const result = await this._notificationService.getNotification(
         user._id,
       );
