@@ -435,6 +435,37 @@ export class AppGateway
     await this._deviceService.createDevice(obj);
   }
 
+
+  private chunkArray = (inputArray, perChunk=2) => {
+    if(inputArray&&Array.isArray(inputArray))
+    return inputArray.reduce((resultArray, item, index) => {
+      const chunkIndex = Math.floor(index / perChunk)
+  
+      if (!resultArray[chunkIndex]) {
+        resultArray[chunkIndex] = [] // start a new chunk
+      }
+  
+      resultArray[chunkIndex].push(item)
+  
+      return resultArray
+    }, [])
+    return []
+  }
+
+  private mathTwoArray = (inputArray, inputArray2) => {
+    let result = [];
+    for (let i = 0; i < inputArray.length; i++) {
+      for (let j = 0; j < inputArray2.length; j++) {
+        const value1 = inputArray[i].sort((a, b) => a - b).join('-');
+        const value2 = inputArray2[j].sort((a, b) => a - b).join('-');
+        if (value1 === value2) {
+          result.push(inputArray[i]);
+        }
+      }
+    }
+    return result.length === inputArray.length && result.length === inputArray2.length
+  }
+
   //Dap An cau hoi
   @UseGuards(WsJwtGuard)
   @SubscribeMessage(SOCKET_EVENT.ANSWER_THE_QUESTION_CSS)
@@ -471,17 +502,27 @@ export class AppGateway
         question.correct,
       );
       let score = 0;
-      if (payload.answer && question.answers.includes(payload.answer)) {
-        const iz = question.answers.findIndex((e) => e === payload.answer);
-        if (iz !== -1) {
-          const correct = question.correct.findIndex((e) => ~~e === iz);
-          if (correct !== -1) {
-            if (question.typeQuestion === TYPE_QUESTION.MULTI_CHOOSE) {
-              score = Math.floor(question.score / question.correct.length);
-            } else score = question.score;
+      if(question.typeQuestion ===7)// keo tha
+      {
+        if(this.mathTwoArray(this.chunkArray(payload.answer.split(',')),this.chunkArray(question.correct)))
+        {
+          score = question.score;
+        }
+      }else{
+        if (payload.answer && question.answers.includes(payload.answer)) {
+          const iz = question.answers.findIndex((e) => e === payload.answer);
+          if (iz !== -1) {
+            const correct = question.correct.findIndex((e) => ~~e === iz);
+            if (correct !== -1) {
+              if (question.typeQuestion === TYPE_QUESTION.MULTI_CHOOSE) {
+                score = Math.floor(question.score / question.correct.length);
+              } else score = question.score;
+            }
           }
         }
       }
+
+      
       const newUserScore =
         await this._userScoreQuizSocketService.createUserHostSocket({
           ...payload,
@@ -497,6 +538,7 @@ export class AppGateway
   //get cau hoi
   // @SubscribeMessage(SOCKET_EVENT.TAKE_THE_QUESTION_CSS)
   private async handleTakeTheQuestion(host: UserHostSocket): Promise<void> {
+    console.log("get Question")
     const currentQuestion = await this._questionService.findById(
       host.questions[host.currentQuestion],
       'banner audio',
@@ -512,6 +554,8 @@ export class AppGateway
         typeQuestion: currentQuestion.typeQuestion,
         indexQuestion: `${host.currentQuestion + 1}/${host.questions.length}`,
       };
+      console.log("get Question",payload)
+
       const nextGame = await this._userHostSocketService.findOneAndUpdate(
         { _id: host._id },
         { currentQuestion: host.currentQuestion + 1 },

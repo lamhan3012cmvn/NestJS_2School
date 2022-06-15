@@ -81,6 +81,7 @@ export class ClassService extends BaseService<Classes> {
       const classMember = await this._memberClassService.getClassByUserJoined(
         user._id,
       );
+
       const newClasses = await this.findAll(
         { $or: [{ createdBy: user.createdBy }, { _id: { $in: classMember } }] },
         query,
@@ -90,19 +91,25 @@ export class ClassService extends BaseService<Classes> {
       const result = [];
       for (const c of classes) {
         const obj: any = { ...c };
-
-        if (!(c.image === '')) {
-          const image = await this._uploadFileService.findById(c.image);
-          if (image) obj.image = image.path;
+        if(obj.createdBy)
+        {
+          console.log("obj",obj)
+          if (!(c?.image === '')) {
+            const image = await this._uploadFileService.findById(c.image);
+            if (image) obj.image = image.path;
+          }
+  
+          obj.member = await this._memberClassService.getMemberByClass(obj._id);
+          result.push(obj);
         }
 
-        obj.member = await this._memberClassService.getMemberByClass(obj._id);
-        result.push(obj);
+        
       }
       return result;
 
 
     } catch (e) {
+      console.log(e)
       this._loggerService.error(
         e.message,
         null,
@@ -215,12 +222,17 @@ export class ClassService extends BaseService<Classes> {
       const result = [];
       for (const c of classes) {
         const obj = { ...c };
-        if (!(c.image === '')) {
-          const image = await this._uploadFileService.findById(c.image);
-          if (image) obj.image = image.path;
-        }
 
-        result.push(obj);
+        if(obj.createdBy)
+        {
+          if (!(c.image === '')) {
+            const image = await this._uploadFileService.findById(c.image);
+            if (image) obj.image = image.path;
+          }
+  
+          result.push(obj);
+        }
+        
       }
       return this.cvtJSON(result);
     } catch (e) {

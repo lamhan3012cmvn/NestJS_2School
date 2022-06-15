@@ -146,7 +146,7 @@ export class QuestionController {
       const result = await this.questionService.findOneAndUpdate(
         { createBy: user._id, _id: query.id },
         payload,
-        'banner',
+        'banner audio',
       );
       if (result) {
         return new Ok(
@@ -176,7 +176,7 @@ export class QuestionController {
           idSetOfQuestions: query.idSetOfQuestions,
         },
         { limit: query?.limit || 16, skip: query?.skip || 0 },
-        'banner',
+        'banner audio',
       );
       const sortData = result.sort(
         (a, b) =>

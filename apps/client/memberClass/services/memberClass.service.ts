@@ -103,15 +103,18 @@ export class MemberClassService extends BaseService<MemberClasses> {
       for(const member of memberClass)
       {
         const obj:any={...member}
-        if(obj.user?.image!=='')
-        {
-          const image = await this._uploadService.findById(obj.user.image);
-          if (image) obj.user.image = image.path;
+        if(member.user){
+          if(obj.user?.image!=='')
+          {
+            const image = await this._uploadService.findById(obj.user.image);
+            if (image) obj.user.image = image.path;
+          }
+          result.push(obj)
         }
-        result.push(obj)
+       
       }
 
-      return this.cvtJSON(memberClass);
+      return this.cvtJSON(result);
       // }
     } catch (e) {
       this._loggerService.error(

@@ -110,17 +110,21 @@ export class PostController {
       const addImagePath = [];
       for (const current of JSON.parse(JSON.stringify(result as Array<any>))) {
         const clonePost = { ...current };
-        if (current?.class?.image && current?.class?.image !== '') {
-          const image = await this._uploadService.findById(current.class.image);
-          clonePost.class.image = image.path || '';
+        if(clonePost.createdBy!==null)
+        {
+          if (current?.class?.image && current?.class?.image !== '') {
+            const image = await this._uploadService.findById(current.class.image);
+            clonePost.class.image = image.path || '';
+          }
+          const memmberInClass = await this._memberClass.findAllNoSkip({
+            role: 0,
+            idClass: clonePost.class._id,
+          });
+          clonePost.class.memmberInClass =
+            this._memberClass.cvtJSON(memmberInClass);
+          addImagePath.push(clonePost);
         }
-        const memmberInClass = await this._memberClass.findAllNoSkip({
-          role: 0,
-          idClass: clonePost.class._id,
-        });
-        clonePost.class.memmberInClass =
-          this._memberClass.cvtJSON(memmberInClass);
-        addImagePath.push(clonePost);
+       
       }
 
       if (addImagePath) {
@@ -163,17 +167,22 @@ export class PostController {
       const addImagePath = [];
       for (const current of JSON.parse(JSON.stringify(result as Array<any>))) {
         const clonePost = { ...current };
-        if (current?.class?.image && current?.class?.image !== '') {
-          const image = await this._uploadService.findById(current.class.image);
-          clonePost.class.image = image.path || '';
+        if(clonePost.createdBy!==null)
+        {
+          if (current?.class?.image && current?.class?.image !== '') {
+            const image = await this._uploadService.findById(current.class.image);
+            clonePost.class.image = image.path || '';
+          }
+          const memmberInClass = await this._memberClass.findAllNoSkip({
+            role: 0,
+            idClass: clonePost.class._id,
+          });
+          clonePost.class.memmberInClass =
+            this._memberClass.cvtJSON(memmberInClass);
+          addImagePath.push(clonePost);
         }
-        const memmberInClass = await this._memberClass.findAllNoSkip({
-          role: 0,
-          idClass: clonePost.class._id,
-        });
-        clonePost.class.memmberInClass =
-          this._memberClass.cvtJSON(memmberInClass);
-        addImagePath.push(clonePost);
+        
+        
       }
 
       if (addImagePath) {

@@ -805,7 +805,7 @@ let QuestionController = class QuestionController {
     }
     async updateQuestion(user, query, payload) {
         try {
-            const result = await this.questionService.findOneAndUpdate({ createBy: user._id, _id: query.id }, payload, 'banner');
+            const result = await this.questionService.findOneAndUpdate({ createBy: user._id, _id: query.id }, payload, 'banner audio');
             if (result) {
                 return new baseController_1.Ok('Create Class success', this.questionService.cvtJSON(result));
             }
@@ -821,7 +821,7 @@ let QuestionController = class QuestionController {
             const result = await this.questionService.findAll({
                 createBy: user._id,
                 idSetOfQuestions: query.idSetOfQuestions,
-            }, { limit: (query === null || query === void 0 ? void 0 : query.limit) || 16, skip: (query === null || query === void 0 ? void 0 : query.skip) || 0 }, 'banner');
+            }, { limit: (query === null || query === void 0 ? void 0 : query.limit) || 16, skip: (query === null || query === void 0 ? void 0 : query.skip) || 0 }, 'banner audio');
             const sortData = result.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
             if (sortData) {
                 return new baseController_1.Ok('Create Question success', this.questionService.cvtJSON(sortData));
@@ -2540,17 +2540,21 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
             const result = [];
             for (const c of classes) {
                 const obj = Object.assign({}, c);
-                if (!(c.image === '')) {
-                    const image = await this._uploadFileService.findById(c.image);
-                    if (image)
-                        obj.image = image.path;
+                if (obj.createdBy) {
+                    console.log("obj", obj);
+                    if (!((c === null || c === void 0 ? void 0 : c.image) === '')) {
+                        const image = await this._uploadFileService.findById(c.image);
+                        if (image)
+                            obj.image = image.path;
+                    }
+                    obj.member = await this._memberClassService.getMemberByClass(obj._id);
+                    result.push(obj);
                 }
-                obj.member = await this._memberClassService.getMemberByClass(obj._id);
-                result.push(obj);
             }
             return result;
         }
         catch (e) {
+            console.log(e);
             this._loggerService.error(e.message, null, 'FIND_ALL_CLASSES-ClassesService');
             return null;
         }
@@ -2630,12 +2634,14 @@ let ClassService = class ClassService extends baseService_service_1.BaseService 
             const result = [];
             for (const c of classes) {
                 const obj = Object.assign({}, c);
-                if (!(c.image === '')) {
-                    const image = await this._uploadFileService.findById(c.image);
-                    if (image)
-                        obj.image = image.path;
+                if (obj.createdBy) {
+                    if (!(c.image === '')) {
+                        const image = await this._uploadFileService.findById(c.image);
+                        if (image)
+                            obj.image = image.path;
+                    }
+                    result.push(obj);
                 }
-                result.push(obj);
             }
             return this.cvtJSON(result);
         }
@@ -3075,14 +3081,16 @@ let MemberClassService = class MemberClassService extends baseService_service_1.
             const result = [];
             for (const member of memberClass) {
                 const obj = Object.assign({}, member);
-                if (((_a = obj.user) === null || _a === void 0 ? void 0 : _a.image) !== '') {
-                    const image = await this._uploadService.findById(obj.user.image);
-                    if (image)
-                        obj.user.image = image.path;
+                if (member.user) {
+                    if (((_a = obj.user) === null || _a === void 0 ? void 0 : _a.image) !== '') {
+                        const image = await this._uploadService.findById(obj.user.image);
+                        if (image)
+                            obj.user.image = image.path;
+                    }
+                    result.push(obj);
                 }
-                result.push(obj);
             }
-            return this.cvtJSON(memberClass);
+            return this.cvtJSON(result);
         }
         catch (e) {
             this._loggerService.error(e.message, null, 'leaveClass-MemberClassService');
@@ -4118,13 +4126,13 @@ const local_strategy_1 = __webpack_require__(85);
 const configService_module_1 = __webpack_require__(88);
 const config_service_1 = __webpack_require__(14);
 const setupJwt_1 = __webpack_require__(89);
-const jwt_1 = __webpack_require__(82);
+const jwt_1 = __webpack_require__(81);
 const jwt_strategy_1 = __webpack_require__(90);
-const auth_entity_1 = __webpack_require__(83);
+const auth_entity_1 = __webpack_require__(84);
 const auth_controller_1 = __webpack_require__(91);
 const logger_service_1 = __webpack_require__(12);
 const user_entity_1 = __webpack_require__(51);
-const admin_entity_1 = __webpack_require__(84);
+const admin_entity_1 = __webpack_require__(82);
 const upLoadFile_entity_1 = __webpack_require__(38);
 let AuthModule = class AuthModule {
 };
@@ -4175,17 +4183,17 @@ var _a, _b, _c, _d, _e, _f, _g;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthService = void 0;
 const common_1 = __webpack_require__(3);
-const jwt_1 = __webpack_require__(82);
+const jwt_1 = __webpack_require__(81);
 const mongoose_1 = __webpack_require__(4);
-const admin_entity_1 = __webpack_require__(84);
+const admin_entity_1 = __webpack_require__(82);
 const up_load_file_service_1 = __webpack_require__(36);
 const user_entity_1 = __webpack_require__(51);
-const bcrypt = __webpack_require__(81);
+const bcrypt = __webpack_require__(83);
 const mongoose_2 = __webpack_require__(11);
 const config_service_1 = __webpack_require__(14);
 const logger_service_1 = __webpack_require__(12);
 const respone_service_1 = __webpack_require__(63);
-const auth_entity_1 = __webpack_require__(83);
+const auth_entity_1 = __webpack_require__(84);
 let AuthService = class AuthService extends respone_service_1.ResponseService {
     constructor(accountModel, userModel, adminModel, configService, loggerService, jwtService, upLoadFileService) {
         super();
@@ -4394,58 +4402,10 @@ exports.AuthService = AuthService;
 /* 81 */
 /***/ ((module) => {
 
-module.exports = require("bcrypt");
-
-/***/ }),
-/* 82 */
-/***/ ((module) => {
-
 module.exports = require("@nestjs/jwt");
 
 /***/ }),
-/* 83 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AuthSchema = exports.Auth = void 0;
-const mongoose_1 = __webpack_require__(4);
-let Auth = class Auth {
-};
-__decorate([
-    mongoose_1.Prop({ required: true, unique: true }),
-    __metadata("design:type", String)
-], Auth.prototype, "username", void 0);
-__decorate([
-    mongoose_1.Prop({ required: true }),
-    __metadata("design:type", String)
-], Auth.prototype, "password", void 0);
-__decorate([
-    mongoose_1.Prop({ default: false }),
-    __metadata("design:type", Boolean)
-], Auth.prototype, "verify", void 0);
-__decorate([
-    mongoose_1.Prop({ default: 0 }),
-    __metadata("design:type", Number)
-], Auth.prototype, "role", void 0);
-Auth = __decorate([
-    mongoose_1.Schema({ timestamps: true })
-], Auth);
-exports.Auth = Auth;
-exports.AuthSchema = mongoose_1.SchemaFactory.createForClass(Auth);
-
-
-/***/ }),
-/* 84 */
+/* 82 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -4504,6 +4464,54 @@ Admin = __decorate([
 ], Admin);
 exports.Admin = Admin;
 exports.AdminSchema = mongoose_1.SchemaFactory.createForClass(Admin);
+
+
+/***/ }),
+/* 83 */
+/***/ ((module) => {
+
+module.exports = require("bcrypt");
+
+/***/ }),
+/* 84 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AuthSchema = exports.Auth = void 0;
+const mongoose_1 = __webpack_require__(4);
+let Auth = class Auth {
+};
+__decorate([
+    mongoose_1.Prop({ required: true, unique: true }),
+    __metadata("design:type", String)
+], Auth.prototype, "username", void 0);
+__decorate([
+    mongoose_1.Prop({ required: true }),
+    __metadata("design:type", String)
+], Auth.prototype, "password", void 0);
+__decorate([
+    mongoose_1.Prop({ default: false }),
+    __metadata("design:type", Boolean)
+], Auth.prototype, "verify", void 0);
+__decorate([
+    mongoose_1.Prop({ default: 0 }),
+    __metadata("design:type", Number)
+], Auth.prototype, "role", void 0);
+Auth = __decorate([
+    mongoose_1.Schema({ timestamps: true })
+], Auth);
+exports.Auth = Auth;
+exports.AuthSchema = mongoose_1.SchemaFactory.createForClass(Auth);
 
 
 /***/ }),
@@ -5687,9 +5695,9 @@ const upLoadFile_entity_1 = __webpack_require__(38);
 const logger_service_1 = __webpack_require__(12);
 const up_load_file_service_1 = __webpack_require__(36);
 const socket_wsJwtGuard_1 = __webpack_require__(114);
-const auth_entity_1 = __webpack_require__(83);
+const auth_entity_1 = __webpack_require__(84);
 const configService_module_1 = __webpack_require__(88);
-const jwt_1 = __webpack_require__(82);
+const jwt_1 = __webpack_require__(81);
 const setupJwt_1 = __webpack_require__(89);
 const device_service_1 = __webpack_require__(56);
 const device_entity_1 = __webpack_require__(55);
@@ -5705,7 +5713,7 @@ const class_service_1 = __webpack_require__(60);
 const class_entity_1 = __webpack_require__(61);
 const message_socket_1 = __webpack_require__(122);
 const message_service_1 = __webpack_require__(124);
-const admin_entity_1 = __webpack_require__(84);
+const admin_entity_1 = __webpack_require__(82);
 let SocketModule = class SocketModule {
 };
 SocketModule = __decorate([
@@ -5823,6 +5831,31 @@ let AppGateway = class AppGateway {
         this._notificationService = _notificationService;
         this.logger = new common_1.Logger('AppGateway');
         this.count = 0;
+        this.chunkArray = (inputArray, perChunk = 2) => {
+            if (inputArray && Array.isArray(inputArray))
+                return inputArray.reduce((resultArray, item, index) => {
+                    const chunkIndex = Math.floor(index / perChunk);
+                    if (!resultArray[chunkIndex]) {
+                        resultArray[chunkIndex] = [];
+                    }
+                    resultArray[chunkIndex].push(item);
+                    return resultArray;
+                }, []);
+            return [];
+        };
+        this.mathTwoArray = (inputArray, inputArray2) => {
+            let result = [];
+            for (let i = 0; i < inputArray.length; i++) {
+                for (let j = 0; j < inputArray2.length; j++) {
+                    const value1 = inputArray[i].sort((a, b) => a - b).join('-');
+                    const value2 = inputArray2[j].sort((a, b) => a - b).join('-');
+                    if (value1 === value2) {
+                        result.push(inputArray[i]);
+                    }
+                }
+            }
+            return result.length === inputArray.length && result.length === inputArray2.length;
+        };
     }
     async handleCreateRoom(client, payload) {
         let questions = [];
@@ -6104,16 +6137,23 @@ let AppGateway = class AppGateway {
             }
             console.log('payload.answer', payload.answer, question.answers, question.correct);
             let score = 0;
-            if (payload.answer && question.answers.includes(payload.answer)) {
-                const iz = question.answers.findIndex((e) => e === payload.answer);
-                if (iz !== -1) {
-                    const correct = question.correct.findIndex((e) => ~~e === iz);
-                    if (correct !== -1) {
-                        if (question.typeQuestion === enum_1.TYPE_QUESTION.MULTI_CHOOSE) {
-                            score = Math.floor(question.score / question.correct.length);
+            if (question.typeQuestion === 7) {
+                if (this.mathTwoArray(this.chunkArray(payload.answer.split(',')), this.chunkArray(question.correct))) {
+                    score = question.score;
+                }
+            }
+            else {
+                if (payload.answer && question.answers.includes(payload.answer)) {
+                    const iz = question.answers.findIndex((e) => e === payload.answer);
+                    if (iz !== -1) {
+                        const correct = question.correct.findIndex((e) => ~~e === iz);
+                        if (correct !== -1) {
+                            if (question.typeQuestion === enum_1.TYPE_QUESTION.MULTI_CHOOSE) {
+                                score = Math.floor(question.score / question.correct.length);
+                            }
+                            else
+                                score = question.score;
                         }
-                        else
-                            score = question.score;
                     }
                 }
             }
@@ -6121,6 +6161,7 @@ let AppGateway = class AppGateway {
         }
     }
     async handleTakeTheQuestion(host) {
+        console.log("get Question");
         const currentQuestion = await this._questionService.findById(host.questions[host.currentQuestion], 'banner audio');
         if (currentQuestion) {
             const payload = {
@@ -6133,6 +6174,7 @@ let AppGateway = class AppGateway {
                 typeQuestion: currentQuestion.typeQuestion,
                 indexQuestion: `${host.currentQuestion + 1}/${host.questions.length}`,
             };
+            console.log("get Question", payload);
             const nextGame = await this._userHostSocketService.findOneAndUpdate({ _id: host._id }, { currentQuestion: host.currentQuestion + 1 });
             if (nextGame) {
                 this.server.in(host.idRoom).emit(socket_events_1.SOCKET_EVENT.TAKE_THE_QUESTION_SSC, {
@@ -6634,7 +6676,7 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WsJwtGuard = void 0;
 const common_1 = __webpack_require__(3);
-const jwt_1 = __webpack_require__(82);
+const jwt_1 = __webpack_require__(81);
 const websockets_1 = __webpack_require__(107);
 const auth_service_1 = __webpack_require__(80);
 let WsJwtGuard = class WsJwtGuard {
@@ -7646,17 +7688,19 @@ let PostController = class PostController {
             const addImagePath = [];
             for (const current of JSON.parse(JSON.stringify(result))) {
                 const clonePost = Object.assign({}, current);
-                if (((_a = current === null || current === void 0 ? void 0 : current.class) === null || _a === void 0 ? void 0 : _a.image) && ((_b = current === null || current === void 0 ? void 0 : current.class) === null || _b === void 0 ? void 0 : _b.image) !== '') {
-                    const image = await this._uploadService.findById(current.class.image);
-                    clonePost.class.image = image.path || '';
+                if (clonePost.createdBy !== null) {
+                    if (((_a = current === null || current === void 0 ? void 0 : current.class) === null || _a === void 0 ? void 0 : _a.image) && ((_b = current === null || current === void 0 ? void 0 : current.class) === null || _b === void 0 ? void 0 : _b.image) !== '') {
+                        const image = await this._uploadService.findById(current.class.image);
+                        clonePost.class.image = image.path || '';
+                    }
+                    const memmberInClass = await this._memberClass.findAllNoSkip({
+                        role: 0,
+                        idClass: clonePost.class._id,
+                    });
+                    clonePost.class.memmberInClass =
+                        this._memberClass.cvtJSON(memmberInClass);
+                    addImagePath.push(clonePost);
                 }
-                const memmberInClass = await this._memberClass.findAllNoSkip({
-                    role: 0,
-                    idClass: clonePost.class._id,
-                });
-                clonePost.class.memmberInClass =
-                    this._memberClass.cvtJSON(memmberInClass);
-                addImagePath.push(clonePost);
             }
             if (addImagePath) {
                 return new baseController_1.Ok('Get Message success', addImagePath);
@@ -7689,17 +7733,19 @@ let PostController = class PostController {
             const addImagePath = [];
             for (const current of JSON.parse(JSON.stringify(result))) {
                 const clonePost = Object.assign({}, current);
-                if (((_a = current === null || current === void 0 ? void 0 : current.class) === null || _a === void 0 ? void 0 : _a.image) && ((_b = current === null || current === void 0 ? void 0 : current.class) === null || _b === void 0 ? void 0 : _b.image) !== '') {
-                    const image = await this._uploadService.findById(current.class.image);
-                    clonePost.class.image = image.path || '';
+                if (clonePost.createdBy !== null) {
+                    if (((_a = current === null || current === void 0 ? void 0 : current.class) === null || _a === void 0 ? void 0 : _a.image) && ((_b = current === null || current === void 0 ? void 0 : current.class) === null || _b === void 0 ? void 0 : _b.image) !== '') {
+                        const image = await this._uploadService.findById(current.class.image);
+                        clonePost.class.image = image.path || '';
+                    }
+                    const memmberInClass = await this._memberClass.findAllNoSkip({
+                        role: 0,
+                        idClass: clonePost.class._id,
+                    });
+                    clonePost.class.memmberInClass =
+                        this._memberClass.cvtJSON(memmberInClass);
+                    addImagePath.push(clonePost);
                 }
-                const memmberInClass = await this._memberClass.findAllNoSkip({
-                    role: 0,
-                    idClass: clonePost.class._id,
-                });
-                clonePost.class.memmberInClass =
-                    this._memberClass.cvtJSON(memmberInClass);
-                addImagePath.push(clonePost);
             }
             if (addImagePath) {
                 return new baseController_1.Ok('Get Message success', addImagePath);
@@ -10244,7 +10290,7 @@ const logger_service_1 = __webpack_require__(12);
 const upLoadFile_entity_1 = __webpack_require__(38);
 const up_load_file_service_1 = __webpack_require__(36);
 const admin_controller_1 = __webpack_require__(164);
-const admin_entity_1 = __webpack_require__(84);
+const admin_entity_1 = __webpack_require__(82);
 const admin_service_1 = __webpack_require__(169);
 let AdminModule = class AdminModule {
 };
@@ -10448,7 +10494,7 @@ const common_1 = __webpack_require__(3);
 const mongoose_1 = __webpack_require__(4);
 const respone_service_1 = __webpack_require__(63);
 const mongoose_2 = __webpack_require__(11);
-const admin_entity_1 = __webpack_require__(84);
+const admin_entity_1 = __webpack_require__(82);
 const up_load_file_service_1 = __webpack_require__(36);
 let AdminService = class AdminService extends respone_service_1.ResponseService {
     constructor(userModel, loggerService, uploadService) {
